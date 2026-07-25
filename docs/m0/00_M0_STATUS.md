@@ -7,22 +7,22 @@
 **Human hours reported:** 0.0 \
 **Human hours remaining:** 40.0 \
 **Last updated:** 2026-07-25 \
-**Coordinator:** AI-assisted coordination; owner confirmation pending \
-**Current critical-path task:** M0-00 - Owner accepts or amends the M0 scope and operating rules \
+**Coordinator:** AI-assisted coordination approved \
+**Current critical-path task:** M0-10 - Define the owner charter and "better life" outcomes \
 **Primary references:** [M0 Agent Execution Checklist](../M0_AGENT_CHECKLIST.md) and [Living Master Plan](../OSUN_MASTER_PLAN.md)
 
 ---
 
 ## 1. Executive status
 
-M0 has started. The execution register exists, but owner discovery and design work must not begin until the owner completes M0-00.
+M0 has started and the owner has accepted the operating rules. Two tasks are open within the WIP limit: M0-10 owner charter and M0-11 current-system inventory.
 
 ### Current state
 
-- **Completed:** M0-01 - live M0 status and evidence register.
-- **Waiting for owner:** M0-00 - accept or amend the operating rules.
-- **Ready immediately after acceptance:** M0-02, M0-10, and M0-11.
-- **Current blocker:** B-001 - owner acceptance has not yet been recorded.
+- **Completed:** M0-01 status register and M0-00 owner acceptance.
+- **In progress:** M0-10 owner charter and M0-11 current-system inventory.
+- **Queued by WIP limit:** M0-02 glossary and naming.
+- **Current input dependency:** Owner responses for the charter, Raspberry Pi, Home Assistant, and current services.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
@@ -35,9 +35,9 @@ M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
 
 ### Next three assignments
 
-1. **Owner:** Review M0 operating rules and complete M0-00.
-2. **Owner-interview analyst:** After M0-00, prepare and conduct M0-10.
-3. **Technology scout:** After M0-00, collect a credentials-free current-system inventory for M0-11.
+1. **Owner:** Answer Owner Interview Round 1 in `01_OWNER_CHARTER.md`.
+2. **Owner:** Provide the missing Pi, Home Assistant, and service names requested in `04_CURRENT_SYSTEM_INVENTORY.md`.
+3. **AI coordinator:** Incorporate responses, complete M0-10/M0-11 acceptance checks, and begin M0-12.
 
 ---
 
@@ -48,10 +48,10 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | Task | Description | Accountable | Assigned | Depends on | Status | Evidence/artifact | Review date |
 |---|---|---|---|---|---|---|---|
 | M0-01 | Create live status and evidence register | Coordinator | AI coordinator | None | Agent complete | This file | 2026-07-25 |
-| M0-00 | Accept M0 scope and operating rules | Owner | Owner | M0-01 | Blocked | Section 7.1 | Pending |
+| M0-00 | Accept M0 scope and operating rules | Owner | Owner | M0-01 | Owner accepted | Section 7.1 | 2026-07-25 |
 | M0-02 | Establish glossary and naming | Systems architect | Unassigned | M0-00 | Not started | `06_SYSTEM_ARCHITECTURE.md` | Pending |
-| M0-10 | Define owner charter and life outcomes | Owner | Owner + interview analyst | M0-00 | Not started | `01_OWNER_CHARTER.md` | Pending |
-| M0-11 | Inventory systems, devices, services, and sources | Technology scout | Unassigned | M0-00 | Not started | `04_CURRENT_SYSTEM_INVENTORY.md` | Pending |
+| M0-10 | Define owner charter and life outcomes | Owner | Owner + primary AI interview analyst | M0-00 | In progress | `01_OWNER_CHARTER.md` | Pending |
+| M0-11 | Inventory systems, devices, services, and sources | Technology scout | Primary AI technology scout | M0-00 | In progress | `04_CURRENT_SYSTEM_INVENTORY.md` | Pending |
 | M0-12 | Create and score ten candidate workflows | Workflow analyst | Unassigned | M0-10 | Not started | `02_WORKFLOW_CATALOG.md` | Pending |
 | M0-13 | Select first three workflows | Owner | Owner | M0-12 | Not started | `02_WORKFLOW_CATALOG.md` | Pending |
 | M0-14 | Define data and cloud-egress boundaries | Owner | Owner + privacy analyst | M0-10, M0-11, M0-13 | Not started | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Pending |
@@ -92,10 +92,10 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | Artifact | Responsible role | Status | Required by | Evidence notes |
 |---|---|---|---|---|
 | `00_M0_STATUS.md` | Coordinator | Agent complete | M0-01, M0-45 | Created 2026-07-25 |
-| `01_OWNER_CHARTER.md` | Owner + interview analyst | Not started | M0-10 | Owner approval required |
+| `01_OWNER_CHARTER.md` | Owner + interview analyst | Owner review | M0-10 | Round 1 responses required |
 | `02_WORKFLOW_CATALOG.md` | Workflow analyst | Not started | M0-12, M0-13, M0-25 | Owner selects final three |
 | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Not started | M0-14, M0-15 | Owner approval required |
-| `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Not started | M0-11 | No credentials or content data |
+| `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Owner review | M0-11 | Windows inspected; Pi/HA/services pending |
 | `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Not started | M0-16 | Seven-day baseline intended |
 | `06_SYSTEM_ARCHITECTURE.md` | Systems architect | Not started | M0-02, M0-20, M0-21 | Plain-language explanation required |
 | `07_THREAT_MODEL.md` | Security analyst | Not started | M0-22 | High/critical risks must map to controls |
@@ -168,14 +168,14 @@ The coordinator updates this table from owner-reported focused time; it must not
 
 | ID | Blocking condition | Affected tasks | Owner | State | Resolution |
 |---|---|---|---|---|---|
-| B-001 | M0 operating rules not yet owner-accepted | M0-00 and all downstream work | Owner | Open | Owner accepts or amends Section 7.1 |
+| B-001 | M0 operating rules not yet owner-accepted | M0-00 and all downstream work | Owner | Resolved 2026-07-25 | Accepted as written; AI coordination approved |
 
 ### 6.2 Owner decisions
 
 | ID | Decision | Needed by | Options/status | Evidence required |
 |---|---|---|---|---|
-| OD-001 | Accept or amend M0 operating rules | Now | Pending | Section 7.1 response |
-| OD-002 | Confirm AI-assisted coordinator | M0-00 | Pending | Owner statement |
+| OD-001 | Accept or amend M0 operating rules | Now | Accepted as written 2026-07-25 | Section 7.1 response |
+| OD-002 | Confirm AI-assisted coordinator | M0-00 | Approved 2026-07-25 | Owner statement |
 | OD-003 | Define “better life” and prioritized outcomes | M0-10 | Pending | Owner interview |
 | OD-004 | Select first three workflows | M0-13 | Pending | Workflow catalog and scoring |
 | OD-005 | Set prohibited, confirmation-only, and allowed data | M0-14 | Pending | Data inventory and privacy analysis |
@@ -190,8 +190,8 @@ The coordinator updates this table from owner-reported focused time; it must not
 
 | ID | Assumption | Confidence | Validation owner | Revisit/validation point |
 |---|---|---|---|---|
-| AS-001 | One adult owner is the only M0 subject | High from master plan | Owner | M0-00 |
-| AS-002 | Owner can provide approximately 10 focused hours/week | Medium until confirmed | Owner | M0-00 and weekly |
+| AS-001 | One adult owner is the only M0 subject | Confirmed for M0 | Owner | Revisit if scope changes |
+| AS-002 | Owner can provide approximately 10 focused hours/week | Confirmed planning constraint | Owner | Review weekly |
 | AS-003 | Windows PC will be Agent Box | High from master plan | Technology scout | M0-11 and M0-41 |
 | AS-004 | Raspberry Pi will be Personal Core | High from master plan | Technology scout | M0-11 and M0-41 |
 | AS-005 | Home Assistant remains device authority | High from master plan | Owner/architect | M0-20 |
@@ -239,10 +239,10 @@ After the response, the coordinator will:
 
 ### 7.2 Owner acceptance status
 
-**Decision:** Pending \
-**Date:** Pending \
-**Amendments:** None recorded \
-**AI-assisted coordination:** Pending
+**Decision:** Accepted as written \
+**Date:** 2026-07-25 \
+**Amendments:** None \
+**AI-assisted coordination:** Approved
 
 ---
 
@@ -252,16 +252,18 @@ After the response, the coordinator will:
 |---|---|---|
 | 2026-07-25 | Master plan and M0 checklist committed as the first Osun planning commit | Git commit `c95cd08` |
 | 2026-07-25 | M0-01 started and status/evidence register created | This file |
+| 2026-07-25 | Owner accepted M0 scope/rules as written and approved AI-assisted coordination | Section 7.2 |
+| 2026-07-25 | M0-10 and M0-11 opened; Windows Agent Box inventory completed | `01_OWNER_CHARTER.md`, `04_CURRENT_SYSTEM_INVENTORY.md` |
 
 ---
 
 ## Artifact status
 
 - Author/agent: Primary AI coordinator
-- Reviewer: Owner pending
-- Status: Owner review
+- Reviewer: Owner
+- Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Listed in Sections 6.1 and 6.2
+- Open questions: Owner charter and inventory inputs; decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
 - Last updated: 2026-07-25
