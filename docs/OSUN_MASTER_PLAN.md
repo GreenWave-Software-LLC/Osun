@@ -1,7 +1,7 @@
 # Osun: Living Master Plan
 
 **Document status:** Living specification  
-**Version:** 0.1.0  
+**Version:** 0.1.1 \
 **Last updated:** 2026-07-25  
 **Planning horizon:** 2026-2036+  
 **Initial operator:** One person with AI development assistance  
@@ -1250,6 +1250,6 @@ These references should be reviewed for newer revisions during annual planning. 
 ## 18. Current status
 
 **Active milestone:** M0 — Charter, requirements, and evidence plan  
-**Current gate status:** Proposed; owner review required  
-**Next action:** Use the [M0 Agent Execution Checklist](M0_AGENT_CHECKLIST.md), accept its operating rules, answer the open owner questions, rank the first three workflows, and begin Week 1 baseline measurement.  
+**Current gate status:** In progress; M0-01 complete and M0-00 awaiting owner acceptance \
+**Next action:** Review the [M0 status register](m0/00_M0_STATUS.md), accept or amend the M0 operating rules, then begin the owner charter and current-system inventory. \
 **Build authorization:** Not yet granted; architecture and specification work only.

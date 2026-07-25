@@ -180,7 +180,7 @@ Status marks:
 
 ### Setup and control
 
-- [ ] **M0-01 - Create the live M0 status and evidence register**
+- [x] **M0-01 - Create the live M0 status and evidence register**
 - [ ] **M0-00 - Owner accepts the M0 scope and operating rules**
 - [ ] **M0-02 - Establish project glossary and naming consistency**
 
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** Not started  
+**Milestone state:** In progress; M0-01 complete and M0-00 awaiting owner acceptance \
 **Current critical path:** M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13 -> M0-14/M0-15 -> M0-20/M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47  
 **Next owner action:** Review Sections 1-4, amend the operating rules if needed, and accept M0-00.  
-**Next agent action:** Create `docs/m0/00_M0_STATUS.md`; after owner acceptance, prepare the owner-charter interview for M0-10.
+**Next agent action:** After owner acceptance, mark M0-00 complete and prepare the owner-charter interview for M0-10.
