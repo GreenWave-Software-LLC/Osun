@@ -1,7 +1,7 @@
 # Osun Data and Autonomy Boundaries
 
 **Tasks:** M0-14 data boundaries and M0-15 autonomy boundaries \
-**State:** Draft for owner decision \
+**State:** Accepted for M0-14 and M0-15 \
 **Accountable:** Owner \
 **Agent support:** Primary AI coordinator acting as privacy, security, and workflow analyst \
 **Selected workflows:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture \
@@ -21,7 +21,7 @@ The owner has already established:
 - the selected workflows remain bounded wellness and planning tools, not medical authorities;
 - workflow actions follow the boundaries approved in the workflow catalog.
 
-The remaining recommendations are not accepted until the owner approves or amends Section 11.
+The owner approved every recommendation in Section 11 without amendment on 2026-07-26.
 
 ---
 
@@ -298,7 +298,7 @@ An approval for one action does not authorize future similar actions unless a la
 5. Approve the personality envelope in Section 10.3.
 6. Confirm WF-01 as the provisional M1 vertical-slice candidate.
 
-The owner may approve all recommendations together or amend individual items.
+**Owner decision:** All M0-14 and M0-15 recommendations approved as written on 2026-07-26.
 
 ---
 
@@ -309,8 +309,8 @@ The owner may approve all recommendations together or amend individual items.
 - [x] Data about other people and excluded categories are addressed.
 - [x] Cloud-model policy is explicit by data type.
 - [x] Apple Health and Google Calendar use least-privilege pathways.
-- [ ] Owner approves prohibited, confirmation-only, retention, and cloud-egress policy.
-- [ ] Residual privacy risks are accepted or the workflow is narrowed.
+- [x] Owner approves prohibited, confirmation-only, retention, and cloud-egress policy.
+- [x] Residual privacy risks are accepted or the workflow is narrowed.
 
 ---
 
@@ -321,7 +321,7 @@ The owner may approve all recommendations together or amend individual items.
 - [x] Always-approve and prohibited actions are explicit.
 - [x] Global pause and per-workflow disable are required.
 - [x] Personality is separated from action authority.
-- [ ] Owner accepts the action, personality, and proactivity boundaries.
+- [x] Owner accepts the action, personality, and proactivity boundaries.
 
 ---
 
@@ -329,9 +329,9 @@ The owner may approve all recommendations together or amend individual items.
 
 - Author/agent: Primary AI coordinator acting as privacy, security, and workflow analyst
 - Reviewer: Owner
-- Status: Owner review
+- Status: Owner accepted; M0-14 and M0-15 complete
 - Inputs used: Accepted owner charter, selected workflow catalog, current-system inventory, Google Calendar and Apple Health official documentation
-- Assumptions: Retention periods, calendar minimization stage, Apple Health types, cloud egress, and proactivity defaults are recommendations until owner approval
-- Open questions: Section 11 and non-blocking Pi power/external-access facts
-- Acceptance evidence: Complete selected-source matrix, retention/classes, collection policy, cloud routing, action matrix, personality envelope, proactivity defaults, and owner decision list
+- Assumptions: Non-blocking Pi power/external-access facts remain unconfirmed; approved policies may be amended through a later dated owner decision
+- Open questions: Non-blocking Pi power/external-access facts and implementation evidence in later milestones
+- Acceptance evidence: Complete selected-source matrix, retention/classes, collection policy, cloud routing, action matrix, personality envelope, proactivity defaults, and dated owner approval
 - Last updated: 2026-07-26

@@ -1,7 +1,7 @@
 # Osun: Living Master Plan
 
 **Document status:** Living specification  
-**Version:** 0.1.6 \
+**Version:** 0.1.7 \
 **Last updated:** 2026-07-26
 **Planning horizon:** 2026-2036+  
 **Initial operator:** One person with AI development assistance  
@@ -1250,6 +1250,6 @@ These references should be reviewed for newer revisions during annual planning. 
 ## 18. Current status
 
 **Active milestone:** M0 — Charter, requirements, and evidence plan  
-**Current gate status:** In progress; M0-13 complete, M0-14 and M0-15 policy drafts in owner review \
-**Next action:** Approve or amend the data, cloud-egress, autonomy, and approval recommendations in [Data and Autonomy Boundaries](m0/03_DATA_AND_AUTONOMY_BOUNDARIES.md). \
+**Current gate status:** In progress; M0-14/M0-15 accepted, M0-16 measurement method ready, M0-20 component map in owner review \
+**Next action:** Confirm the baseline window in [Baseline Measurement](m0/05_BASELINE_MEASUREMENT.md) and review the plain-language map in [System Architecture](m0/06_SYSTEM_ARCHITECTURE.md). \
 **Build authorization:** Not yet granted; architecture and specification work only.

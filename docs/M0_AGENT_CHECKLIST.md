@@ -182,7 +182,7 @@ Status marks:
 
 - [x] **M0-01 - Create the live M0 status and evidence register**
 - [x] **M0-00 - Owner accepts the M0 scope and operating rules**
-- [ ] **M0-02 - Establish project glossary and naming consistency**
+- [x] **M0-02 - Establish project glossary and naming consistency**
 
 ### Week 1 - Life outcomes and boundaries
 
@@ -190,13 +190,13 @@ Status marks:
 - [x] **M0-11 - Inventory current systems, devices, services, and data sources**
 - [x] **M0-12 - Create and score at least ten candidate workflows**
 - [x] **M0-13 - Owner selects the first three workflows**
-- [-] **M0-14 - Define data collection, retention, deletion, and cloud-egress boundaries**
-- [-] **M0-15 - Define autonomy and approval boundaries**
-- [ ] **M0-16 - Define and begin baseline measurement**
+- [x] **M0-14 - Define data collection, retention, deletion, and cloud-egress boundaries**
+- [x] **M0-15 - Define autonomy and approval boundaries**
+- [-] **M0-16 - Define and begin baseline measurement**
 
 ### Week 2 - Architecture, security, privacy, and contracts
 
-- [ ] **M0-20 - Define component responsibilities and non-responsibilities**
+- [-] **M0-20 - Define component responsibilities and non-responsibilities**
 - [ ] **M0-21 - Map identities, trust zones, and end-to-end data flows**
 - [ ] **M0-22 - Complete the initial threat model**
 - [ ] **M0-23 - Complete the initial privacy impact assessment**
@@ -277,9 +277,9 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Define Agent Box, Personal Core, owner, agent, model, skill, workflow, tool, event, memory, artifact, policy, action, verification, and autonomy.
-- [ ] Distinguish M0 from M1 and “first milestone” from “Milestone 1.”
-- [ ] Identify overloaded terms and choose one canonical meaning.
+- [x] Define Agent Box, Personal Core, owner, agent, model, skill, workflow, tool, event, memory, artifact, policy, action, verification, and autonomy.
+- [x] Distinguish M0 from M1 and “first milestone” from “Milestone 1.”
+- [x] Identify overloaded terms and choose one canonical meaning.
 
 Acceptance evidence:
 
@@ -418,14 +418,14 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Create `never collect`, `confirmation required`, and `allowed for stated purpose` categories.
-- [ ] Classify each proposed source as public, personal, sensitive, or restricted.
-- [ ] Record purpose, subject, collection mode, minimum fields, retention, deletion, export, pause, and allowed uses.
-- [ ] Define whether each class may be sent to a cloud model.
-- [ ] Define redaction and minimum-context rules.
-- [ ] Define handling of data concerning other people.
-- [ ] Define whether raw source, derived memory, or both may persist.
-- [ ] Record unresolved legal or ethical questions without making legal claims.
+- [x] Create `never collect`, `confirmation required`, and `allowed for stated purpose` categories.
+- [x] Classify each proposed source as public, personal, sensitive, or restricted.
+- [x] Record purpose, subject, collection mode, minimum fields, retention, deletion, export, pause, and allowed uses.
+- [x] Define whether each class may be sent to a cloud model.
+- [x] Define redaction and minimum-context rules.
+- [x] Define handling of data concerning other people.
+- [x] Define whether raw source, derived memory, or both may persist.
+- [x] Record unresolved legal or ethical questions without making legal claims.
 
 Acceptance evidence:
 
@@ -444,13 +444,13 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Confirm risk classes R0 through R4.
-- [ ] Classify every action in the selected workflows.
-- [ ] Define preview, approval, expiration, verification, and undo requirements.
-- [ ] Identify actions that always require approval.
-- [ ] Identify actions prohibited during year one.
-- [ ] Define global pause and per-workflow disable behavior.
-- [ ] State that autonomy is earned independently by workflow/domain.
+- [x] Confirm risk classes R0 through R4.
+- [x] Classify every action in the selected workflows.
+- [x] Define preview, approval, expiration, verification, and undo requirements.
+- [x] Identify actions that always require approval.
+- [x] Identify actions prohibited during year one.
+- [x] Define global pause and per-workflow disable behavior.
+- [x] State that autonomy is earned independently by workflow/domain.
 
 Acceptance evidence:
 
@@ -468,12 +468,12 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Define the current manual process for each selected workflow.
-- [ ] Select only metrics that will inform a design or success decision.
-- [ ] Include time, completion, error/rework, attention burden, and owner-rated usefulness where appropriate.
-- [ ] Define a low-burden seven-day baseline collection method.
-- [ ] Record confounders such as unusual travel or workload.
-- [ ] Avoid collecting unrelated personal content.
+- [x] Define the current manual process for each selected workflow.
+- [x] Select only metrics that will inform a design or success decision.
+- [x] Include time, completion, error/rework, attention burden, and owner-rated usefulness where appropriate.
+- [x] Define a low-burden seven-day baseline collection method.
+- [x] Record confounders such as unusual travel or workload.
+- [x] Avoid collecting unrelated personal content.
 
 Acceptance evidence:
 
@@ -492,12 +492,12 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Define owner interfaces, Agent Box, Personal Core, identity/policy plane, execution plane, memory/data plane, and operations plane.
-- [ ] Define Home Assistant and external services as peer systems.
-- [ ] Assign one responsibility owner for every capability.
-- [ ] Document what each component must not own.
-- [ ] Show replaceable model, store, transport, and hardware boundaries.
-- [ ] State which functions must work offline.
+- [x] Define owner interfaces, Agent Box, Personal Core, identity/policy plane, execution plane, memory/data plane, and operations plane.
+- [x] Define Home Assistant and external services as peer systems.
+- [x] Assign one responsibility owner for every capability.
+- [x] Document what each component must not own.
+- [x] Show replaceable model, store, transport, and hardware boundaries.
+- [x] State which functions must work offline.
 
 Acceptance evidence:
 
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; selected trio and workflow boundaries approved, data/autonomy policy draft in owner review \
-**Current critical path:** M0-14/M0-15 -> M0-20/M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47 \
-**Next owner action:** Approve or amend the M0-14/M0-15 recommendations in `m0/03_DATA_AND_AUTONOMY_BOUNDARIES.md`. \
-**Next agent action:** Close M0-14/M0-15 after approval and propagate the policies into successor artifacts.
+**Milestone state:** In progress; M0-14/M0-15 accepted, baseline method ready, component map in owner review \
+**Current critical path:** M0-20 -> M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
+**Next owner action:** Confirm the 2026-07-27 baseline start and the plain-language component map in `m0/06_SYSTEM_ARCHITECTURE.md`. \
+**Next agent action:** Track M0-16, close M0-20 after owner review, and open M0-21.
