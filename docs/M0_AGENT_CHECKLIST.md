@@ -197,8 +197,8 @@ Status marks:
 ### Week 2 - Architecture, security, privacy, and contracts
 
 - [x] **M0-20 - Define component responsibilities and non-responsibilities**
-- [-] **M0-21 - Map identities, trust zones, and end-to-end data flows**
-- [ ] **M0-22 - Complete the initial threat model**
+- [x] **M0-21 - Map identities, trust zones, and end-to-end data flows**
+- [-] **M0-22 - Complete the initial threat model**
 - [ ] **M0-23 - Complete the initial privacy impact assessment**
 - [ ] **M0-24 - Draft version-zero system contracts**
 - [ ] **M0-25 - Write success and failure narratives for the selected workflows**
@@ -539,13 +539,13 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Identify assets, threat actors, entry points, trust boundaries, and high-impact outcomes.
-- [ ] Cover prompt injection, tool abuse, credential exposure, memory poisoning, compromised nodes, replay/duplication, lateral movement, unsafe chaining, supply-chain compromise, and data loss.
-- [ ] Write at least one abuse case for each selected workflow.
-- [ ] Map preventive, detective, responsive, and recovery controls.
-- [ ] Score likelihood and impact using a simple documented scale.
-- [ ] Record residual risks requiring owner acceptance.
-- [ ] Distinguish M0 design controls from M1 implementation controls.
+- [x] Identify assets, threat actors, entry points, trust boundaries, and high-impact outcomes.
+- [x] Cover prompt injection, tool abuse, credential exposure, memory poisoning, compromised nodes, replay/duplication, lateral movement, unsafe chaining, supply-chain compromise, and data loss.
+- [x] Write at least one abuse case for each selected workflow.
+- [x] Map preventive, detective, responsive, and recovery controls.
+- [x] Score likelihood and impact using a simple documented scale.
+- [x] Record residual risks requiring owner acceptance.
+- [x] Distinguish M0 design controls from M1 implementation controls.
 
 Acceptance evidence:
 
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; baseline active, M0-20 accepted, M0-21 identity/trust/flow draft in review \
-**Current critical path:** M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
-**Next owner action:** Complete private baseline cards and approve or amend Sections 10-18 of `m0/06_SYSTEM_ARCHITECTURE.md`. \
-**Next agent action:** Close M0-21 after review, then open the threat and privacy analysis within the WIP limit.
+**Milestone state:** In progress; baseline active, M0-21 accepted, M0-22 threat model in review \
+**Current critical path:** M0-22 -> M0-23 -> M0-24 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
+**Next owner action:** Complete private baseline cards and approve or amend Section 12 of `m0/07_THREAT_MODEL.md`. \
+**Next agent action:** Close M0-22 after review, then open M0-23 within the WIP limit.

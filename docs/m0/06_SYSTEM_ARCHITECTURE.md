@@ -1,7 +1,7 @@
 # Osun M0 System Architecture
 
 **Tasks:** M0-02 glossary and naming; M0-20 component responsibilities; M0-21 identities, trust zones, and flows \
-**State:** M0-02 and M0-20 accepted; M0-21 drafted for owner/security/privacy review \
+**State:** M0-02, M0-20, and M0-21 accepted \
 **Accountable:** Systems architect \
 **Reviewers:** Coordinator, owner, security analyst, and privacy analyst \
 **Architecture phase:** Conceptual, technology-neutral, and non-production \
@@ -608,8 +608,10 @@ Failure behavior:
 - [x] Sensitivity and cloud-egress rules are explicit for every selected workflow.
 - [x] Stale, missing, duplicated, conflicting, malicious, malformed, replayed, partial, and out-of-order input behavior is defined.
 - [x] Every boundary has a named conceptual control or explicit unresolved implementation risk.
-- [ ] Owner approves the identity/trust/flow model.
+- [x] Owner approves the identity/trust/flow model.
 - [ ] M0-22 and M0-23 challenge these assumptions through threat and privacy reviews.
+
+**Owner decision:** M0-21 identity, trust-zone, and workflow-flow model accepted as written on 2026-07-26.
 
 ---
 
@@ -625,9 +627,9 @@ Technology selection, protocol selection, credential creation, installation, and
 
 - Author/agent: Primary AI coordinator acting as systems architect
 - Reviewer: Coordinator and owner
-- Status: M0-02 and M0-20 accepted; M0-21 owner/security/privacy review
+- Status: M0-02, M0-20, and M0-21 accepted; downstream security/privacy validation remains
 - Inputs used: Accepted charter, workflow catalog, data/autonomy boundaries, current-system inventory, living master plan
 - Assumptions: Pi OS unit is the Personal Core candidate; Home Assistant installation is preserved; durable storage and backup technology remain undecided
-- Open questions: Owner approval of Sections 10-18; implementation choices and risks deferred to M0-22 through M0-24 and M0-40
-- Acceptance evidence: Canonical glossary, accepted component map, identity model, trust zones, boundary control matrix, three request-to-memory traces, anomaly rules, offline behavior, replaceability boundaries, and deployment intent
+- Open questions: Implementation choices and risks deferred to M0-22 through M0-24 and M0-40
+- Acceptance evidence: Canonical glossary, accepted component map, owner-accepted identity model, trust zones, boundary control matrix, three request-to-memory traces, anomaly rules, offline behavior, replaceability boundaries, and deployment intent
 - Last updated: 2026-07-26

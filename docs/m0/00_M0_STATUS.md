@@ -8,36 +8,36 @@
 **Human hours remaining:** 40.0 \
 **Last updated:** 2026-07-26 \
 **Coordinator:** AI-assisted coordination approved \
-**Current critical-path task:** M0-21 - Identities, trust zones, and end-to-end flows; M0-16 baseline runs concurrently \
+**Current critical-path task:** M0-22 - Initial threat model; M0-16 baseline runs concurrently \
 **Primary references:** [M0 Agent Execution Checklist](../M0_AGENT_CHECKLIST.md) and [Living Master Plan](../OSUN_MASTER_PLAN.md)
 
 ---
 
 ## 1. Executive status
 
-The owner charter, selected workflow trio, data/autonomy policies, and component-responsibility architecture are accepted. The seven-day baseline is authorized, and the M0-21 identity, trust-zone, boundary-control, and three-workflow flow draft is ready for review.
+The owner charter, selected workflows, data/autonomy policies, component map, identities, trust zones, and three end-to-end flows are accepted. The seven-day baseline is active, and a thirty-risk threat model with control, gate, requirement, and adversarial-test mappings is ready for owner review.
 
 ### Current state
 
-- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, M0-15, and M0-20.
-- **In progress:** M0-16 baseline measurement and M0-21 identities/trust/flows.
+- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, M0-15, M0-20, and M0-21.
+- **In progress:** M0-16 baseline measurement and M0-22 threat model.
 - **Approved ranking:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture and Nutrition Review.
-- **Current input dependency:** Owner completes the private baseline and approves or amends the M0-21 trust/flow draft.
+- **Current input dependency:** Owner completes the private baseline and approves or amends the M0-22 residual-risk dispositions.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
 
 ```text
 M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
--> M0-14/M0-15 -> M0-20 -> M0-21 -> M0-25 -> M0-30
+-> M0-14/M0-15 -> M0-20 -> M0-21 -> M0-22/M0-23 -> M0-24 -> M0-25 -> M0-30
 -> M0-40 -> M0-43 -> M0-46 -> M0-47
 ```
 
 ### Next three assignments
 
 1. **Owner:** Complete the private seven-day baseline cards from 2026-07-27 through 2026-08-02.
-2. **Owner:** Approve or amend Sections 10-18 of `06_SYSTEM_ARCHITECTURE.md`.
-3. **AI coordinator:** Close M0-21 after review, then open M0-22 while M0-16 remains active.
+2. **Owner:** Approve or amend the eight risk dispositions in Section 12 of `07_THREAT_MODEL.md`.
+3. **AI coordinator:** Close M0-22 after review, then open M0-23 while M0-16 remains active.
 
 ---
 
@@ -58,8 +58,8 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | M0-15 | Define autonomy and approval boundaries | Owner | Owner + primary AI security/workflow analyst | M0-13 | Owner accepted | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | 2026-07-26 |
 | M0-16 | Define and begin baseline measurement | Evaluation scientist | Primary AI evaluation scientist + owner | M0-13 | In progress; collection authorized | `05_BASELINE_MEASUREMENT.md` | End-of-week review after 2026-08-02 |
 | M0-20 | Define component responsibilities | Systems architect | Primary AI systems architect | M0-13, M0-14, M0-15 | Owner accepted | `06_SYSTEM_ARCHITECTURE.md` | 2026-07-26 |
-| M0-21 | Map identities, trust zones, and flows | Systems architect | Primary AI systems architect | M0-20 | In progress; agent draft complete | `06_SYSTEM_ARCHITECTURE.md` | Pending owner/security/privacy review |
-| M0-22 | Complete threat model | Security analyst | Unassigned | M0-21 | Not started | `07_THREAT_MODEL.md` | Pending |
+| M0-21 | Map identities, trust zones, and flows | Systems architect | Primary AI systems architect | M0-20 | Owner accepted | `06_SYSTEM_ARCHITECTURE.md` | 2026-07-26 |
+| M0-22 | Complete threat model | Security analyst | Primary AI security analyst | M0-21 | In progress; agent/architecture review complete | `07_THREAT_MODEL.md` | Pending owner review |
 | M0-23 | Complete privacy impact assessment | Privacy analyst | Unassigned | M0-14, M0-21 | Not started | `08_PRIVACY_IMPACT_ASSESSMENT.md` | Pending |
 | M0-24 | Draft version-zero contracts | Systems architect | Unassigned | M0-20, M0-21, M0-22, M0-23 | Not started | `09_CONTRACT_DRAFTS.md` | Pending |
 | M0-25 | Write success and failure narratives | Workflow analyst | Unassigned | M0-13, M0-20, M0-21, M0-22, M0-23, M0-24 | Not started | `02_WORKFLOW_CATALOG.md` | Pending |
@@ -83,7 +83,7 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 - Registered task count: 29.
 - Duplicate task IDs: 0.
 - Tasks without an accountable role: 0.
-- Owner-decision tasks: M0-00, M0-10, M0-13, M0-14, M0-15, M0-33 approval, M0-41 authorization, M0-42 approval, and M0-47.
+- Owner-decision tasks: M0-00, M0-10, M0-13, M0-14, M0-15, M0-22/M0-23 residual-risk dispositions, M0-33 approval, M0-41 authorization, M0-42 approval, and M0-47.
 
 ---
 
@@ -97,8 +97,8 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Accepted | M0-14, M0-15 | All recommendations accepted 2026-07-26 |
 | `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Agent complete | M0-11 | Selected integration paths validated at M0 precision |
 | `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Active | M0-16 | Private seven-day window authorized; no sensitive observations in Git/OneDrive |
-| `06_SYSTEM_ARCHITECTURE.md` | Systems architect | M0-21 review | M0-02, M0-20, M0-21 | M0-02/M0-20 accepted; M0-21 agent draft complete |
-| `07_THREAT_MODEL.md` | Security analyst | Not started | M0-22 | High/critical risks must map to controls |
+| `06_SYSTEM_ARCHITECTURE.md` | Systems architect | Accepted through M0-21 | M0-02, M0-20, M0-21 | Component, identity, trust-zone, and flow model accepted |
+| `07_THREAT_MODEL.md` | Security analyst | Owner review | M0-22 | Agent/architecture review complete; Section 12 disposition approval required |
 | `08_PRIVACY_IMPACT_ASSESSMENT.md` | Privacy analyst | Not started | M0-23 | Residual risk requires owner decision |
 | `09_CONTRACT_DRAFTS.md` | Systems architect | Not started | M0-24 | Version-zero conceptual contracts |
 | `10_EVALUATION_PLAN.md` | Evaluation scientist | Not started | M0-31, M0-33 | Metrics fixed before results |
@@ -125,9 +125,9 @@ Each row must link to exact evidence before M0-47.
 | G-DAT-01 | Every source has purpose, sensitivity, retention, pause/delete/export/egress | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
 | G-AUT-01 | Every external action has risk and approval rule | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
 | G-ARC-01 | Owner can explain architecture and authority boundaries | `06_SYSTEM_ARCHITECTURE.md`, owner gate record | Component map present; owner accepted |
-| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Evidence present; M0-21 review pending |
+| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Evidence present; owner accepted |
 | G-CON-01 | Version-zero contracts exist | `09_CONTRACT_DRAFTS.md` | Missing |
-| G-SEC-01 | Threat model and privacy assessment reviewed | `07_THREAT_MODEL.md`, `08_PRIVACY_IMPACT_ASSESSMENT.md` | Missing |
+| G-SEC-01 | Threat model and privacy assessment reviewed | `07_THREAT_MODEL.md`, `08_PRIVACY_IMPACT_ASSESSMENT.md` | Threat-model draft present; privacy assessment missing |
 | G-RES-01 | Backup, restore, pause, kill, and incident concepts exist | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Missing |
 | G-EVL-01 | At least 25 precise scenarios exist | `11_GOLDEN_SCENARIOS.md` | Missing |
 | G-MET-01 | Useful and feasible metrics are defined | `10_EVALUATION_PLAN.md` | Missing |
@@ -187,7 +187,8 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-011 | Make final M0 gate decision | M0-47 | Pending | Complete evidence package and review |
 | OD-012 | Confirm baseline window and private collection method | M0-16 | Approved 2026-07-26 | `05_BASELINE_MEASUREMENT.md` |
 | OD-013 | Confirm component authority map matches owner intent | M0-20 | Approved 2026-07-26 | `06_SYSTEM_ARCHITECTURE.md` Sections 1-9 |
-| OD-014 | Approve identity, trust-zone, and workflow-flow model | M0-21 | Pending owner review | `06_SYSTEM_ARCHITECTURE.md` Sections 10-18 |
+| OD-014 | Approve identity, trust-zone, and workflow-flow model | M0-21 | Approved 2026-07-26 | `06_SYSTEM_ARCHITECTURE.md` Sections 10-18 |
+| OD-015 | Approve threat-model residual-risk dispositions and gates | M0-22 | Pending owner review | `07_THREAT_MODEL.md` Section 12 |
 
 ### 6.3 Assumptions
 
@@ -268,6 +269,8 @@ After the response, the coordinator will:
 | 2026-07-26 | M0-02 completed; M0-16 and M0-20 opened with baseline and component-map drafts | `05_BASELINE_MEASUREMENT.md`, `06_SYSTEM_ARCHITECTURE.md` |
 | 2026-07-26 | Owner authorized the baseline window and accepted the M0-20 component map | `05_BASELINE_MEASUREMENT.md`, `06_SYSTEM_ARCHITECTURE.md` |
 | 2026-07-26 | M0-20 completed and M0-21 identity/trust/flow draft opened | `06_SYSTEM_ARCHITECTURE.md` Sections 10-18 |
+| 2026-07-26 | Owner accepted M0-21 identity, trust-zone, and workflow-flow model | `06_SYSTEM_ARCHITECTURE.md` |
+| 2026-07-26 | M0-22 opened; initial threat model and risk-treatment gates drafted | `07_THREAT_MODEL.md` |
 
 ---
 
@@ -278,6 +281,6 @@ After the response, the coordinator will:
 - Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Baseline completion, M0-21 trust/flow approval, non-blocking device details, and decision queue in Section 6.2
+- Open questions: Baseline completion, M0-22 risk-disposition approval, non-blocking device details, and decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
 - Last updated: 2026-07-26
