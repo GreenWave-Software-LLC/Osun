@@ -8,21 +8,21 @@
 **Human hours remaining:** 40.0 \
 **Last updated:** 2026-07-26 \
 **Coordinator:** AI-assisted coordination approved \
-**Current critical-path task:** M0-20 - Component responsibilities; M0-16 baseline runs concurrently \
+**Current critical-path task:** M0-21 - Identities, trust zones, and end-to-end flows; M0-16 baseline runs concurrently \
 **Primary references:** [M0 Agent Execution Checklist](../M0_AGENT_CHECKLIST.md) and [Living Master Plan](../OSUN_MASTER_PLAN.md)
 
 ---
 
 ## 1. Executive status
 
-The owner charter, selected workflow trio, and data/autonomy policies are accepted. The seven-day baseline method is ready to start, and the component-responsibility architecture plus canonical glossary are drafted for owner review.
+The owner charter, selected workflow trio, data/autonomy policies, and component-responsibility architecture are accepted. The seven-day baseline is authorized, and the M0-21 identity, trust-zone, boundary-control, and three-workflow flow draft is ready for review.
 
 ### Current state
 
-- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, and M0-15.
-- **In progress:** M0-16 baseline measurement and M0-20 component responsibilities.
+- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, M0-15, and M0-20.
+- **In progress:** M0-16 baseline measurement and M0-21 identities/trust/flows.
 - **Approved ranking:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture and Nutrition Review.
-- **Current input dependency:** Owner confirms the baseline window and the plain-language component map.
+- **Current input dependency:** Owner completes the private baseline and approves or amends the M0-21 trust/flow draft.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
@@ -35,9 +35,9 @@ M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
 
 ### Next three assignments
 
-1. **Owner:** Confirm the private seven-day baseline window proposed for 2026-07-27 through 2026-08-02.
-2. **Owner:** Confirm the plain-language component map in `06_SYSTEM_ARCHITECTURE.md` matches the intended division of authority.
-3. **AI coordinator:** Track M0-16, close M0-20 after review, and open M0-21 without exceeding two active tasks.
+1. **Owner:** Complete the private seven-day baseline cards from 2026-07-27 through 2026-08-02.
+2. **Owner:** Approve or amend Sections 10-18 of `06_SYSTEM_ARCHITECTURE.md`.
+3. **AI coordinator:** Close M0-21 after review, then open M0-22 while M0-16 remains active.
 
 ---
 
@@ -56,9 +56,9 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | M0-13 | Select first three workflows | Owner | Owner | M0-12 | Owner accepted | `02_WORKFLOW_CATALOG.md` | 2026-07-26 |
 | M0-14 | Define data and cloud-egress boundaries | Owner | Owner + primary AI privacy analyst | M0-10, M0-11, M0-13 | Owner accepted | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | 2026-07-26 |
 | M0-15 | Define autonomy and approval boundaries | Owner | Owner + primary AI security/workflow analyst | M0-13 | Owner accepted | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | 2026-07-26 |
-| M0-16 | Define and begin baseline measurement | Evaluation scientist | Primary AI evaluation scientist + owner | M0-13 | In progress; method ready | `05_BASELINE_MEASUREMENT.md` | Pending start confirmation |
-| M0-20 | Define component responsibilities | Systems architect | Primary AI systems architect | M0-13, M0-14, M0-15 | In progress; agent draft complete | `06_SYSTEM_ARCHITECTURE.md` | Pending owner review |
-| M0-21 | Map identities, trust zones, and flows | Systems architect | Unassigned | M0-20 | Not started | `06_SYSTEM_ARCHITECTURE.md` | Pending |
+| M0-16 | Define and begin baseline measurement | Evaluation scientist | Primary AI evaluation scientist + owner | M0-13 | In progress; collection authorized | `05_BASELINE_MEASUREMENT.md` | End-of-week review after 2026-08-02 |
+| M0-20 | Define component responsibilities | Systems architect | Primary AI systems architect | M0-13, M0-14, M0-15 | Owner accepted | `06_SYSTEM_ARCHITECTURE.md` | 2026-07-26 |
+| M0-21 | Map identities, trust zones, and flows | Systems architect | Primary AI systems architect | M0-20 | In progress; agent draft complete | `06_SYSTEM_ARCHITECTURE.md` | Pending owner/security/privacy review |
 | M0-22 | Complete threat model | Security analyst | Unassigned | M0-21 | Not started | `07_THREAT_MODEL.md` | Pending |
 | M0-23 | Complete privacy impact assessment | Privacy analyst | Unassigned | M0-14, M0-21 | Not started | `08_PRIVACY_IMPACT_ASSESSMENT.md` | Pending |
 | M0-24 | Draft version-zero contracts | Systems architect | Unassigned | M0-20, M0-21, M0-22, M0-23 | Not started | `09_CONTRACT_DRAFTS.md` | Pending |
@@ -96,8 +96,8 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | `02_WORKFLOW_CATALOG.md` | Workflow analyst | Accepted for M0-12/M0-13 | M0-12, M0-13, M0-25 | Ranked trio and detailed boundaries approved; M0-25 remains |
 | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Accepted | M0-14, M0-15 | All recommendations accepted 2026-07-26 |
 | `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Agent complete | M0-11 | Selected integration paths validated at M0 precision |
-| `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Owner start confirmation | M0-16 | Private seven-day method ready; no sensitive observations in Git/OneDrive |
-| `06_SYSTEM_ARCHITECTURE.md` | Systems architect | Owner review | M0-02, M0-20, M0-21 | Glossary and M0-20 component map drafted; M0-21 remains |
+| `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Active | M0-16 | Private seven-day window authorized; no sensitive observations in Git/OneDrive |
+| `06_SYSTEM_ARCHITECTURE.md` | Systems architect | M0-21 review | M0-02, M0-20, M0-21 | M0-02/M0-20 accepted; M0-21 agent draft complete |
 | `07_THREAT_MODEL.md` | Security analyst | Not started | M0-22 | High/critical risks must map to controls |
 | `08_PRIVACY_IMPACT_ASSESSMENT.md` | Privacy analyst | Not started | M0-23 | Residual risk requires owner decision |
 | `09_CONTRACT_DRAFTS.md` | Systems architect | Not started | M0-24 | Version-zero conceptual contracts |
@@ -121,11 +121,11 @@ Each row must link to exact evidence before M0-47.
 | G-MIS-01 | Owner accepted mission, non-goals, principles, and scope | `01_OWNER_CHARTER.md` | Evidence present |
 | G-WFL-01 | Ten workflows considered consistently | `02_WORKFLOW_CATALOG.md` | Evidence present; owner accepted |
 | G-WFL-02 | Three workflows selected and measurable | `02_WORKFLOW_CATALOG.md` | Evidence present; owner accepted |
-| G-BAS-01 | Baseline completed or valid alternative recorded | `05_BASELINE_MEASUREMENT.md` | Method present; collection pending |
+| G-BAS-01 | Baseline completed or valid alternative recorded | `05_BASELINE_MEASUREMENT.md` | Collection authorized; completion pending |
 | G-DAT-01 | Every source has purpose, sensitivity, retention, pause/delete/export/egress | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
 | G-AUT-01 | Every external action has risk and approval rule | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
-| G-ARC-01 | Owner can explain architecture and authority boundaries | `06_SYSTEM_ARCHITECTURE.md`, owner gate record | Component map present; owner check pending |
-| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Missing |
+| G-ARC-01 | Owner can explain architecture and authority boundaries | `06_SYSTEM_ARCHITECTURE.md`, owner gate record | Component map present; owner accepted |
+| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Evidence present; M0-21 review pending |
 | G-CON-01 | Version-zero contracts exist | `09_CONTRACT_DRAFTS.md` | Missing |
 | G-SEC-01 | Threat model and privacy assessment reviewed | `07_THREAT_MODEL.md`, `08_PRIVACY_IMPACT_ASSESSMENT.md` | Missing |
 | G-RES-01 | Backup, restore, pause, kill, and incident concepts exist | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Missing |
@@ -185,8 +185,9 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-009 | Authorize any Week 4 benchmark writes/installs | M0-41 | Pending | Written experiment plan |
 | OD-010 | Approve provisional M1 stack choices | M0-42 | Pending | Scorecard and benchmarks |
 | OD-011 | Make final M0 gate decision | M0-47 | Pending | Complete evidence package and review |
-| OD-012 | Confirm baseline window and private collection method | M0-16 | Pending owner confirmation | `05_BASELINE_MEASUREMENT.md` |
-| OD-013 | Confirm component authority map matches owner intent | M0-20 | Pending owner confirmation | `06_SYSTEM_ARCHITECTURE.md` |
+| OD-012 | Confirm baseline window and private collection method | M0-16 | Approved 2026-07-26 | `05_BASELINE_MEASUREMENT.md` |
+| OD-013 | Confirm component authority map matches owner intent | M0-20 | Approved 2026-07-26 | `06_SYSTEM_ARCHITECTURE.md` Sections 1-9 |
+| OD-014 | Approve identity, trust-zone, and workflow-flow model | M0-21 | Pending owner review | `06_SYSTEM_ARCHITECTURE.md` Sections 10-18 |
 
 ### 6.3 Assumptions
 
@@ -265,6 +266,8 @@ After the response, the coordinator will:
 | 2026-07-26 | M0-14 and M0-15 opened; data, cloud-egress, autonomy, and approval defaults drafted | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` |
 | 2026-07-26 | Owner approved all M0-14/M0-15 recommendations as written | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` |
 | 2026-07-26 | M0-02 completed; M0-16 and M0-20 opened with baseline and component-map drafts | `05_BASELINE_MEASUREMENT.md`, `06_SYSTEM_ARCHITECTURE.md` |
+| 2026-07-26 | Owner authorized the baseline window and accepted the M0-20 component map | `05_BASELINE_MEASUREMENT.md`, `06_SYSTEM_ARCHITECTURE.md` |
+| 2026-07-26 | M0-20 completed and M0-21 identity/trust/flow draft opened | `06_SYSTEM_ARCHITECTURE.md` Sections 10-18 |
 
 ---
 
@@ -275,6 +278,6 @@ After the response, the coordinator will:
 - Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Baseline start, component-map confirmation, non-blocking device details, and decision queue in Section 6.2
+- Open questions: Baseline completion, M0-21 trust/flow approval, non-blocking device details, and decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
 - Last updated: 2026-07-26

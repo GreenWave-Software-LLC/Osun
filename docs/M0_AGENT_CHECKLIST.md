@@ -196,8 +196,8 @@ Status marks:
 
 ### Week 2 - Architecture, security, privacy, and contracts
 
-- [-] **M0-20 - Define component responsibilities and non-responsibilities**
-- [ ] **M0-21 - Map identities, trust zones, and end-to-end data flows**
+- [x] **M0-20 - Define component responsibilities and non-responsibilities**
+- [-] **M0-21 - Map identities, trust zones, and end-to-end data flows**
 - [ ] **M0-22 - Complete the initial threat model**
 - [ ] **M0-23 - Complete the initial privacy impact assessment**
 - [ ] **M0-24 - Draft version-zero system contracts**
@@ -516,12 +516,12 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Identify owner, service, agent, workflow, device, and integration identities.
-- [ ] Draw trust boundaries across PC, Pi, Home Assistant, local network, and external services.
-- [ ] Trace all three workflows from trigger to verified outcome and possible learning.
-- [ ] Label every boundary crossing with authentication, authorization, encryption, validation, and audit expectations.
-- [ ] Label data sensitivity and egress.
-- [ ] Identify stale, duplicated, missing, malicious, and out-of-order input behavior.
+- [x] Identify owner, service, agent, workflow, device, and integration identities.
+- [x] Draw trust boundaries across PC, Pi, Home Assistant, local network, and external services.
+- [x] Trace all three workflows from trigger to verified outcome and possible learning.
+- [x] Label every boundary crossing with authentication, authorization, encryption, validation, and audit expectations.
+- [x] Label data sensitivity and egress.
+- [x] Identify stale, duplicated, missing, malicious, and out-of-order input behavior.
 
 Acceptance evidence:
 
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; M0-14/M0-15 accepted, baseline method ready, component map in owner review \
-**Current critical path:** M0-20 -> M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
-**Next owner action:** Confirm the 2026-07-27 baseline start and the plain-language component map in `m0/06_SYSTEM_ARCHITECTURE.md`. \
-**Next agent action:** Track M0-16, close M0-20 after owner review, and open M0-21.
+**Milestone state:** In progress; baseline active, M0-20 accepted, M0-21 identity/trust/flow draft in review \
+**Current critical path:** M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
+**Next owner action:** Complete private baseline cards and approve or amend Sections 10-18 of `m0/06_SYSTEM_ARCHITECTURE.md`. \
+**Next agent action:** Close M0-21 after review, then open the threat and privacy analysis within the WIP limit.

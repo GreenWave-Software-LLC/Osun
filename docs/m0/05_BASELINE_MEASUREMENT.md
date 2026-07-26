@@ -1,11 +1,11 @@
 # Osun M0 Baseline Measurement
 
 **Task:** M0-16 - Define and begin baseline measurement \
-**State:** Method ready; owner start confirmation pending \
+**State:** Active; owner authorized the seven-day window \
 **Accountable:** Evaluation scientist \
 **Reviewer:** Owner \
 **Selected workflows:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture \
-**Proposed window:** 2026-07-27 through 2026-08-02 \
+**Authorized window:** 2026-07-27 through 2026-08-02 \
 **Last updated:** 2026-07-26
 
 ---
@@ -226,7 +226,7 @@ The owner may stop at any time. Stopping is not failure; it is evidence that the
 - [x] Confounders and missing-data rules are explicit.
 - [x] Unrelated personal content is excluded.
 - [x] Storage respects the approved local-only policy.
-- [ ] Owner confirms the window and begins Day 1.
+- [x] Owner confirms the window and begins Day 1.
 - [ ] Owner completes or records a valid alternative to the seven-day baseline.
 
 ---
@@ -235,9 +235,9 @@ The owner may stop at any time. Stopping is not failure; it is evidence that the
 
 - Author/agent: Primary AI coordinator acting as evaluation scientist
 - Reviewer: Owner
-- Status: Method ready; start confirmation pending
+- Status: Active; collection authorized for 2026-07-27 through 2026-08-02
 - Inputs used: Accepted owner charter, selected workflow catalog, accepted data/autonomy policy
-- Assumptions: The proposed week is reasonably representative; paper or another private non-synced medium is available
-- Open questions: Owner confirmation of the window; whether the week becomes atypical
-- Acceptance evidence: Manual-process definitions, decision-linked metrics, sub-five-minute card, dates, privacy controls, missing-data rules, and validity criteria
+- Assumptions: The authorized week is reasonably representative; paper or another private non-synced medium is available
+- Open questions: Whether the week becomes atypical; end-of-week local review
+- Acceptance evidence: Manual-process definitions, decision-linked metrics, sub-five-minute card, dates, privacy controls, missing-data rules, validity criteria, and owner authorization on 2026-07-26
 - Last updated: 2026-07-26

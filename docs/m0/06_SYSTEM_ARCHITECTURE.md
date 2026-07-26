@@ -1,9 +1,9 @@
 # Osun M0 System Architecture
 
-**Tasks:** M0-02 glossary and naming; M0-20 component responsibilities \
-**State:** Component map drafted for owner review; M0-21 trust/data-flow work not started \
+**Tasks:** M0-02 glossary and naming; M0-20 component responsibilities; M0-21 identities, trust zones, and flows \
+**State:** M0-02 and M0-20 accepted; M0-21 drafted for owner/security/privacy review \
 **Accountable:** Systems architect \
-**Reviewer:** Coordinator and owner comprehension check \
+**Reviewers:** Coordinator, owner, security analyst, and privacy analyst \
 **Architecture phase:** Conceptual, technology-neutral, and non-production \
 **Last updated:** 2026-07-26
 
@@ -336,22 +336,288 @@ No installation, reconfiguration, credential grant, network exposure, or data mi
 - [x] Model, store, transport, interface, adapter, workflow, and hardware boundaries are replaceable.
 - [x] Required offline and fail-closed behavior is stated.
 - [x] No model has unrestricted access to secrets, tools, or all memory.
-- [ ] Owner confirms the plain-language component map matches their intent.
-- [ ] Owner can identify which component coordinates, computes, controls physical devices, and authorizes actions.
+- [x] Owner confirms the plain-language component map matches their intent.
+- [x] Owner can identify which component coordinates, computes, controls physical devices, and authorizes actions.
+
+**Owner decision:** M0-20 component responsibilities accepted as written on 2026-07-26.
 
 ---
 
-## 10. Deferred to M0-21 and later
+## 10. Identity model
 
-M0-21 will add:
+Every actor uses a distinct identity. An identity says who or what is acting; a capability says what that identity may do for a specific purpose and time. Neither a network location nor possession of a shared API key is sufficient authority.
 
-- concrete owner, device, service, workflow, agent, and integration identities;
-- trust zones and network boundaries;
-- authentication, authorization, encryption, validation, and audit on each arrow;
-- end-to-end traces for WF-01, WF-02, and WF-03;
-- stale, missing, duplicated, malicious, and out-of-order input handling.
+| Identity type | Canonical form | Initial examples | Authentication expectation | Authority ceiling |
+|---|---|---|---|---|
+| Owner | `owner:primary` | The initial human owner | Phishing-resistant owner authentication for policy and consequential approval; method selected later | Final authority within accepted safety/legal constraints |
+| Owner session | `session:<random-id>` | Desktop or future mobile session | Short-lived session bound to owner and interface/device context | Only the scopes and expiry granted to that session |
+| Device | `device:<name>` | `agent-box`, `personal-core`, `home-assistant` | Unique device key; mutually authenticated channel where supported | Connect only to named services; no inherited owner authority |
+| Service | `service:<name>` | `ingress`, `orchestrator`, `policy`, `router`, `executor`, `memory`, `operations` | Unique service identity and least-privilege credential | Only its responsibility in Section 4 |
+| Workflow definition | `workflow:<id>@<version>` | `wf-01@0`, `wf-02@0`, `wf-03@0` | Signed/versioned deployment record | Only declared data, model, tool, and action contracts |
+| Workflow run | `run:<uuid>` | One daily plan or calorie-capture run | Created by orchestrator; bound to workflow version, owner, and correlation ID | Expires with run; cannot mint broader authority |
+| Agent instance | `agent:<role>:<run-id>` | Planner or estimator used inside one run | Ephemeral capability from orchestrator/policy plane | Proposals only unless a typed step has a separate execution grant |
+| Model runtime | `model:<provider>:<model-version>` | Local model on Agent Box or approved cloud model | Local service identity or provider credential held by router | Inference over provided context only; no direct tools or memory |
+| Integration | `integration:<provider>:<alias>` | Google Calendar or Home Assistant adapter | Provider-specific credential held in vault and used only by adapter | Narrow provider scopes and owner-approved resources |
+| Data subject | `subject:<id>` | `subject:owner` | Not an actor; attached to records | Enables purpose, consent, access, and deletion rules |
+| Recovery operator | `recovery:owner` | Owner using offline recovery material | Strong separate recovery procedure | Restore, revoke, rotate, and pause; no ordinary workflow use |
 
-M0-22 through M0-24 will challenge the map through threat modeling, privacy analysis, and version-zero contracts. Technology selection and installation remain deferred to M0-40/M0-41.
+Identity rules:
+
+1. No credential is shared by the model, workflow, policy service, and adapter.
+2. Long-lived secrets remain in a dedicated vault; workflows receive short-lived capabilities or indirect adapter access.
+3. Capabilities bind actor, workflow, action, resource, purpose, sensitivity, expiry, and policy version.
+4. Approval binds to the exact normalized action and cannot be replayed for a changed payload.
+5. Service and device identities are revocable independently.
+6. Human-readable names are aliases; stable opaque IDs are used in contracts and audit.
+7. A model name or personality is never an authenticated actor.
+
+---
+
+## 11. Trust zones
+
+Trust is not inferred from being inside the house. Local-network traffic is treated as crossing a boundary and receives authentication, encryption where supported, validation, and audit appropriate to its consequence.
+
+| Zone | Contents | Trusted for | Not trusted for |
+|---|---|---|---|
+| Z0 Owner authority | Human decision, explicit approval, recovery material kept separately | Goal/policy decisions, consent, pause, final override | Perfect attention, infallible approval, or continuous availability |
+| Z1 Owner interface | Desktop UI and future authenticated mobile/web surfaces | Capturing/displaying bounded requests and approvals | Direct tool execution, secret storage in history, or policy bypass |
+| Z2 Agent Box compute | Windows PC, local models, development/evaluation tools | Heavy local inference and owner-present development | Always-on coordination or unrestricted access to data/tools |
+| Z3 Personal Core control | Ingress, orchestrator, identity/policy, router, executor, operations | Workflow state and deterministic authority enforcement | Heavy training or sole durable storage on SD card |
+| Z4 Private data and secret boundary | Memory API, databases, object store, action ledger, credential vault | Approved durable records and exact adapter credentials | General browsing by models, workflows, or administrators without purpose |
+| Z5 Home Assistant peer | Existing Home Assistant OS instance and device integrations | Physical-device source of truth and safety controls | General Osun authority or unrestricted administration by Osun |
+| Z6 Local transit | Wi-Fi, Ethernet, router/switch, local name resolution | Packet transport only | Identity, confidentiality by location alone, or message correctness |
+| Z7 External providers | Google Calendar, approved cloud models, future external APIs | Their documented service and authoritative external state | Osun policy, owner goals, safe instructions, or unnecessary data retention |
+| Z8 Backup/recovery | Encrypted backup target and offline recovery material, technology TBD | Recovery of approved records and configuration | Live execution or ordinary model access |
+
+```mermaid
+flowchart LR
+    Z0["Z0 Owner authority"]
+    Z1["Z1 Owner interface"]
+
+    subgraph Z2["Z2 Agent Box compute"]
+        LocalModel["Local model"]
+        Dev["Development/evaluation"]
+    end
+
+    subgraph Z3["Z3 Personal Core control"]
+        Ingress["Ingress"]
+        Orch["Orchestrator"]
+        Policy["Identity/policy/approval"]
+        Router["Model router"]
+        Exec["Execution gateway"]
+        Ops["Operations"]
+    end
+
+    subgraph Z4["Z4 Private data and secrets"]
+        Memory["Memory/data API"]
+        Ledger["Action ledger"]
+        Vault["Credential vault"]
+    end
+
+    Z5["Z5 Home Assistant peer"]
+    Z6["Z6 Local transit"]
+    Z7["Z7 External providers"]
+    Z8["Z8 Backup/recovery"]
+
+    Z0 <--> Z1
+    Z1 <--> Z6
+    Z2 <--> Z6
+    Z3 <--> Z6
+    Z4 <--> Z3
+    Z5 <--> Z6
+    Z3 <--> Z7
+    Z4 --> Z8
+```
+
+Physical co-location does not erase a logical boundary. Z3 and Z4 may initially share a host, but operating-system accounts, service identities, access controls, APIs, encryption keys, and audit must preserve their separation.
+
+---
+
+## 12. Boundary-crossing control matrix
+
+The table states M0 requirements, not final product choices. Specific protocols and products remain for M0-24 and M0-40.
+
+| Crossing | Data/action | Authentication | Authorization | Encryption | Validation and freshness | Audit/failure behavior |
+|---|---|---|---|---|---|---|
+| Z0 owner -> Z1 interface | Request, correction, approval, pause | Owner session; stronger reauthentication for policy/recovery | Session scopes; exact approval receipt for R3 | Platform/session protection | Typed UI, explicit consequence, expiry, payload hash | Record decision metadata; cancel safely if session expires |
+| Z1 interface -> Z3 ingress over Z6 | Personal request or command | Mutually authenticated device/service channel plus owner session | Ingress verifies session, workflow, schema, rate, and replay state | Encrypted authenticated transport | Schema/version, size, timestamp, nonce, correlation ID | Reject invalid/replayed requests; content-minimized trace |
+| Z3 orchestrator -> Z4 memory API | Context query or governed write | Unique orchestrator identity | Purpose- and workflow-bound capability; field/sensitivity filters | Authenticated local channel; encryption at rest | Record schema, provenance, validity time, retention | Log access decision and record IDs, not unnecessary content |
+| Z3 orchestrator -> Z3 policy | Data/action decision request | Unique service identities | Policy version and requested capability; deny by default | Authenticated local channel | Normalize action before evaluation; reject ambiguous fields | Append decision, reason code, policy version, expiry |
+| Z3 router -> Z2 local model over Z6 | Minimized model context | Device and model-runtime identities | Router-issued single-request scope | Encrypted authenticated transport | Prompt envelope, schema, sensitivity labels, output limits | Treat output as untrusted; timeout or malformed output returns no action |
+| Z3 router -> Z7 cloud model | Approved minimal context | Provider credential held only by router/vault path | Egress policy by data type, workflow, and provider | Provider TLS with certificate validation | Redaction, allowlisted fields, provider/model version, response schema | Record categories and purpose; sensitive health/calorie context blocked |
+| Z3 policy -> Z3 executor | Exact action capability | Policy and executor service identities | Signed/opaque grant bound to payload hash, tool, expiry, run | Authenticated local channel | Recompute normalized hash; reject replay/expired grant | Record authorization and denial; no fallback bypass |
+| Z3 executor -> Z7 Google Calendar | Read or approved write | Calendar adapter uses scoped OAuth token from vault | Approved calendars/fields; every initial write has exact R3 approval | Provider TLS | Schema, ETag/version where available, idempotency key, read-back | Record provider IDs and verification; failure remains visible and retry-bounded |
+| Z3 executor -> Z5 Home Assistant over Z6 | Future typed device request | Dedicated Osun service identity in Home Assistant | Entity/service allowlist and HA-side controls | Authenticated encrypted local transport where supported | Typed values, current state, safety constraints, idempotency | HA remains authoritative; verify state; fail closed if uncertain |
+| Z3 services -> Z3 operations/Z4 ledger | Metrics, security event, action evidence | Per-service identity | Append-only or narrowly scoped telemetry write | Authenticated local channel; protected at rest | Structured schema, correlation, redaction | Reject personal content by default; alert on gaps/tampering |
+| Z4 data -> Z8 backup | Encrypted records and configuration | Backup service identity plus recovery-controlled key | Dataset allowlist and retention policy | Encrypt before leaving source; authenticated destination | Manifest, checksum, version, restore compatibility | Record backup and test restore; a copy alone is not a verified backup |
+
+Unresolved controls are explicit risks, not silent assumptions:
+
+- exact device/service authentication technology;
+- vault implementation and recovery-key custody;
+- durable storage and encrypted backup target;
+- Home Assistant's supported transport/authentication for the later Osun integration;
+- safe remote owner access, which remains prohibited until separately designed;
+- clock synchronization and behavior during large clock drift.
+
+---
+
+## 13. Common event and flow rules
+
+Every workflow run carries:
+
+- immutable run, correlation, and causation IDs;
+- owner, workflow definition/version, and initiating identity;
+- occurred-at and received-at timestamps plus source freshness;
+- data sensitivity, purpose, retention, and provenance references;
+- policy, model, prompt, adapter, and schema versions used;
+- explicit state transitions and terminal outcome.
+
+Common processing sequence:
+
+```text
+authenticate trigger
+-> validate and deduplicate
+-> load only purpose-authorized context
+-> create proposal with a replaceable model or deterministic fallback
+-> treat proposal as untrusted data
+-> evaluate policy and obtain approval if required
+-> execute through one restricted adapter when authorized
+-> independently verify
+-> write audit evidence
+-> request feedback
+-> create candidate memory only under memory policy
+```
+
+No failure after proposal generation may be rewritten as success. No retry may broaden scopes, change the action payload, or reuse an expired approval.
+
+---
+
+## 14. WF-01 end-to-end flow: Daily Consistency Plan
+
+**Maximum sensitivity:** Personal initially; Sensitive if event titles or health context are later enabled. \
+**Cloud rule:** Minimal owner-approved goal/task text only; calendar titles and health data denied by default. \
+**Action ceiling:** Suggestions and local saves; every Google Calendar write requires preview and explicit approval.
+
+| Step | Authority/component | Input and control | Output/evidence |
+|---|---|---|---|
+| 1. Trigger | Owner interface or scheduler | Authenticated owner request or one allowed daily prompt; quiet hours and workflow-disable checked | New `wf-01` run or a recorded suppressed trigger |
+| 2. Intent capture | Interface -> ingress | Owner text is size/schema validated; external pasted content remains untrusted | Normalized request with provenance |
+| 3. Context retrieval | Orchestrator -> memory | Read confirmed goals/preferences and recent plan outcomes under WF-01 purpose | Attributed context bundle; missing means unknown |
+| 4. Calendar availability | Executor -> Google Calendar | Read-only Stage A fields; freshness and selected calendar aliases enforced | Busy/free blocks or explicit unavailable/stale state |
+| 5. Context routing | Router/policy | Remove unnecessary content; cloud route allowed only for approved minimal fields | Model request envelope with sensitivity and provider decision |
+| 6. Plan proposal | Model runtime | Model sees only supplied context and emits a schema-bound proposal | Untrusted proposed actions, timing, uncertainty, and sources |
+| 7. Policy/evaluation | Orchestrator + policy | Validate feasibility, non-scope, action risks, notification budget, and current policy | Allowed suggestion, denied proposal, or correction request |
+| 8. Owner presentation | Interface | Show editable plan, source freshness, uncertainty, and any proposed effects | Owner edit, dismiss, snooze, or Submit/Save |
+| 9. Local save | Memory/data plane | Submit/Save authorizes the exact local plan; no external effect | Versioned plan artifact and audit event |
+| 10. Optional calendar write | Policy -> executor -> Google | Separate preview and R3 approval bound to exact event; scoped adapter writes and reads back | Verified external event plus undo option, or visible failure |
+| 11. Outcome feedback | Interface -> memory | Owner may record result/usefulness; absence is unknown, not failure | Raw outcome observation with RET-2 policy |
+| 12. Learning | Memory service | Preference inference remains candidate until confirmed; preserve source links | Candidate/confirmed memory, correction, or no promotion |
+
+Failure behavior:
+
+- stale calendar: show freshness and propose an unscheduled plan or ask the owner;
+- unavailable model: use a deterministic owner-editable template or stop before claiming a personalized plan;
+- duplicate trigger: reuse/open the existing run rather than create competing daily plans;
+- malicious calendar title when Stage B is later enabled: treat as data, never as an instruction;
+- expired approval: show the proposal again and require a fresh approval before writing.
+
+---
+
+## 15. WF-02 end-to-end flow: Weekly Health Plan
+
+**Maximum sensitivity:** Sensitive. \
+**Cloud rule:** Meal, workout, energy, sleep, calorie, and Apple Health information remains local-only. \
+**Action ceiling:** Local proposals/saves; calendar writes only through separate preview and approval; no purchases, diagnosis, treatment, or health-record writes.
+
+| Step | Authority/component | Input and control | Output/evidence |
+|---|---|---|---|
+| 1. Trigger | Owner interface or scheduler | Authenticated request or one allowed weekly prompt; dismissal lowers future frequency | New `wf-02` run or suppressed trigger |
+| 2. Constraint capture | Interface/ingress | Explicit schedule, food, equipment, time, budget band, and owner-stated limitations; no clinical inference | Normalized owner constraints with sensitivity labels |
+| 3. Local context | Orchestrator -> memory | Retrieve only current confirmed preferences, recent plan corrections, and approved wellness summaries | Attributed local context; missing data remains unknown |
+| 4. Calendar availability | Restricted adapter | Stage A busy/free fields and freshness; no titles by default | Feasible time windows or unavailable state |
+| 5. Health data check | Policy + memory | Only individually enabled aggregate types; absence never interpreted as zero or noncompliance | Optional local wellness summary with authorization provenance |
+| 6. Local proposal | Router -> local model | Sensitive context forces local route; schema restricts meals/workouts and requires uncertainty | Draft weekly plan and explicit assumptions |
+| 7. Safety/policy check | Policy/orchestrator | Reject diagnosis, treatment, restrictive automatic goals, conflict with stated pain/fatigue, purchase, or external communication | Allowed editable proposal, narrowed request, or refusal |
+| 8. Owner review | Interface | Show assumptions, conflicts, source freshness, and bounded edits | Accept, edit, regenerate, dismiss, or save |
+| 9. Local save | Memory/data plane | Submit/Save applies to the exact reviewed plan | Versioned sensitive plan; local-only audit |
+| 10. Optional calendar actions | Policy/executor | Each event receives separate exact preview/approval and read-back verification | Verified calendar items and undo, or no effect |
+| 11. Outcome and learning | Interface/memory | Owner corrections and usefulness may become candidates; plan adherence is not moralized | Raw feedback plus confirmed/candidate preference updates |
+
+Failure behavior:
+
+- unavailable local model: offer a blank structured planner, never route sensitive context to cloud as a fallback;
+- missing or denied HealthKit data: continue without it and state that it was unavailable;
+- conflicting constraint: ask the owner or omit the affected item rather than override pain, fatigue, schedule, or preference;
+- out-of-order correction: attach it to the referenced plan version; never overwrite a newer plan silently;
+- duplicate scheduled prompt: suppress using workflow/week idempotency key.
+
+---
+
+## 16. WF-03 end-to-end flow: Low-Friction Calorie Capture
+
+**Maximum sensitivity:** Sensitive. \
+**Cloud rule:** Food text, calorie/nutrition estimates, corrections, and summaries remain local-only. \
+**Action ceiling:** Local calculation, estimate, display, correction, and intentional save; no external sharing or health-record write.
+
+| Step | Authority/component | Input and control | Output/evidence |
+|---|---|---|---|
+| 1. Trigger | Owner interface | Manual owner entry only in the initial workflow; no unsolicited calorie reminder | New `wf-03` run tied to one meal/capture intent |
+| 2. Input capture | Interface/ingress | Validate owner text, time, and meal grouping; no photo initially; pasted content is untrusted | Normalized local food-entry observation |
+| 3. Reference retrieval | Memory/local reference adapter | Search approved local food/nutrition references; keep provenance and units | Candidate matches or explicit insufficient evidence |
+| 4. Local estimation | Deterministic calculator/local model | No cloud route; structured output requires units, range/confidence, and source | Untrusted estimate or abstention |
+| 5. Validation | Orchestrator/policy | Reject impossible units, fabricated precision, hidden restrictive targets, or cross-purpose use | Displayable estimate, clarification request, or refusal to guess |
+| 6. Owner correction | Interface | Show source, uncertainty, alternatives, and easy edit | Confirmed amount/match or intentionally unresolved entry |
+| 7. Local save | Memory/data plane | Submit/Save authorizes only the exact entry and estimate | Versioned record with derivation and RET-2 policy |
+| 8. Local review | Local computation | Aggregate only saved records; missing entries remain missing | Local summary labeled incomplete when appropriate |
+| 9. Learning | Memory service | Corrections may create candidate food mappings; confirmation required before durable preference/procedure | Candidate mapping, confirmed mapping, or no promotion |
+
+Failure behavior:
+
+- no reliable match: display alternatives/range or abstain; never invent precision;
+- duplicate submit: idempotency key returns the existing record rather than double-counting;
+- late correction: supersede the earlier version while retaining provenance;
+- malicious reference text: parse as reference data only and reject embedded instructions;
+- storage unavailable: keep an explicitly unsaved local draft only while the interface is open or ask the owner to retry.
+
+---
+
+## 17. Anomalous-input and ordering rules
+
+| Condition | Detection | Required response | Prohibited response |
+|---|---|---|---|
+| Missing | Required field absent or permission/source unavailable | Mark unknown, omit dependency, ask narrowly, or stop | Treat as zero, false, failure, or inferred consent |
+| Stale | Source freshness exceeds workflow policy | Show age, use only if allowed, refresh, or degrade | Claim current knowledge |
+| Duplicate | Same idempotency key, source ID/version, or semantic action identity | Return prior result or merge under explicit rule | Repeat an external effect or double-count a record |
+| Out of order | Occurred-at/version precedes current accepted state | Preserve event, attach to correct version, recompute only under policy | Silently overwrite newer state |
+| Conflicting | Two claims disagree for overlapping validity | Keep both with provenance; ask owner or choose only under explicit source precedence | Hide conflict or convert an inference into fact |
+| Malicious/injected | Untrusted content contains instruction-like text, links, or tool requests | Keep as quoted data, strip active markup, constrain parser, alert/deny if needed | Follow it as system/workflow instruction |
+| Malformed | Schema, type, bounds, unit, encoding, or signature invalid | Reject and record reason without unsafe echo | Coerce into an action silently |
+| Replay | Nonce, approval, event, or capability already used or expired | Deny; surface safe status; investigate repeated attempts | Re-execute because the payload looks familiar |
+| Partial external success | Provider call ambiguous, timed out, or verification disagrees | Read authoritative state before retry; show uncertainty | Blind retry or declare failure/success without verification |
+| Clock drift | Timestamps differ beyond accepted tolerance | Quarantine time-sensitive action, resynchronize, require fresh approval | Extend approvals or reorder silently |
+
+---
+
+## 18. M0-21 acceptance check
+
+- [x] Owner, session, device, service, workflow, run, agent, model, integration, subject, and recovery identities are defined.
+- [x] Trust zones cover owner surfaces, Agent Box, Personal Core, private data/secrets, Home Assistant, local transit, external providers, and recovery.
+- [x] Authentication, authorization, encryption, validation, freshness, audit, and failure expectations label each boundary crossing.
+- [x] WF-01, WF-02, and WF-03 trace from trigger through possible memory update.
+- [x] Sensitivity and cloud-egress rules are explicit for every selected workflow.
+- [x] Stale, missing, duplicated, conflicting, malicious, malformed, replayed, partial, and out-of-order input behavior is defined.
+- [x] Every boundary has a named conceptual control or explicit unresolved implementation risk.
+- [ ] Owner approves the identity/trust/flow model.
+- [ ] M0-22 and M0-23 challenge these assumptions through threat and privacy reviews.
+
+---
+
+## 19. Deferred to M0-22 and later
+
+M0-22 through M0-24 will challenge the map through threat modeling, privacy analysis, and version-zero contracts. They will determine whether the conceptual controls are sufficient, identify high/critical failure paths, and turn the boundaries into testable schemas.
+
+Technology selection, protocol selection, credential creation, installation, and network changes remain deferred to M0-40/M0-41. Safe remote owner access remains out of scope until a separately reviewed design exists.
 
 ---
 
@@ -359,9 +625,9 @@ M0-22 through M0-24 will challenge the map through threat modeling, privacy anal
 
 - Author/agent: Primary AI coordinator acting as systems architect
 - Reviewer: Coordinator and owner
-- Status: M0-02 agent complete; M0-20 owner review
+- Status: M0-02 and M0-20 accepted; M0-21 owner/security/privacy review
 - Inputs used: Accepted charter, workflow catalog, data/autonomy boundaries, current-system inventory, living master plan
 - Assumptions: Pi OS unit is the Personal Core candidate; Home Assistant installation is preserved; durable storage and backup technology remain undecided
-- Open questions: Owner comprehension/intent check; detailed identities, trust boundaries, and flows in M0-21
-- Acceptance evidence: Canonical glossary, plain-language map, single-authority capability matrix, component non-responsibilities, offline behavior, replaceability boundaries, and deployment intent
+- Open questions: Owner approval of Sections 10-18; implementation choices and risks deferred to M0-22 through M0-24 and M0-40
+- Acceptance evidence: Canonical glossary, accepted component map, identity model, trust zones, boundary control matrix, three request-to-memory traces, anomaly rules, offline behavior, replaceability boundaries, and deployment intent
 - Last updated: 2026-07-26
