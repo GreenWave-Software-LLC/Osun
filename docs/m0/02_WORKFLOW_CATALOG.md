@@ -1,7 +1,7 @@
 # Osun Workflow Catalog
 
 **Tasks:** M0-12 candidate catalog and scoring; M0-13 owner selection; M0-25 narratives later \
-**State:** M0-12 agent draft complete; owner selection required for M0-13 \
+**State:** M0-12 accepted; ranked trio approved, workflow boundary confirmation remains for M0-13 \
 **Workflow analyst:** Primary AI coordinator \
 **Last updated:** 2026-07-25
 
@@ -234,7 +234,7 @@ WF-07 and WF-11 score highly because they are simple, frequent, and architectura
 - [x] Owner value reflects accepted outcome priorities and stated friction.
 - [x] Scores are labeled provisional and do not replace owner judgment.
 - [x] A recommendation and balanced alternative are explicit.
-- [ ] Owner reviews the catalog and either accepts or corrects material scoring assumptions.
+- [x] Owner reviews the catalog and either accepts or corrects material scoring assumptions.
 
 ---
 
@@ -247,7 +247,45 @@ The owner must select and rank three workflows. For each selected workflow, the 
 - maximum year-one autonomy;
 - whether it is eligible to become the M1 vertical-slice candidate.
 
-**Owner selection:** Pending.
+**Owner selection approved on 2026-07-25:**
+
+1. WF-01 Daily Consistency Plan.
+2. WF-02 Weekly Health Plan.
+3. WF-03 Low-Friction Calorie Capture and Nutrition Review.
+
+### 7.1 WF-01 selected boundary
+
+**Six-month outcome:** The owner uses a realistic plan on at least four days per week during a 30-day evaluation period, reports that it makes consistency easier on most evaluated weeks, and spends less time deciding what to do than in the M0 baseline.
+
+**Non-scope:** Punitive streaks, moral judgment, maximizing task count, autonomous commitments, hidden productivity scores, and treating incomplete plans as failure.
+
+**Year-one autonomy ceiling:** R1 plan suggestions by default. R2 reversible local saves or reminders only in an owner-approved workflow. External calendar writes require preview and approval. No autonomous messages or commitments.
+
+**M1 eligibility:** Provisional M1 vertical-slice candidate because it is ranked first, can begin with low-sensitivity manual inputs, and exercises planning, policy, audit, verification, and feedback.
+
+### 7.2 WF-02 selected boundary
+
+**Six-month outcome:** Weekly meal/workout planning time falls materially from the M0 baseline, most generated plans are accepted with only bounded edits, and the owner reports that the workflow supports energy and consistency rather than rigidity.
+
+**Non-scope:** Medical diagnosis, treatment, injury guidance, automatic purchases, prescriptive body goals, or overriding owner-reported pain, fatigue, schedule, preferences, or professional advice.
+
+**Year-one autonomy ceiling:** R1 meal, grocery, and workout proposals. R2 save to Osun or add approved calendar/reminder items after preview. No purchase, health-record write, or external communication.
+
+**M1 eligibility:** Not the first candidate; introduce after the policy and feedback spine is proven by WF-01.
+
+### 7.3 WF-03 selected boundary
+
+**Six-month outcome:** Average calorie-capture time falls materially from baseline, uncertain estimates are visibly labeled and easy to correct, and the owner continues to rate tracking as helpful rather than burdensome.
+
+**Non-scope:** Diagnosis, treatment, automatic restrictive targets, shame, fabricated precision, sharing data externally by default, or using missed entries as evidence of failure. Photo-based inference is deferred until separately assessed.
+
+**Year-one autonomy ceiling:** R0 local calculation and storage plus R1 estimates/summaries. The owner confirms uncertain matches. No external sharing, health-record writes, purchases, or autonomous goal changes.
+
+**M1 eligibility:** Not the first candidate; initial manual text capture can follow after memory and sensitive-data controls are defined.
+
+### 7.4 Boundary confirmation
+
+The ranked selection is approved. M0-13 completes when the owner confirms or amends the outcome, non-scope, autonomy, and M1 eligibility statements in Sections 7.1-7.3.
 
 ---
 
@@ -261,9 +299,9 @@ Detailed success, denial, outage, injection, duplicate-event, bad-memory, and re
 
 - Author/agent: Primary AI coordinator acting as workflow analyst
 - Reviewer: Owner
-- Status: M0-12 agent draft complete; owner review
+- Status: M0-12 accepted; M0-13 boundary review
 - Inputs used: Accepted owner charter, current-system inventory, M0 scoring rubric
 - Assumptions: Time savings lack baseline; workflow complexity and privacy scores are provisional; health workflows are wellness support, not diagnosis or treatment
-- Open questions: Owner selection in Section 7 and any scoring corrections
-- Acceptance evidence: Twelve comparable workflow cards, consistent scoring table, recommendation, caveats, and selection criteria
+- Open questions: Owner confirmation of selected boundaries in Section 7.4
+- Acceptance evidence: Twelve comparable workflow cards, consistent scoring table, owner-approved ranked trio, recommendation, caveats, and selection criteria
 - Last updated: 2026-07-25

@@ -176,6 +176,23 @@ Confirmed owner choices:
 - Google Calendar is the primary calendar.
 - Future local analysis of Apple Watch and calorie data is allowed in principle; exact fields, retention, purpose, and consent controls remain for M0-14.
 
+### 5.1 Selected-workflow integration validation
+
+| Source/capability | Selected workflows | Access/authentication path | Expected M0/M1 rate | Offline behavior | M0 readiness |
+|---|---|---|---|---|---|
+| Owner goals and dreams | WF-01 | Explicit local owner entry; no external authentication | Updated on owner request; reviewed weekly | Fully local | Ready for design |
+| Google Calendar | WF-01, WF-02 | Google Calendar REST API with OAuth 2.0; begin with the narrowest read-only event scope that satisfies planning | Read on owner request and limited scheduled refresh; exact quota/rate set after prototype | Use an encrypted local cache with visible freshness; never claim current state while offline | Research validated; credentials not created during M0 |
+| Health/energy check-in | WF-01, WF-02 | Explicit local self-report initially | Optional one or two small entries per day | Fully local | Ready for design |
+| Meal/workout preferences | WF-02 | Explicit local owner entry | Weekly and on owner correction | Fully local | Ready for design |
+| Apple Watch/Health data | WF-02 and later evaluation | Future iPhone companion using HealthKit fine-grained, per-type permission; manual XML export is a possible research fallback | At most daily summary for initial use; exact fields/rate wait for M0-14 | Last authorized local summary with visible freshness; no silent inference from missing permissions | Deferred from M1; pathway validated |
+| Meal/calorie record | WF-03 | Manual local text entry first; no nutrition API selected | Owner-triggered per meal and daily review | Core capture/calculation remains local | Ready for design; reference data undecided |
+
+Google documents its Calendar interface as a REST API and provides narrow OAuth scopes including read-only event access; Osun should request only the minimum scope needed: [Google Calendar API overview](https://developers.google.com/workspace/calendar/api/guides/overview) and [Calendar OAuth scopes](https://developers.google.com/workspace/calendar/api/auth).
+
+Apple HealthKit stores health/fitness data on Apple platforms and requires fine-grained permission for each data type. Permission may be limited to a recent time window and can be changed by the owner. Therefore, Windows and Pi services should not be designed as if they can read Apple Watch data directly: [HealthKit overview](https://developer.apple.com/documentation/healthkit), [HealthKit authorization](https://developer.apple.com/documentation/HealthKit/authorizing-access-to-health-data), and [Apple Health XML export](https://support.apple.com/en-euro/guide/iphone/iph5ede58c3d/ios).
+
+These sources validate possible access paths, not authorization to implement or collect data during M0.
+
 ---
 
 ## 6. Integration readiness categories
@@ -199,8 +216,8 @@ No system is marked Ready during this initial inventory.
 - [x] Core Raspberry Pi facts confirmed; power/cooling mapping and OS versions remain explicit unknowns.
 - [x] Core Home Assistant facts confirmed; external access and version remain explicit unknowns.
 - [x] Calendar, task, note, phone, AI, secrets, and backup systems named.
-- [ ] Each system required by a selected workflow is present or marked missing.
-- [ ] Authentication method, API/export availability, sensitivity, expected rate, and offline behavior recorded for selected systems.
+- [x] Each system required by a selected workflow is present or marked missing.
+- [x] Authentication method, API/export availability, sensitivity, expected rate, and offline behavior recorded for selected systems at M0 precision.
 - [x] Unknowns remain explicitly unconfirmed rather than guessed.
 - [x] Owner reviews the inventory for accuracy.
 
@@ -210,9 +227,9 @@ No system is marked Ready during this initial inventory.
 
 - Author/agent: Primary AI coordinator acting as technology scout
 - Reviewer: Owner and future privacy analyst
-- Status: Core inventory accepted; selected-workflow validation pending
+- Status: Accepted; M0-11 complete
 - Inputs used: Read-only Windows inspection, command/version checks, owner project statements
 - Assumptions: Owner-reported Pi RAM is mildly uncertain; power/cooling, OS versions, Home Assistant external access, storage purpose/media, and local-AI support remain unconfirmed
-- Open questions: Selected-workflow API, authentication, expected-rate, and offline requirements after M0-13; non-blocking hardware questions in Sections 3-4
-- Acceptance evidence: Windows and core Pi/service facts recorded without credentials, identifiers, or personal content; owner reviewed and corrected the inventory
+- Open questions: Non-blocking hardware questions in Sections 3-4 and implementation details deferred to later decisions
+- Acceptance evidence: Windows and core Pi/service facts recorded without credentials, identifiers, or personal content; owner reviewed the inventory; selected sources have access, rate, sensitivity, and offline expectations
 - Last updated: 2026-07-25

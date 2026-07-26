@@ -19,11 +19,10 @@ The owner charter is accepted and twelve workflows have been cataloged and score
 
 ### Current state
 
-- **Completed:** M0-00, M0-01, and M0-10.
-- **Agent complete / owner review:** M0-12 workflow catalog.
-- **In progress:** M0-13 owner workflow selection.
-- **Waiting on M0-13:** M0-11 selected-service integration validation.
-- **Current input dependency:** Owner selection/ranking of three workflows and any scoring corrections.
+- **Completed:** M0-00, M0-01, M0-10, M0-11, and M0-12.
+- **In progress:** M0-13 selected-workflow boundary confirmation.
+- **Approved ranking:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture and Nutrition Review.
+- **Current input dependency:** Owner confirmation of proposed outcomes, non-scope, autonomy ceilings, and M1 eligibility.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
@@ -36,9 +35,9 @@ M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
 
 ### Next three assignments
 
-1. **Owner:** Select and rank three workflows from `02_WORKFLOW_CATALOG.md`.
-2. **Owner:** Confirm measurable six-month intent, year-one autonomy ceiling, and non-scope for the selected trio with AI assistance.
-3. **AI coordinator:** Finalize M0-12/M0-13, validate selected integrations for M0-11, and open M0-14/M0-15.
+1. **Owner:** Confirm or amend workflow boundaries in Sections 7.1-7.3 of `02_WORKFLOW_CATALOG.md`.
+2. **AI coordinator:** Complete M0-13 and open M0-14/M0-15 after confirmation.
+3. **AI coordinator:** Carry selected data sources and action ceilings into the data/autonomy specification.
 
 ---
 
@@ -52,9 +51,9 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | M0-00 | Accept M0 scope and operating rules | Owner | Owner | M0-01 | Owner accepted | Section 7.1 | 2026-07-25 |
 | M0-02 | Establish glossary and naming | Systems architect | Unassigned | M0-00 | Not started | `06_SYSTEM_ARCHITECTURE.md` | Pending |
 | M0-10 | Define owner charter and life outcomes | Owner | Owner + primary AI interview analyst | M0-00 | Owner accepted | `01_OWNER_CHARTER.md` | 2026-07-25 |
-| M0-11 | Inventory systems, devices, services, and sources | Technology scout | Primary AI technology scout | M0-00 | Blocked by M0-13 validation | `04_CURRENT_SYSTEM_INVENTORY.md` | Pending |
-| M0-12 | Create and score ten candidate workflows | Workflow analyst | Primary AI workflow analyst | M0-10 | Agent complete | `02_WORKFLOW_CATALOG.md` | Pending owner review |
-| M0-13 | Select first three workflows | Owner | Owner | M0-12 | In progress | `02_WORKFLOW_CATALOG.md` | Pending |
+| M0-11 | Inventory systems, devices, services, and sources | Technology scout | Primary AI technology scout | M0-00 | Agent complete | `04_CURRENT_SYSTEM_INVENTORY.md` | 2026-07-25 |
+| M0-12 | Create and score ten candidate workflows | Workflow analyst | Primary AI workflow analyst | M0-10 | Owner accepted | `02_WORKFLOW_CATALOG.md` | 2026-07-25 |
+| M0-13 | Select first three workflows | Owner | Owner | M0-12 | In progress; ranking approved | `02_WORKFLOW_CATALOG.md` | Pending boundary confirmation |
 | M0-14 | Define data and cloud-egress boundaries | Owner | Owner + privacy analyst | M0-10, M0-11, M0-13 | Not started | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Pending |
 | M0-15 | Define autonomy and approval boundaries | Owner | Owner + security/workflow analysts | M0-13 | Not started | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Pending |
 | M0-16 | Define and begin baseline measurement | Evaluation scientist | Unassigned | M0-13 | Not started | `05_BASELINE_MEASUREMENT.md` | Pending |
@@ -94,9 +93,9 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 |---|---|---|---|---|
 | `00_M0_STATUS.md` | Coordinator | Agent complete | M0-01, M0-45 | Created 2026-07-25 |
 | `01_OWNER_CHARTER.md` | Owner + interview analyst | Accepted | M0-10 | Accepted 2026-07-25 |
-| `02_WORKFLOW_CATALOG.md` | Workflow analyst | Owner review | M0-12, M0-13, M0-25 | Twelve candidates scored; selection pending |
+| `02_WORKFLOW_CATALOG.md` | Workflow analyst | Boundary review | M0-12, M0-13, M0-25 | Ranked trio approved; detailed boundaries pending |
 | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Not started | M0-14, M0-15 | Owner approval required |
-| `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Core accepted; validation pending | M0-11 | Selected-workflow integration rows wait for M0-13 |
+| `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Agent complete | M0-11 | Selected integration paths validated at M0 precision |
 | `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Not started | M0-16 | Seven-day baseline intended |
 | `06_SYSTEM_ARCHITECTURE.md` | Systems architect | Not started | M0-02, M0-20, M0-21 | Plain-language explanation required |
 | `07_THREAT_MODEL.md` | Security analyst | Not started | M0-22 | High/critical risks must map to controls |
@@ -120,8 +119,8 @@ Each row must link to exact evidence before M0-47.
 | Gate ID | Exit criterion | Planned evidence | State |
 |---|---|---|---|
 | G-MIS-01 | Owner accepted mission, non-goals, principles, and scope | `01_OWNER_CHARTER.md` | Evidence present |
-| G-WFL-01 | Ten workflows considered consistently | `02_WORKFLOW_CATALOG.md` | Evidence present; owner review pending |
-| G-WFL-02 | Three workflows selected and measurable | `02_WORKFLOW_CATALOG.md` | Missing |
+| G-WFL-01 | Ten workflows considered consistently | `02_WORKFLOW_CATALOG.md` | Evidence present; owner accepted |
+| G-WFL-02 | Three workflows selected and measurable | `02_WORKFLOW_CATALOG.md` | Ranked trio present; boundary confirmation pending |
 | G-BAS-01 | Baseline completed or valid alternative recorded | `05_BASELINE_MEASUREMENT.md` | Missing |
 | G-DAT-01 | Every source has purpose, sensitivity, retention, pause/delete/export/egress | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Missing |
 | G-AUT-01 | Every external action has risk and approval rule | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Missing |
@@ -178,7 +177,7 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-001 | Accept or amend M0 operating rules | Now | Accepted as written 2026-07-25 | Section 7.1 response |
 | OD-002 | Confirm AI-assisted coordinator | M0-00 | Approved 2026-07-25 | Owner statement |
 | OD-003 | Define “better life” and prioritized outcomes | M0-10 | Accepted 2026-07-25 | `01_OWNER_CHARTER.md` |
-| OD-004 | Select first three workflows | M0-13 | Pending; agent recommends WF-01/WF-02/WF-03 | `02_WORKFLOW_CATALOG.md` |
+| OD-004 | Select first three workflows | M0-13 | Ranked WF-01/WF-02/WF-03 approved; detailed boundaries pending | `02_WORKFLOW_CATALOG.md` |
 | OD-005 | Set prohibited, confirmation-only, and allowed data | M0-14 | Pending | Data inventory and privacy analysis |
 | OD-006 | Set local/cloud processing rule | M0-14 | Pending | Sensitivity, quality, latency, cost evidence |
 | OD-007 | Set autonomy and always-approve actions | M0-15 | Pending | Workflow action/risk inventory |
@@ -259,6 +258,7 @@ After the response, the coordinator will:
 | 2026-07-25 | Owner Interview Round 1 and initial Pi/service inventory captured | `01_OWNER_CHARTER.md`, `04_CURRENT_SYSTEM_INVENTORY.md` |
 | 2026-07-25 | Owner accepted charter mission, principles, non-goals, and consistency direction | `01_OWNER_CHARTER.md` |
 | 2026-07-25 | Twelve candidate workflows cataloged and scored; M0-13 opened | `02_WORKFLOW_CATALOG.md` |
+| 2026-07-25 | Owner approved ranked trio; M0-11 integration validation completed | `02_WORKFLOW_CATALOG.md`, `04_CURRENT_SYSTEM_INVENTORY.md` |
 
 ---
 
@@ -269,6 +269,6 @@ After the response, the coordinator will:
 - Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Workflow selection, selected-service validation, non-blocking device details, and decision queue in Section 6.2
+- Open questions: Selected-workflow boundary confirmation, non-blocking device details, and decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
 - Last updated: 2026-07-25
