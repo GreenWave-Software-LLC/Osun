@@ -23,7 +23,7 @@ The owner accepted all 24 selected-workflow narratives. The 79-case golden/adver
 - **In progress:** M0-16 baseline measurement.
 - **Approved ranking:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture and Nutrition Review.
 - **Current input dependency:** Owner completes the private baseline; only aggregate/non-sensitive review values enter the planning repository.
-- **Production build authorization:** Not granted; M0 remains specification-first.
+- **Build authorization:** Limited P0-LIGHT-01 Windows lighting prototype authorized in parallel; the general Osun runtime remains specification-first and unauthorized.
 
 ### Critical path
 
@@ -192,6 +192,7 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-015 | Approve threat-model residual-risk dispositions and gates | M0-22 | Approved 2026-07-26 | `07_THREAT_MODEL.md` Section 12 |
 | OD-016 | Approve privacy residual-risk dispositions and gates | M0-23 | Approved 2026-07-26 | `08_PRIVACY_IMPACT_ASSESSMENT.md` Section 13 |
 | OD-017 | Approve selected-workflow success/failure/recovery narratives | M0-25 | Accepted as written 2026-07-26 | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
+| OD-018 | Authorize a parallel Windows chat lighting prototype and narrow Home Assistant light control exception | P0-LIGHT-01 | Authorized 2026-07-26; simulator first, exact Apply, light allowlist, local credential protection, no other device domains | `../prototypes/P0_LIGHTING_ASSISTANT.md` |
 
 ### 6.3 Assumptions
 
@@ -282,6 +283,8 @@ After the response, the coordinator will:
 | 2026-07-26 | Owner accepted all 24 M0-25 workflow narratives as written | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
 | 2026-07-26 | M0-30 completed with 79 golden/adversarial scenarios and internal security/workflow reviews | `11_GOLDEN_SCENARIOS.md` |
 | 2026-07-26 | M0-32 recovery, pause, kill, backup/restore, and incident concept completed and architecture-reviewed | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` |
+| 2026-07-26 | Owner authorized P0-LIGHT-01 as a narrow parallel implementation exception while M0-16 continues | `../prototypes/P0_LIGHTING_ASSISTANT.md` |
+| 2026-07-26 | P0-LIGHT-01 simulator and restricted Home Assistant code paths completed; real-device setup/canary remains pending | `../prototypes/P0_LIGHTING_ASSISTANT.md`, `../prototypes/P0_LIGHTING_ASSISTANT_USER_GUIDE.md` |
 
 ---
 

@@ -1,7 +1,7 @@
 # Osun: Living Master Plan
 
 **Document status:** Living specification  
-**Version:** 0.1.12 \
+**Version:** 0.1.13 \
 **Last updated:** 2026-07-26
 **Planning horizon:** 2026-2036+  
 **Initial operator:** One person with AI development assistance  
@@ -1250,6 +1250,6 @@ These references should be reviewed for newer revisions during annual planning. 
 ## 18. Current status
 
 **Active milestone:** M0 — Charter, requirements, and evidence plan  
-**Current gate status:** In progress; M0-16 baseline active, M0-25 owner accepted, and M0-30/M0-32 agent complete \
-**Next action:** Complete the private baseline cards from 2026-07-27 through 2026-08-02; then use only the approved aggregate values to begin M0-31. \
-**Build authorization:** Not yet granted; architecture and specification work only.
+**Current gate status:** In progress; M0-16 baseline active, M0-25 owner accepted, and M0-30/M0-32 agent complete; P0-LIGHT-01 runs as a separate owner-authorized prototype \
+**Next action:** Continue the private baseline while implementing and testing the simulator-first [Windows Lighting Assistant](prototypes/P0_LIGHTING_ASSISTANT.md). \
+**Build authorization:** Limited to P0-LIGHT-01 under its recorded light-only, local, allowlisted, exact-Apply boundary; the general Osun runtime remains unauthorized.

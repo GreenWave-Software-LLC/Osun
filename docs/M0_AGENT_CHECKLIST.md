@@ -55,6 +55,8 @@ This checklist is both an execution dashboard and a dispatch guide for AI agents
 
 If a task would cross this boundary, the agent must stop, describe the proposed expansion, and request owner authorization.
 
+**Recorded exception (2026-07-26):** The owner separately authorized P0-LIGHT-01, a simulator-first Windows lighting assistant with a restricted Home Assistant light-only adapter. The exception is bounded by `docs/prototypes/P0_LIGHTING_ASSISTANT.md`; it does not authorize the general runtime, other device domains, public access, ambient data, or direct model-to-tool execution, and it does not count as M0 exit evidence.
+
 ---
 
 ## 3. Responsibility model
