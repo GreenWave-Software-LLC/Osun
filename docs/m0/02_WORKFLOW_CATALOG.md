@@ -1,9 +1,9 @@
 # Osun Workflow Catalog
 
 **Tasks:** M0-12 candidate catalog and scoring; M0-13 owner selection; M0-25 narratives later \
-**State:** M0-12 accepted; ranked trio approved, workflow boundary confirmation remains for M0-13 \
+**State:** M0-12 and M0-13 accepted; selected workflow boundaries approved \
 **Workflow analyst:** Primary AI coordinator \
-**Last updated:** 2026-07-25
+**Last updated:** 2026-07-26
 
 ---
 
@@ -222,7 +222,7 @@ Replace WF-03 with **WF-05 Job Application Pipeline** if near-term employment pr
 
 ### Why not select solely by total score
 
-WF-07 and WF-11 score highly because they are simple, frequent, and architecturally useful. The recommended trio instead prioritizes the owner's top health outcome and explicitly named daily friction. M0-13 remains the owner's decision.
+WF-07 and WF-11 score highly because they are simple, frequent, and architecturally useful. The approved trio instead prioritizes the owner's top health outcome and explicitly named daily friction.
 
 ---
 
@@ -285,7 +285,7 @@ The owner must select and rank three workflows. For each selected workflow, the 
 
 ### 7.4 Boundary confirmation
 
-The ranked selection is approved. M0-13 completes when the owner confirms or amends the outcome, non-scope, autonomy, and M1 eligibility statements in Sections 7.1-7.3.
+The owner approved the outcome, non-scope, autonomy, and M1 eligibility statements in Sections 7.1-7.3 without amendment on 2026-07-26. M0-13 is complete.
 
 ---
 
@@ -299,9 +299,9 @@ Detailed success, denial, outage, injection, duplicate-event, bad-memory, and re
 
 - Author/agent: Primary AI coordinator acting as workflow analyst
 - Reviewer: Owner
-- Status: M0-12 accepted; M0-13 boundary review
+- Status: M0-12 and M0-13 accepted; M0-25 narratives remain future work
 - Inputs used: Accepted owner charter, current-system inventory, M0 scoring rubric
 - Assumptions: Time savings lack baseline; workflow complexity and privacy scores are provisional; health workflows are wellness support, not diagnosis or treatment
-- Open questions: Owner confirmation of selected boundaries in Section 7.4
-- Acceptance evidence: Twelve comparable workflow cards, consistent scoring table, owner-approved ranked trio, recommendation, caveats, and selection criteria
-- Last updated: 2026-07-25
+- Open questions: Detailed M0-25 success and failure narratives after architecture and contracts stabilize
+- Acceptance evidence: Twelve comparable workflow cards, consistent scoring table, owner-approved ranked trio, owner-approved workflow boundaries, recommendation, caveats, and selection criteria
+- Last updated: 2026-07-26

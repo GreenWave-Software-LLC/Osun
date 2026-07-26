@@ -1,8 +1,8 @@
 # Osun: Living Master Plan
 
 **Document status:** Living specification  
-**Version:** 0.1.5 \
-**Last updated:** 2026-07-25  
+**Version:** 0.1.6 \
+**Last updated:** 2026-07-26
 **Planning horizon:** 2026-2036+  
 **Initial operator:** One person with AI development assistance  
 **Human capacity assumption:** 10 focused hours per week (about 43 hours per month, 520 hours per year, and 5,200 hours over ten years if sustained)  
@@ -1250,6 +1250,6 @@ These references should be reviewed for newer revisions during annual planning. 
 ## 18. Current status
 
 **Active milestone:** M0 — Charter, requirements, and evidence plan  
-**Current gate status:** In progress; ranked trio approved and detailed workflow boundaries pending confirmation \
-**Next action:** Confirm or amend the selected-workflow outcome, non-scope, autonomy, and M1 eligibility statements in the [workflow catalog](m0/02_WORKFLOW_CATALOG.md). \
+**Current gate status:** In progress; M0-13 complete, M0-14 and M0-15 policy drafts in owner review \
+**Next action:** Approve or amend the data, cloud-egress, autonomy, and approval recommendations in [Data and Autonomy Boundaries](m0/03_DATA_AND_AUTONOMY_BOUNDARIES.md). \
 **Build authorization:** Not yet granted; architecture and specification work only.

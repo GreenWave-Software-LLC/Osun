@@ -1,9 +1,9 @@
 # Osun Current System Inventory
 
 **Task:** M0-11 - Inventory current systems, devices, services, and data sources \
-**State:** Core inventory complete; selected-workflow integration validation waits for M0-13 \
+**State:** Accepted; core inventory and selected-workflow integration validation complete \
 **Technology scout:** Primary AI coordinator \
-**Last updated:** 2026-07-25
+**Last updated:** 2026-07-26
 
 ---
 
@@ -232,4 +232,4 @@ No system is marked Ready during this initial inventory.
 - Assumptions: Owner-reported Pi RAM is mildly uncertain; power/cooling, OS versions, Home Assistant external access, storage purpose/media, and local-AI support remain unconfirmed
 - Open questions: Non-blocking hardware questions in Sections 3-4 and implementation details deferred to later decisions
 - Acceptance evidence: Windows and core Pi/service facts recorded without credentials, identifiers, or personal content; owner reviewed the inventory; selected sources have access, rate, sensitivity, and offline expectations
-- Last updated: 2026-07-25
+- Last updated: 2026-07-26

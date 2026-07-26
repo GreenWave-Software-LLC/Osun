@@ -6,23 +6,23 @@
 **Human-owner budget:** 40 hours \
 **Human hours reported:** 0.0 \
 **Human hours remaining:** 40.0 \
-**Last updated:** 2026-07-25 \
+**Last updated:** 2026-07-26 \
 **Coordinator:** AI-assisted coordination approved \
-**Current critical-path task:** M0-13 - Owner selects and ranks the first three workflows \
+**Current critical-path tasks:** M0-14 - Data and cloud-egress boundaries; M0-15 - Autonomy and approval boundaries \
 **Primary references:** [M0 Agent Execution Checklist](../M0_AGENT_CHECKLIST.md) and [Living Master Plan](../OSUN_MASTER_PLAN.md)
 
 ---
 
 ## 1. Executive status
 
-The owner charter is accepted and twelve workflows have been cataloged and scored. The critical-path decision is now selection of the first three workflows. The system inventory is core-complete and waits for selected-workflow integration validation.
+The owner charter and selected workflow trio are accepted, including measurable outcomes, non-scope, autonomy ceilings, and M1 eligibility. The system inventory and selected-source integration validation are complete at M0 precision. Data/privacy and autonomy policy defaults are drafted for owner review.
 
 ### Current state
 
-- **Completed:** M0-00, M0-01, M0-10, M0-11, and M0-12.
-- **In progress:** M0-13 selected-workflow boundary confirmation.
+- **Completed:** M0-00, M0-01, M0-10, M0-11, M0-12, and M0-13.
+- **In progress:** M0-14 data/cloud-egress boundaries and M0-15 autonomy/approval boundaries.
 - **Approved ranking:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture and Nutrition Review.
-- **Current input dependency:** Owner confirmation of proposed outcomes, non-scope, autonomy ceilings, and M1 eligibility.
+- **Current input dependency:** Owner approval or amendment of the M0-14/M0-15 policy recommendations.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
@@ -35,9 +35,9 @@ M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
 
 ### Next three assignments
 
-1. **Owner:** Confirm or amend workflow boundaries in Sections 7.1-7.3 of `02_WORKFLOW_CATALOG.md`.
-2. **AI coordinator:** Complete M0-13 and open M0-14/M0-15 after confirmation.
-3. **AI coordinator:** Carry selected data sources and action ceilings into the data/autonomy specification.
+1. **Owner:** Approve or amend the policy recommendations in Section 11 of `03_DATA_AND_AUTONOMY_BOUNDARIES.md`.
+2. **AI coordinator:** Close M0-14/M0-15 after owner approval and open no more than two successor tasks.
+3. **AI coordinator:** Carry approved data and autonomy rules into architecture, threat, privacy, contract, and evaluation artifacts.
 
 ---
 
@@ -53,9 +53,9 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | M0-10 | Define owner charter and life outcomes | Owner | Owner + primary AI interview analyst | M0-00 | Owner accepted | `01_OWNER_CHARTER.md` | 2026-07-25 |
 | M0-11 | Inventory systems, devices, services, and sources | Technology scout | Primary AI technology scout | M0-00 | Agent complete | `04_CURRENT_SYSTEM_INVENTORY.md` | 2026-07-25 |
 | M0-12 | Create and score ten candidate workflows | Workflow analyst | Primary AI workflow analyst | M0-10 | Owner accepted | `02_WORKFLOW_CATALOG.md` | 2026-07-25 |
-| M0-13 | Select first three workflows | Owner | Owner | M0-12 | In progress; ranking approved | `02_WORKFLOW_CATALOG.md` | Pending boundary confirmation |
-| M0-14 | Define data and cloud-egress boundaries | Owner | Owner + privacy analyst | M0-10, M0-11, M0-13 | Not started | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Pending |
-| M0-15 | Define autonomy and approval boundaries | Owner | Owner + security/workflow analysts | M0-13 | Not started | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Pending |
+| M0-13 | Select first three workflows | Owner | Owner | M0-12 | Owner accepted | `02_WORKFLOW_CATALOG.md` | 2026-07-26 |
+| M0-14 | Define data and cloud-egress boundaries | Owner | Owner + primary AI privacy analyst | M0-10, M0-11, M0-13 | In progress; agent draft complete | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Pending owner review |
+| M0-15 | Define autonomy and approval boundaries | Owner | Owner + primary AI security/workflow analyst | M0-13 | In progress; agent draft complete | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Pending owner review |
 | M0-16 | Define and begin baseline measurement | Evaluation scientist | Unassigned | M0-13 | Not started | `05_BASELINE_MEASUREMENT.md` | Pending |
 | M0-20 | Define component responsibilities | Systems architect | Unassigned | M0-13, M0-14, M0-15 | Not started | `06_SYSTEM_ARCHITECTURE.md` | Pending |
 | M0-21 | Map identities, trust zones, and flows | Systems architect | Unassigned | M0-20 | Not started | `06_SYSTEM_ARCHITECTURE.md` | Pending |
@@ -93,8 +93,8 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 |---|---|---|---|---|
 | `00_M0_STATUS.md` | Coordinator | Agent complete | M0-01, M0-45 | Created 2026-07-25 |
 | `01_OWNER_CHARTER.md` | Owner + interview analyst | Accepted | M0-10 | Accepted 2026-07-25 |
-| `02_WORKFLOW_CATALOG.md` | Workflow analyst | Boundary review | M0-12, M0-13, M0-25 | Ranked trio approved; detailed boundaries pending |
-| `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Not started | M0-14, M0-15 | Owner approval required |
+| `02_WORKFLOW_CATALOG.md` | Workflow analyst | Accepted for M0-12/M0-13 | M0-12, M0-13, M0-25 | Ranked trio and detailed boundaries approved; M0-25 remains |
+| `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Owner review | M0-14, M0-15 | Agent draft complete; Section 11 approval required |
 | `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Agent complete | M0-11 | Selected integration paths validated at M0 precision |
 | `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Not started | M0-16 | Seven-day baseline intended |
 | `06_SYSTEM_ARCHITECTURE.md` | Systems architect | Not started | M0-02, M0-20, M0-21 | Plain-language explanation required |
@@ -120,7 +120,7 @@ Each row must link to exact evidence before M0-47.
 |---|---|---|---|
 | G-MIS-01 | Owner accepted mission, non-goals, principles, and scope | `01_OWNER_CHARTER.md` | Evidence present |
 | G-WFL-01 | Ten workflows considered consistently | `02_WORKFLOW_CATALOG.md` | Evidence present; owner accepted |
-| G-WFL-02 | Three workflows selected and measurable | `02_WORKFLOW_CATALOG.md` | Ranked trio present; boundary confirmation pending |
+| G-WFL-02 | Three workflows selected and measurable | `02_WORKFLOW_CATALOG.md` | Evidence present; owner accepted |
 | G-BAS-01 | Baseline completed or valid alternative recorded | `05_BASELINE_MEASUREMENT.md` | Missing |
 | G-DAT-01 | Every source has purpose, sensitivity, retention, pause/delete/export/egress | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Missing |
 | G-AUT-01 | Every external action has risk and approval rule | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Missing |
@@ -177,10 +177,10 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-001 | Accept or amend M0 operating rules | Now | Accepted as written 2026-07-25 | Section 7.1 response |
 | OD-002 | Confirm AI-assisted coordinator | M0-00 | Approved 2026-07-25 | Owner statement |
 | OD-003 | Define “better life” and prioritized outcomes | M0-10 | Accepted 2026-07-25 | `01_OWNER_CHARTER.md` |
-| OD-004 | Select first three workflows | M0-13 | Ranked WF-01/WF-02/WF-03 approved; detailed boundaries pending | `02_WORKFLOW_CATALOG.md` |
-| OD-005 | Set prohibited, confirmation-only, and allowed data | M0-14 | Pending | Data inventory and privacy analysis |
-| OD-006 | Set local/cloud processing rule | M0-14 | Pending | Sensitivity, quality, latency, cost evidence |
-| OD-007 | Set autonomy and always-approve actions | M0-15 | Pending | Workflow action/risk inventory |
+| OD-004 | Select first three workflows | M0-13 | Ranked WF-01/WF-02/WF-03 and detailed boundaries approved 2026-07-26 | `02_WORKFLOW_CATALOG.md` |
+| OD-005 | Set prohibited, confirmation-only, and allowed data | M0-14 | Draft recommendation pending owner review | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` Sections 3-8 and 11 |
+| OD-006 | Set local/cloud processing rule | M0-14 | Draft local-first routing recommendation pending owner review | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` Sections 8 and 11 |
+| OD-007 | Set autonomy and always-approve actions | M0-15 | Draft action matrix pending owner review | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` Sections 9-11 |
 | OD-008 | Set initial monthly operating budget | M0-40 | Pending | Technology options and costs |
 | OD-009 | Authorize any Week 4 benchmark writes/installs | M0-41 | Pending | Written experiment plan |
 | OD-010 | Approve provisional M1 stack choices | M0-42 | Pending | Scorecard and benchmarks |
@@ -259,6 +259,8 @@ After the response, the coordinator will:
 | 2026-07-25 | Owner accepted charter mission, principles, non-goals, and consistency direction | `01_OWNER_CHARTER.md` |
 | 2026-07-25 | Twelve candidate workflows cataloged and scored; M0-13 opened | `02_WORKFLOW_CATALOG.md` |
 | 2026-07-25 | Owner approved ranked trio; M0-11 integration validation completed | `02_WORKFLOW_CATALOG.md`, `04_CURRENT_SYSTEM_INVENTORY.md` |
+| 2026-07-26 | Owner approved selected-workflow boundaries; M0-13 completed | `02_WORKFLOW_CATALOG.md` |
+| 2026-07-26 | M0-14 and M0-15 opened; data, cloud-egress, autonomy, and approval defaults drafted | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` |
 
 ---
 
@@ -269,6 +271,6 @@ After the response, the coordinator will:
 - Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Selected-workflow boundary confirmation, non-blocking device details, and decision queue in Section 6.2
+- Open questions: M0-14/M0-15 policy approval, non-blocking device details, and decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
-- Last updated: 2026-07-25
+- Last updated: 2026-07-26

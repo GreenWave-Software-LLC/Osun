@@ -189,9 +189,9 @@ Status marks:
 - [x] **M0-10 - Define the owner charter and “better life” outcomes**
 - [x] **M0-11 - Inventory current systems, devices, services, and data sources**
 - [x] **M0-12 - Create and score at least ten candidate workflows**
-- [-] **M0-13 - Owner selects the first three workflows**
-- [ ] **M0-14 - Define data collection, retention, deletion, and cloud-egress boundaries**
-- [ ] **M0-15 - Define autonomy and approval boundaries**
+- [x] **M0-13 - Owner selects the first three workflows**
+- [-] **M0-14 - Define data collection, retention, deletion, and cloud-egress boundaries**
+- [-] **M0-15 - Define autonomy and approval boundaries**
 - [ ] **M0-16 - Define and begin baseline measurement**
 
 ### Week 2 - Architecture, security, privacy, and contracts
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; ranked trio approved and workflow boundary confirmation in progress \
-**Current critical path:** M0-13 -> M0-14/M0-15 -> M0-20/M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47 \
-**Next owner action:** Confirm or amend the proposed outcome, non-scope, autonomy, and M1 eligibility boundaries for the selected trio. \
-**Next agent action:** Complete M0-13 and begin the data/autonomy boundaries.
+**Milestone state:** In progress; selected trio and workflow boundaries approved, data/autonomy policy draft in owner review \
+**Current critical path:** M0-14/M0-15 -> M0-20/M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47 \
+**Next owner action:** Approve or amend the M0-14/M0-15 recommendations in `m0/03_DATA_AND_AUTONOMY_BOUNDARIES.md`. \
+**Next agent action:** Close M0-14/M0-15 after approval and propagate the policies into successor artifacts.
