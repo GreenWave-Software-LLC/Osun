@@ -1,7 +1,7 @@
 # Osun: Living Master Plan
 
 **Document status:** Living specification  
-**Version:** 0.1.11 \
+**Version:** 0.1.12 \
 **Last updated:** 2026-07-26
 **Planning horizon:** 2026-2036+  
 **Initial operator:** One person with AI development assistance  
@@ -1250,6 +1250,6 @@ These references should be reviewed for newer revisions during annual planning. 
 ## 18. Current status
 
 **Active milestone:** M0 — Charter, requirements, and evidence plan  
-**Current gate status:** In progress; M0-16 baseline active, M0-23 accepted, M0-24 complete, M0-25 narratives in owner review \
-**Next action:** Complete the private baseline cards and approve or amend Sections 8-9 of the [Workflow Catalog](m0/02_WORKFLOW_CATALOG.md). \
+**Current gate status:** In progress; M0-16 baseline active, M0-25 owner accepted, and M0-30/M0-32 agent complete \
+**Next action:** Complete the private baseline cards from 2026-07-27 through 2026-08-02; then use only the approved aggregate values to begin M0-31. \
 **Build authorization:** Not yet granted; architecture and specification work only.

@@ -1,7 +1,7 @@
 # Osun Workflow Catalog
 
-**Tasks:** M0-12 candidate catalog and scoring; M0-13 owner selection; M0-25 narratives later \
-**State:** M0-12 and M0-13 accepted; selected workflow boundaries approved \
+**Tasks:** M0-12 candidate catalog and scoring; M0-13 owner selection; M0-25 narratives \
+**State:** M0-12, M0-13, and M0-25 owner accepted \
 **Workflow analyst:** Primary AI coordinator \
 **Last updated:** 2026-07-26
 
@@ -586,7 +586,9 @@ Acceptance checks:
 - [x] Every step names the responsible component.
 - [x] Every failure ends in a safe, owner-visible state.
 - [x] Narratives use typed version-zero contracts and preserve accepted data/autonomy boundaries.
-- [ ] Owner accepts or amends the narratives.
+- [x] Owner accepts or amends the narratives.
+
+**Owner decision:** Accepted all 24 narratives as written on 2026-07-26; no amendments.
 
 ---
 
@@ -594,9 +596,9 @@ Acceptance checks:
 
 - Author/agent: Primary AI coordinator acting as workflow analyst
 - Reviewer: Owner
-- Status: M0-12 and M0-13 accepted; M0-25 narratives in owner review
+- Status: M0-12, M0-13, and M0-25 accepted
 - Inputs used: Accepted owner charter, current-system inventory, M0 scoring rubric, accepted workflow/data/autonomy/architecture/security/privacy specifications, version-zero contracts
 - Assumptions: Time savings lack baseline; workflow complexity and privacy scores are provisional; health workflows are wellness support, not diagnosis or treatment
-- Open questions: Owner acceptance or amendment of Sections 8-9; success thresholds after private baseline completion
+- Open questions: Success thresholds after private baseline completion
 - Acceptance evidence: Twelve comparable workflow cards, consistent scoring table, owner-approved ranked trio/boundaries, and 24 component-named success/failure/recovery narratives
 - Last updated: 2026-07-26

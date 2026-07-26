@@ -201,13 +201,13 @@ Status marks:
 - [x] **M0-22 - Complete the initial threat model**
 - [x] **M0-23 - Complete the initial privacy impact assessment**
 - [x] **M0-24 - Draft version-zero system contracts**
-- [-] **M0-25 - Write success and failure narratives for the selected workflows**
+- [x] **M0-25 - Write success and failure narratives for the selected workflows**
 
 ### Week 3 - Evaluation and failure design
 
-- [ ] **M0-30 - Write at least 25 golden and adversarial scenarios**
+- [x] **M0-30 - Write at least 25 golden and adversarial scenarios**
 - [ ] **M0-31 - Define metrics, baselines, and evaluation methods**
-- [ ] **M0-32 - Define backup, restore, pause, kill, and incident concepts**
+- [x] **M0-32 - Define backup, restore, pause, kill, and incident concepts**
 - [ ] **M0-33 - Define evidence required to earn autonomy**
 - [ ] **M0-34 - Create the requirements traceability matrix**
 
@@ -644,21 +644,21 @@ Acceptance evidence:
 
 Minimum coverage:
 
-- [ ] Three normal cases per selected workflow (9).
-- [ ] Owner edits, denies, cancels, expires, and undoes actions (5).
-- [ ] Prompt injection or malicious content (2).
-- [ ] Duplicate/replayed or out-of-order events (2).
-- [ ] Internet, model, Pi, or external-service failure (4).
-- [ ] Stale or conflicting source data (2).
-- [ ] Incorrect, missing, or prohibited memory with correct abstention (3).
-- [ ] Unauthorized actor or insufficient scope (2).
-- [ ] Backup/restore or pause scenario (1).
+- [x] Three normal cases per selected workflow (9).
+- [x] Owner edits, denies, cancels, expires, and undoes actions (5).
+- [x] Prompt injection or malicious content (2).
+- [x] Duplicate/replayed or out-of-order events (2).
+- [x] Internet, model, Pi, or external-service failure (4).
+- [x] Stale or conflicting source data (2).
+- [x] Incorrect, missing, or prohibited memory with correct abstention (3).
+- [x] Unauthorized actor or insufficient scope (2).
+- [x] Backup/restore or pause scenario (1).
 
 More than 25 scenarios are expected if the listed categories produce 30 or more useful cases.
 
 Each scenario contains:
 
-- [ ] ID, purpose, preconditions, input, expected trace, expected policy, expected outcome, prohibited outcome, and evidence.
+- [x] ID, purpose, preconditions, input, expected trace, expected policy, expected outcome, prohibited outcome, and evidence.
 
 Acceptance evidence:
 
@@ -700,13 +700,13 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] Identify data/configuration/model artifacts requiring backup.
-- [ ] Define initial RPO and RTO targets and their assumptions.
-- [ ] Define encrypted local and offsite backup concept and key-recovery risk.
-- [ ] Define restore verification rather than backup-job success alone.
-- [ ] Define global pause, per-workflow disable, credential revocation, and safe reduced mode.
-- [ ] Define severity levels, owner notification, evidence preservation, and recovery ownership.
-- [ ] Cover power loss, disk failure, corrupt data, unavailable network, and compromised node.
+- [x] Identify data/configuration/model artifacts requiring backup.
+- [x] Define initial RPO and RTO targets and their assumptions.
+- [x] Define encrypted local and offsite backup concept and key-recovery risk.
+- [x] Define restore verification rather than backup-job success alone.
+- [x] Define global pause, per-workflow disable, credential revocation, and safe reduced mode.
+- [x] Define severity levels, owner notification, evidence preservation, and recovery ownership.
+- [x] Cover power loss, disk failure, corrupt data, unavailable network, and compromised node.
 
 Acceptance evidence:
 
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; baseline active, M0-23 accepted, M0-24 agent complete, M0-25 narratives in owner review \
-**Current critical path:** M0-25 -> M0-30 -> M0-31/M0-33 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
-**Next owner action:** Complete private baseline cards and approve or amend Sections 8-9 of `m0/02_WORKFLOW_CATALOG.md`. \
-**Next agent action:** Close M0-25 after review, then open M0-30 within the WIP limit.
+**Milestone state:** In progress; M0-16 baseline active, M0-25 owner accepted, M0-30 and M0-32 agent complete \
+**Current critical path:** M0-16 -> M0-31 -> M0-33/M0-34/M0-40 -> M0-43 -> M0-46 -> M0-47; M0-30 and M0-32 are complete \
+**Next owner action:** Complete the private baseline cards from 2026-07-27 through 2026-08-02 without placing observations in Git or OneDrive. \
+**Next agent action:** Begin M0-31 immediately after the baseline review fixes measured starting values.

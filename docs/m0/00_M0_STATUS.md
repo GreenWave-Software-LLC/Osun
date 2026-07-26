@@ -8,36 +8,37 @@
 **Human hours remaining:** 40.0 \
 **Last updated:** 2026-07-26 \
 **Coordinator:** AI-assisted coordination approved \
-**Current critical-path task:** M0-25 - Selected-workflow success/failure narratives; M0-16 baseline runs concurrently \
+**Current critical-path task:** M0-16 - Complete the private baseline so M0-31 can fix metrics and thresholds \
 **Primary references:** [M0 Agent Execution Checklist](../M0_AGENT_CHECKLIST.md) and [Living Master Plan](../OSUN_MASTER_PLAN.md)
 
 ---
 
 ## 1. Executive status
 
-The privacy assessment is accepted, and the version-zero contract family has passed internal security/privacy/evaluation consistency review. The baseline remains active. Twenty-four component-named normal, denial, outage, malicious-input, duplicate, bad-memory, and recovery narratives are ready for owner review.
+The owner accepted all 24 selected-workflow narratives. The 79-case golden/adversarial suite and the recovery, pause, kill, backup, restore, and incident concept have passed their required internal reviews. The private seven-day baseline is now the only active task and the input required to begin M0-31.
 
 ### Current state
 
-- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, M0-15, M0-20, M0-21, M0-22, M0-23, and M0-24.
-- **In progress:** M0-16 baseline measurement and M0-25 selected-workflow narratives.
+- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, M0-15, M0-20, M0-21, M0-22, M0-23, M0-24, M0-25, M0-30, and M0-32.
+- **In progress:** M0-16 baseline measurement.
 - **Approved ranking:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture and Nutrition Review.
-- **Current input dependency:** Owner completes the private baseline and approves or amends the M0-25 narratives.
+- **Current input dependency:** Owner completes the private baseline; only aggregate/non-sensitive review values enter the planning repository.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
 
 ```text
-M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
--> M0-14/M0-15 -> M0-20 -> M0-21 -> M0-22/M0-23 -> M0-24 -> M0-25 -> M0-30
--> M0-40 -> M0-43 -> M0-46 -> M0-47
+Completed: M0-25 -> M0-30; M0-32
+Active:    M0-16 -> M0-31
+Then:      M0-31 -> M0-33/M0-40 -> M0-34/M0-41/M0-42
+           -> M0-43 -> M0-44/M0-45 -> M0-46 -> M0-47
 ```
 
 ### Next three assignments
 
 1. **Owner:** Complete the private seven-day baseline cards from 2026-07-27 through 2026-08-02.
-2. **Owner:** Approve or amend the 24 stories in Sections 8-9 of `02_WORKFLOW_CATALOG.md`.
-3. **AI coordinator:** Close M0-25 after review, then open M0-30 while M0-16 remains active.
+2. **AI coordinator:** Review only the allowed aggregate baseline values, close M0-16, and open M0-31.
+3. **Security/operations and evaluation reviewers:** Re-challenge M0-30/M0-32 at M0-46; their current reviews are internal, not independent.
 
 ---
 
@@ -62,10 +63,10 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | M0-22 | Complete threat model | Security analyst | Primary AI security analyst | M0-21 | Owner accepted | `07_THREAT_MODEL.md` | 2026-07-26 |
 | M0-23 | Complete privacy impact assessment | Privacy analyst | Primary AI privacy analyst | M0-14, M0-21 | Owner accepted | `08_PRIVACY_IMPACT_ASSESSMENT.md` | 2026-07-26 |
 | M0-24 | Draft version-zero contracts | Systems architect | Primary AI systems architect | M0-20, M0-21, M0-22, M0-23 | Agent complete | `09_CONTRACT_DRAFTS.md` | 2026-07-26 |
-| M0-25 | Write success and failure narratives | Workflow analyst | Primary AI workflow analyst | M0-13, M0-20, M0-21, M0-22, M0-23, M0-24 | In progress; agent draft complete | `02_WORKFLOW_CATALOG.md` | Pending owner review |
-| M0-30 | Write golden and adversarial scenarios | Evaluation scientist | Unassigned | M0-25 | Not started | `11_GOLDEN_SCENARIOS.md` | Pending |
+| M0-25 | Write success and failure narratives | Workflow analyst | Primary AI workflow analyst | M0-13, M0-20, M0-21, M0-22, M0-23, M0-24 | Owner accepted | `02_WORKFLOW_CATALOG.md` | 2026-07-26 |
+| M0-30 | Write golden and adversarial scenarios | Evaluation scientist | Primary AI evaluation scientist | M0-25 | Agent complete | `11_GOLDEN_SCENARIOS.md` | 2026-07-26 |
 | M0-31 | Define metrics, baselines, and evaluation | Evaluation scientist | Unassigned | M0-16, M0-30 | Not started | `10_EVALUATION_PLAN.md` | Pending |
-| M0-32 | Define recovery, pause, and incidents | Security/operations analyst | Unassigned | M0-20, M0-21, M0-22, M0-23, M0-24 | Not started | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Pending |
+| M0-32 | Define recovery, pause, and incidents | Security/operations analyst | Primary AI security/operations analyst | M0-20, M0-21, M0-22, M0-23, M0-24 | Agent complete | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | 2026-07-26 |
 | M0-33 | Define evidence required for autonomy | Evaluation scientist | Unassigned | M0-15, M0-30, M0-31 | Not started | `10_EVALUATION_PLAN.md` | Pending |
 | M0-34 | Create requirements traceability | Coordinator | AI coordinator | M0-20 through M0-33 | Not started | `13_REQUIREMENTS_TRACEABILITY.md` | Pending |
 | M0-40 | Create technology decision scorecard | Technology scout | Unassigned | M0-20, M0-24, M0-31, M0-32 | Not started | `14_TECHNOLOGY_SCORECARD.md` | Pending |
@@ -83,7 +84,7 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 - Registered task count: 29.
 - Duplicate task IDs: 0.
 - Tasks without an accountable role: 0.
-- Owner-decision tasks: M0-00, M0-10, M0-13, M0-14, M0-15, M0-22/M0-23 residual-risk dispositions, M0-33 approval, M0-41 authorization, M0-42 approval, and M0-47.
+- Owner-decision tasks: M0-00, M0-10, M0-13, M0-14, M0-15, M0-22/M0-23 residual-risk dispositions, M0-25 narrative approval, M0-33 approval, M0-41 authorization, M0-42 approval, and M0-47.
 
 ---
 
@@ -93,7 +94,7 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 |---|---|---|---|---|
 | `00_M0_STATUS.md` | Coordinator | Agent complete | M0-01, M0-45 | Created 2026-07-25 |
 | `01_OWNER_CHARTER.md` | Owner + interview analyst | Accepted | M0-10 | Accepted 2026-07-25 |
-| `02_WORKFLOW_CATALOG.md` | Workflow analyst | M0-25 owner review | M0-12, M0-13, M0-25 | Ranked trio/boundaries accepted; 24 narratives drafted |
+| `02_WORKFLOW_CATALOG.md` | Workflow analyst | Accepted through M0-25 | M0-12, M0-13, M0-25 | Ranked trio, boundaries, and all 24 narratives owner accepted |
 | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Accepted | M0-14, M0-15 | All recommendations accepted 2026-07-26 |
 | `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Agent complete | M0-11 | Selected integration paths validated at M0 precision |
 | `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Active | M0-16 | Private seven-day window authorized; no sensitive observations in Git/OneDrive |
@@ -102,8 +103,8 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | `08_PRIVACY_IMPACT_ASSESSMENT.md` | Privacy analyst | Accepted | M0-23 | All ten privacy dispositions accepted 2026-07-26 |
 | `09_CONTRACT_DRAFTS.md` | Systems architect | Agent complete | M0-24 | Version-zero contracts passed internal security/privacy/evaluation review |
 | `10_EVALUATION_PLAN.md` | Evaluation scientist | Not started | M0-31, M0-33 | Metrics fixed before results |
-| `11_GOLDEN_SCENARIOS.md` | Evaluation scientist | Not started | M0-30 | Minimum 25 precise scenarios |
-| `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Security/operations analyst | Not started | M0-32 | Pause must not depend on model |
+| `11_GOLDEN_SCENARIOS.md` | Evaluation scientist | Agent complete | M0-30 | 79 precise cases; internal security/workflow reviews passed |
+| `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Security/operations analyst | Agent complete | M0-32 | Full persistent-class dispositions and model-independent controls; architecture review passed |
 | `13_REQUIREMENTS_TRACEABILITY.md` | Coordinator | Not started | M0-34 | No hidden high-risk orphans |
 | `14_TECHNOLOGY_SCORECARD.md` | Technology scout | Not started | M0-40, M0-41, M0-42 | Evidence before final recommendation |
 | `15_M1_VERTICAL_SLICE_AND_BACKLOG.md` | Systems architect + coordinator | Not started | M0-43, M0-44 | Slice must fit within 40 owner hours |
@@ -125,11 +126,11 @@ Each row must link to exact evidence before M0-47.
 | G-DAT-01 | Every source has purpose, sensitivity, retention, pause/delete/export/egress | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
 | G-AUT-01 | Every external action has risk and approval rule | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
 | G-ARC-01 | Owner can explain architecture and authority boundaries | `06_SYSTEM_ARCHITECTURE.md`, owner gate record | Component map present; owner accepted |
-| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Flow evidence accepted; detailed narratives in owner review |
+| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Evidence present; detailed narratives owner accepted |
 | G-CON-01 | Version-zero contracts exist | `09_CONTRACT_DRAFTS.md` | Evidence present; internal reviews complete |
 | G-SEC-01 | Threat model and privacy assessment reviewed | `07_THREAT_MODEL.md`, `08_PRIVACY_IMPACT_ASSESSMENT.md` | Evidence present; owner accepted |
-| G-RES-01 | Backup, restore, pause, kill, and incident concepts exist | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Missing |
-| G-EVL-01 | At least 25 precise scenarios exist | `11_GOLDEN_SCENARIOS.md` | Missing |
+| G-RES-01 | Backup, restore, pause, kill, and incident concepts exist | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Evidence present; internal architecture review complete |
+| G-EVL-01 | At least 25 precise scenarios exist | `11_GOLDEN_SCENARIOS.md` | Evidence present; 79 cases and internal reviews complete |
 | G-MET-01 | Useful and feasible metrics are defined | `10_EVALUATION_PLAN.md` | Missing |
 | G-TRC-01 | Requirements, risks, design, and tests are traceable | `13_REQUIREMENTS_TRACEABILITY.md` | Missing |
 | G-TEC-01 | Technology recommendations have evidence and reversal triggers | `14_TECHNOLOGY_SCORECARD.md` | Missing |
@@ -190,7 +191,7 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-014 | Approve identity, trust-zone, and workflow-flow model | M0-21 | Approved 2026-07-26 | `06_SYSTEM_ARCHITECTURE.md` Sections 10-18 |
 | OD-015 | Approve threat-model residual-risk dispositions and gates | M0-22 | Approved 2026-07-26 | `07_THREAT_MODEL.md` Section 12 |
 | OD-016 | Approve privacy residual-risk dispositions and gates | M0-23 | Approved 2026-07-26 | `08_PRIVACY_IMPACT_ASSESSMENT.md` Section 13 |
-| OD-017 | Approve selected-workflow success/failure/recovery narratives | M0-25 | Pending owner review | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
+| OD-017 | Approve selected-workflow success/failure/recovery narratives | M0-25 | Accepted as written 2026-07-26 | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
 
 ### 6.3 Assumptions
 
@@ -278,6 +279,9 @@ After the response, the coordinator will:
 | 2026-07-26 | Owner accepted all M0-23 privacy dispositions | `08_PRIVACY_IMPACT_ASSESSMENT.md` |
 | 2026-07-26 | M0-24 version-zero contracts drafted and internally reviewed | `09_CONTRACT_DRAFTS.md` |
 | 2026-07-26 | M0-25 opened; 24 selected-workflow success/failure narratives drafted | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
+| 2026-07-26 | Owner accepted all 24 M0-25 workflow narratives as written | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
+| 2026-07-26 | M0-30 completed with 79 golden/adversarial scenarios and internal security/workflow reviews | `11_GOLDEN_SCENARIOS.md` |
+| 2026-07-26 | M0-32 recovery, pause, kill, backup/restore, and incident concept completed and architecture-reviewed | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` |
 
 ---
 
@@ -288,6 +292,6 @@ After the response, the coordinator will:
 - Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Baseline completion, M0-25 narrative approval, non-blocking device details, and decision queue in Section 6.2
+- Open questions: Baseline completion and M0-31 thresholds, non-blocking device details, concrete recovery technology choices, and pending decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
 - Last updated: 2026-07-26
