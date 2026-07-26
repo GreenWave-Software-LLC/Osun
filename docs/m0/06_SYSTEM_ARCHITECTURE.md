@@ -609,7 +609,7 @@ Failure behavior:
 - [x] Stale, missing, duplicated, conflicting, malicious, malformed, replayed, partial, and out-of-order input behavior is defined.
 - [x] Every boundary has a named conceptual control or explicit unresolved implementation risk.
 - [x] Owner approves the identity/trust/flow model.
-- [ ] M0-22 and M0-23 challenge these assumptions through threat and privacy reviews.
+- [x] M0-22 and M0-23 challenge these assumptions through threat and privacy reviews.
 
 **Owner decision:** M0-21 identity, trust-zone, and workflow-flow model accepted as written on 2026-07-26.
 

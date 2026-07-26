@@ -199,9 +199,9 @@ Status marks:
 - [x] **M0-20 - Define component responsibilities and non-responsibilities**
 - [x] **M0-21 - Map identities, trust zones, and end-to-end data flows**
 - [x] **M0-22 - Complete the initial threat model**
-- [-] **M0-23 - Complete the initial privacy impact assessment**
-- [ ] **M0-24 - Draft version-zero system contracts**
-- [ ] **M0-25 - Write success and failure narratives for the selected workflows**
+- [x] **M0-23 - Complete the initial privacy impact assessment**
+- [x] **M0-24 - Draft version-zero system contracts**
+- [-] **M0-25 - Write success and failure narratives for the selected workflows**
 
 ### Week 3 - Evaluation and failure design
 
@@ -586,22 +586,22 @@ Acceptance evidence:
 
 Draft conceptual contracts for:
 
-- [ ] Event envelope.
-- [ ] Tool definition and invocation.
-- [ ] Action ledger and verification result.
-- [ ] Memory observation, fact, preference, goal, procedure, and prediction.
-- [ ] Identity and delegated authority.
-- [ ] Policy decision and approval receipt.
-- [ ] Workflow state and terminal outcome.
-- [ ] Evaluation case and result.
+- [x] Event envelope.
+- [x] Tool definition and invocation.
+- [x] Action ledger and verification result.
+- [x] Memory observation, fact, preference, goal, procedure, and prediction.
+- [x] Identity and delegated authority.
+- [x] Policy decision and approval receipt.
+- [x] Workflow state and terminal outcome.
+- [x] Evaluation case and result.
 
 Each contract includes:
 
-- [ ] Versioning and compatibility rule.
-- [ ] Required identifiers, times, provenance, sensitivity, and correlation.
-- [ ] Validation and failure behavior.
-- [ ] Example using synthetic data.
-- [ ] Security/privacy fields and data-retention reference.
+- [x] Versioning and compatibility rule.
+- [x] Required identifiers, times, provenance, sensitivity, and correlation.
+- [x] Validation and failure behavior.
+- [x] Example using synthetic data.
+- [x] Security/privacy fields and data-retention reference.
 
 Acceptance evidence:
 
@@ -619,14 +619,14 @@ Acceptance evidence:
 
 For each workflow, write:
 
-- [ ] Normal request-to-outcome story.
-- [ ] Owner denial/cancellation story.
-- [ ] Model unavailable story.
-- [ ] External service unavailable or stale story.
-- [ ] Invalid/malicious external content story.
-- [ ] Restart/duplicate-event story.
-- [ ] Incorrect-memory story.
-- [ ] Audit, correction, and recovery story.
+- [x] Normal request-to-outcome story.
+- [x] Owner denial/cancellation story.
+- [x] Model unavailable story.
+- [x] External service unavailable or stale story.
+- [x] Invalid/malicious external content story.
+- [x] Restart/duplicate-event story.
+- [x] Incorrect-memory story.
+- [x] Audit, correction, and recovery story.
 
 Acceptance evidence:
 
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; baseline active, M0-22 accepted, M0-23 privacy assessment in review \
-**Current critical path:** M0-23 -> M0-24 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
-**Next owner action:** Complete private baseline cards and approve or amend Section 13 of `m0/08_PRIVACY_IMPACT_ASSESSMENT.md`. \
-**Next agent action:** Close M0-23 after review, then open M0-24 within the WIP limit.
+**Milestone state:** In progress; baseline active, M0-23 accepted, M0-24 agent complete, M0-25 narratives in owner review \
+**Current critical path:** M0-25 -> M0-30 -> M0-31/M0-33 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
+**Next owner action:** Complete private baseline cards and approve or amend Sections 8-9 of `m0/02_WORKFLOW_CATALOG.md`. \
+**Next agent action:** Close M0-25 after review, then open M0-30 within the WIP limit.

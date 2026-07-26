@@ -8,21 +8,21 @@
 **Human hours remaining:** 40.0 \
 **Last updated:** 2026-07-26 \
 **Coordinator:** AI-assisted coordination approved \
-**Current critical-path task:** M0-23 - Initial privacy impact assessment; M0-16 baseline runs concurrently \
+**Current critical-path task:** M0-25 - Selected-workflow success/failure narratives; M0-16 baseline runs concurrently \
 **Primary references:** [M0 Agent Execution Checklist](../M0_AGENT_CHECKLIST.md) and [Living Master Plan](../OSUN_MASTER_PLAN.md)
 
 ---
 
 ## 1. Executive status
 
-The owner charter, workflows, data/autonomy policies, architecture/flows, and thirty-risk threat model are accepted. The baseline is active, and the privacy assessment now evaluates every selected flow, affected people, twenty privacy risks, deletion/export verification, and ten residual-risk dispositions.
+The privacy assessment is accepted, and the version-zero contract family has passed internal security/privacy/evaluation consistency review. The baseline remains active. Twenty-four component-named normal, denial, outage, malicious-input, duplicate, bad-memory, and recovery narratives are ready for owner review.
 
 ### Current state
 
-- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, M0-15, M0-20, M0-21, and M0-22.
-- **In progress:** M0-16 baseline measurement and M0-23 privacy impact assessment.
+- **Completed:** M0-00, M0-01, M0-02, M0-10, M0-11, M0-12, M0-13, M0-14, M0-15, M0-20, M0-21, M0-22, M0-23, and M0-24.
+- **In progress:** M0-16 baseline measurement and M0-25 selected-workflow narratives.
 - **Approved ranking:** WF-01 Daily Consistency Plan, WF-02 Weekly Health Plan, WF-03 Calorie Capture and Nutrition Review.
-- **Current input dependency:** Owner completes the private baseline and approves or amends the M0-23 residual privacy treatment plan.
+- **Current input dependency:** Owner completes the private baseline and approves or amends the M0-25 narratives.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
@@ -36,8 +36,8 @@ M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
 ### Next three assignments
 
 1. **Owner:** Complete the private seven-day baseline cards from 2026-07-27 through 2026-08-02.
-2. **Owner:** Approve or amend the ten privacy dispositions in Section 13 of `08_PRIVACY_IMPACT_ASSESSMENT.md`.
-3. **AI coordinator:** Close M0-23 after review, then open M0-24 while M0-16 remains active.
+2. **Owner:** Approve or amend the 24 stories in Sections 8-9 of `02_WORKFLOW_CATALOG.md`.
+3. **AI coordinator:** Close M0-25 after review, then open M0-30 while M0-16 remains active.
 
 ---
 
@@ -60,9 +60,9 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 | M0-20 | Define component responsibilities | Systems architect | Primary AI systems architect | M0-13, M0-14, M0-15 | Owner accepted | `06_SYSTEM_ARCHITECTURE.md` | 2026-07-26 |
 | M0-21 | Map identities, trust zones, and flows | Systems architect | Primary AI systems architect | M0-20 | Owner accepted | `06_SYSTEM_ARCHITECTURE.md` | 2026-07-26 |
 | M0-22 | Complete threat model | Security analyst | Primary AI security analyst | M0-21 | Owner accepted | `07_THREAT_MODEL.md` | 2026-07-26 |
-| M0-23 | Complete privacy impact assessment | Privacy analyst | Primary AI privacy analyst | M0-14, M0-21 | In progress; agent draft complete | `08_PRIVACY_IMPACT_ASSESSMENT.md` | Pending owner review |
-| M0-24 | Draft version-zero contracts | Systems architect | Unassigned | M0-20, M0-21, M0-22, M0-23 | Not started | `09_CONTRACT_DRAFTS.md` | Pending |
-| M0-25 | Write success and failure narratives | Workflow analyst | Unassigned | M0-13, M0-20, M0-21, M0-22, M0-23, M0-24 | Not started | `02_WORKFLOW_CATALOG.md` | Pending |
+| M0-23 | Complete privacy impact assessment | Privacy analyst | Primary AI privacy analyst | M0-14, M0-21 | Owner accepted | `08_PRIVACY_IMPACT_ASSESSMENT.md` | 2026-07-26 |
+| M0-24 | Draft version-zero contracts | Systems architect | Primary AI systems architect | M0-20, M0-21, M0-22, M0-23 | Agent complete | `09_CONTRACT_DRAFTS.md` | 2026-07-26 |
+| M0-25 | Write success and failure narratives | Workflow analyst | Primary AI workflow analyst | M0-13, M0-20, M0-21, M0-22, M0-23, M0-24 | In progress; agent draft complete | `02_WORKFLOW_CATALOG.md` | Pending owner review |
 | M0-30 | Write golden and adversarial scenarios | Evaluation scientist | Unassigned | M0-25 | Not started | `11_GOLDEN_SCENARIOS.md` | Pending |
 | M0-31 | Define metrics, baselines, and evaluation | Evaluation scientist | Unassigned | M0-16, M0-30 | Not started | `10_EVALUATION_PLAN.md` | Pending |
 | M0-32 | Define recovery, pause, and incidents | Security/operations analyst | Unassigned | M0-20, M0-21, M0-22, M0-23, M0-24 | Not started | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Pending |
@@ -93,14 +93,14 @@ Statuses: `Not started`, `In progress`, `Blocked`, `Agent complete`, `Owner acce
 |---|---|---|---|---|
 | `00_M0_STATUS.md` | Coordinator | Agent complete | M0-01, M0-45 | Created 2026-07-25 |
 | `01_OWNER_CHARTER.md` | Owner + interview analyst | Accepted | M0-10 | Accepted 2026-07-25 |
-| `02_WORKFLOW_CATALOG.md` | Workflow analyst | Accepted for M0-12/M0-13 | M0-12, M0-13, M0-25 | Ranked trio and detailed boundaries approved; M0-25 remains |
+| `02_WORKFLOW_CATALOG.md` | Workflow analyst | M0-25 owner review | M0-12, M0-13, M0-25 | Ranked trio/boundaries accepted; 24 narratives drafted |
 | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Owner + privacy/security analysts | Accepted | M0-14, M0-15 | All recommendations accepted 2026-07-26 |
 | `04_CURRENT_SYSTEM_INVENTORY.md` | Technology scout | Agent complete | M0-11 | Selected integration paths validated at M0 precision |
 | `05_BASELINE_MEASUREMENT.md` | Evaluation scientist | Active | M0-16 | Private seven-day window authorized; no sensitive observations in Git/OneDrive |
 | `06_SYSTEM_ARCHITECTURE.md` | Systems architect | Accepted through M0-21 | M0-02, M0-20, M0-21 | Component, identity, trust-zone, and flow model accepted |
 | `07_THREAT_MODEL.md` | Security analyst | Accepted | M0-22 | All eight dispositions accepted 2026-07-26 |
-| `08_PRIVACY_IMPACT_ASSESSMENT.md` | Privacy analyst | Owner review | M0-23 | Complete agent draft; Section 13 disposition approval required |
-| `09_CONTRACT_DRAFTS.md` | Systems architect | Not started | M0-24 | Version-zero conceptual contracts |
+| `08_PRIVACY_IMPACT_ASSESSMENT.md` | Privacy analyst | Accepted | M0-23 | All ten privacy dispositions accepted 2026-07-26 |
+| `09_CONTRACT_DRAFTS.md` | Systems architect | Agent complete | M0-24 | Version-zero contracts passed internal security/privacy/evaluation review |
 | `10_EVALUATION_PLAN.md` | Evaluation scientist | Not started | M0-31, M0-33 | Metrics fixed before results |
 | `11_GOLDEN_SCENARIOS.md` | Evaluation scientist | Not started | M0-30 | Minimum 25 precise scenarios |
 | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Security/operations analyst | Not started | M0-32 | Pause must not depend on model |
@@ -125,9 +125,9 @@ Each row must link to exact evidence before M0-47.
 | G-DAT-01 | Every source has purpose, sensitivity, retention, pause/delete/export/egress | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
 | G-AUT-01 | Every external action has risk and approval rule | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` | Evidence present; owner accepted |
 | G-ARC-01 | Owner can explain architecture and authority boundaries | `06_SYSTEM_ARCHITECTURE.md`, owner gate record | Component map present; owner accepted |
-| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Evidence present; owner accepted |
-| G-CON-01 | Version-zero contracts exist | `09_CONTRACT_DRAFTS.md` | Missing |
-| G-SEC-01 | Threat model and privacy assessment reviewed | `07_THREAT_MODEL.md`, `08_PRIVACY_IMPACT_ASSESSMENT.md` | Threat model accepted; privacy assessment in review |
+| G-FLW-01 | All three workflows trace end to end | `06_SYSTEM_ARCHITECTURE.md`, `02_WORKFLOW_CATALOG.md` | Flow evidence accepted; detailed narratives in owner review |
+| G-CON-01 | Version-zero contracts exist | `09_CONTRACT_DRAFTS.md` | Evidence present; internal reviews complete |
+| G-SEC-01 | Threat model and privacy assessment reviewed | `07_THREAT_MODEL.md`, `08_PRIVACY_IMPACT_ASSESSMENT.md` | Evidence present; owner accepted |
 | G-RES-01 | Backup, restore, pause, kill, and incident concepts exist | `12_RECOVERY_PAUSE_AND_INCIDENTS.md` | Missing |
 | G-EVL-01 | At least 25 precise scenarios exist | `11_GOLDEN_SCENARIOS.md` | Missing |
 | G-MET-01 | Useful and feasible metrics are defined | `10_EVALUATION_PLAN.md` | Missing |
@@ -189,7 +189,8 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-013 | Confirm component authority map matches owner intent | M0-20 | Approved 2026-07-26 | `06_SYSTEM_ARCHITECTURE.md` Sections 1-9 |
 | OD-014 | Approve identity, trust-zone, and workflow-flow model | M0-21 | Approved 2026-07-26 | `06_SYSTEM_ARCHITECTURE.md` Sections 10-18 |
 | OD-015 | Approve threat-model residual-risk dispositions and gates | M0-22 | Approved 2026-07-26 | `07_THREAT_MODEL.md` Section 12 |
-| OD-016 | Approve privacy residual-risk dispositions and gates | M0-23 | Pending owner review | `08_PRIVACY_IMPACT_ASSESSMENT.md` Section 13 |
+| OD-016 | Approve privacy residual-risk dispositions and gates | M0-23 | Approved 2026-07-26 | `08_PRIVACY_IMPACT_ASSESSMENT.md` Section 13 |
+| OD-017 | Approve selected-workflow success/failure/recovery narratives | M0-25 | Pending owner review | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
 
 ### 6.3 Assumptions
 
@@ -274,6 +275,9 @@ After the response, the coordinator will:
 | 2026-07-26 | M0-22 opened; initial threat model and risk-treatment gates drafted | `07_THREAT_MODEL.md` |
 | 2026-07-26 | Owner accepted all M0-22 threat-model dispositions and gates | `07_THREAT_MODEL.md` |
 | 2026-07-26 | M0-23 opened; privacy impact assessment and verification tests drafted | `08_PRIVACY_IMPACT_ASSESSMENT.md` |
+| 2026-07-26 | Owner accepted all M0-23 privacy dispositions | `08_PRIVACY_IMPACT_ASSESSMENT.md` |
+| 2026-07-26 | M0-24 version-zero contracts drafted and internally reviewed | `09_CONTRACT_DRAFTS.md` |
+| 2026-07-26 | M0-25 opened; 24 selected-workflow success/failure narratives drafted | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
 
 ---
 
@@ -284,6 +288,6 @@ After the response, the coordinator will:
 - Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Baseline completion, M0-23 privacy-disposition approval, non-blocking device details, and decision queue in Section 6.2
+- Open questions: Baseline completion, M0-25 narrative approval, non-blocking device details, and decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
 - Last updated: 2026-07-26

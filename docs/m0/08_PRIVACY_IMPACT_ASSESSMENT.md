@@ -1,7 +1,7 @@
 # Osun M0 Privacy Impact Assessment
 
 **Task:** M0-23 - Complete the initial privacy impact assessment \
-**State:** Agent draft complete; owner residual-risk decision required \
+**State:** Accepted for M0-23 \
 **Accountable:** Privacy analyst \
 **Reviewer:** Owner \
 **Scope:** Selected WF-01/WF-02/WF-03 data flows and proposed M1 WF-01 slice \
@@ -383,6 +383,8 @@ The proposed decision is to accept the following M0 treatment plan—not to acce
 
 Residual High risks PR-01, PR-02, PR-09, and PR-15 require continuing gates and review. This decision cannot be used to justify broader future data or autonomy.
 
+**Owner decision:** All ten M0-23 privacy dispositions accepted as written on 2026-07-26.
+
 ---
 
 ## 14. M0-23 acceptance checklist
@@ -394,7 +396,7 @@ Residual High risks PR-01, PR-02, PR-09, and PR-15 require continuing gates and 
 - [x] All selected data flows appear in both architecture and this assessment.
 - [x] Privacy requirements and 35 verification tests are defined.
 - [x] Deletion and export verification behavior is explicit.
-- [ ] Owner accepts or amends the residual privacy treatment plan in Section 13.
+- [x] Owner accepts or amends the residual privacy treatment plan in Section 13.
 
 ---
 
@@ -402,9 +404,9 @@ Residual High risks PR-01, PR-02, PR-09, and PR-15 require continuing gates and 
 
 - Author/agent: Primary AI coordinator acting as privacy analyst
 - Reviewer: Owner; independent M0-46 review later
-- Status: Agent draft complete; M0-23 owner decision pending
+- Status: Owner accepted; M0-23 complete
 - Inputs used: Accepted charter, workflow catalog, data/autonomy boundaries, baseline method, system inventory, accepted architecture/flows, accepted threat model, NIST Privacy Framework, Apple HealthKit privacy/authorization guidance, Google Calendar OAuth scope guidance
 - Assumptions: M1 remains WF-01-first; no public access or multi-person use; HealthKit and WF-02/WF-03 are deferred from M1; privacy promises require implementation evidence
-- Open questions: Section 13 owner decision; concrete storage/backup/provider choices after M0-24/M0-40; independent challenge in M0-46
+- Open questions: Concrete storage/backup/provider choices after M0-24/M0-40; independent challenge in M0-46
 - Acceptance evidence: Complete necessity and flow registers, affected-person analysis, twenty scored privacy risks, workflow findings, privacy controls, deletion/export procedure, 21 requirements, 35 tests, and ten owner dispositions
 - Last updated: 2026-07-26

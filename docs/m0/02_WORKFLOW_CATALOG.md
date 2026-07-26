@@ -289,9 +289,304 @@ The owner approved the outcome, non-scope, autonomy, and M1 eligibility statemen
 
 ---
 
-## 8. M0-25 narrative status
+## 8. M0-25 success and failure narratives
 
-Detailed success, denial, outage, injection, duplicate-event, bad-memory, and recovery narratives will be added after M0-13, M0-20, and M0-24 stabilize the selected workflows and component contracts.
+Each story uses the version-zero contracts in `09_CONTRACT_DRAFTS.md`. A safe failure is visible to the owner, makes no unauthorized external effect, preserves enough content-minimized evidence to investigate, and never converts missing data into failure or noncompliance.
+
+### 8.1 WF-01 Daily Consistency Plan
+
+#### WF-01-N01 Normal request to verified outcome
+
+1. **Owner interface:** Captures an authenticated owner request or emits the one allowed daily prompt after checking quiet hours, pause, and frequency; creates an owner-origin `workflow.requested` event.
+2. **Ingress service:** Validates identity/session, schema, purpose, size, nonce, and workflow version; rejects any embedded claim of authority.
+3. **Workflow orchestrator:** Creates/deduplicates the WF-01 run and requests only confirmed goals/preferences plus recent plan outcomes from the memory API.
+4. **Memory/data plane:** Applies WF-01 purpose/sensitivity filters and returns attributed current records; missing or disputed memory remains explicit.
+5. **Execution gateway/calendar adapter:** If connected, reads only Stage A busy/free/time/timezone/source/freshness fields using a short-lived read capability; otherwise returns an explicit unavailable state.
+6. **Model router:** Builds the minimum context, enforces the cloud/local rule, and sends one schema-bound request to the selected replaceable model.
+7. **Model runtime:** Returns an `untrusted_proposal` containing a small editable plan, assumptions, uncertainty, and source references; it has no tool or memory authority.
+8. **Orchestrator and policy service:** Validate output schema, feasibility, non-scope, notification budget, action risk, and current policy; unsafe/unsupported items are removed or sent for correction.
+9. **Owner interface:** Shows the proposed plan, source freshness, uncertainty, and any proposed external effects; the owner edits, dismisses, or selects Submit/Save.
+10. **Memory/data plane:** Stores the exact owner-reviewed plan as a versioned local artifact under RET-2 and writes content-minimized audit evidence.
+11. **Policy/execution gateway:** If the owner separately requests a calendar event, presents an exact R3 preview, obtains one-time approval, writes through the restricted adapter, reads back authoritative state, and offers undo.
+12. **Orchestrator/memory:** Records the verified terminal outcome and later optional feedback as an observation; any preference inference remains a candidate.
+
+**Safe visible end:** The owner sees the saved plan, whether any external effect was verified, source freshness, and how to edit, delete, disable, or undo it.
+
+#### WF-01-F01 Owner denial, dismissal, or cancellation
+
+1. **Owner interface:** Records dismiss, snooze, reject, or cancel as an explicit owner decision without asking for justification.
+2. **Policy service:** Issues no action capability and revokes any unused short-lived proposal capability.
+3. **Workflow orchestrator:** Moves the run to `denied` or `canceled`, stops model/tool work, and cancels pending timers/retries.
+4. **Execution gateway:** Confirms that no external invocation was issued; if one had already begun, reports its actual verification state rather than assuming cancellation reversed it.
+5. **Memory/data plane:** Records content-minimized decision evidence; dismissal is not promoted into a negative preference or consistency failure.
+6. **Proactivity controller:** Applies the approved rule that repeated dismissal lowers future prompt frequency.
+
+**Safe visible end:** The interface says the plan was not saved and no external action occurred, or clearly identifies any already-started effect needing recovery.
+
+#### WF-01-F02 Model unavailable or malformed
+
+1. **Model router:** Detects unavailable endpoint, timeout, resource limit, incompatible version, or malformed output and emits a typed failure.
+2. **Policy service:** Forbids sensitive/unapproved cloud fallback; any allowed minimal Personal cloud fallback still requires the accepted routing policy and owner confirmation.
+3. **Workflow orchestrator:** Offers a deterministic blank daily-plan template using only owner-visible inputs, or stops; it does not claim personalization.
+4. **Owner interface:** Labels the degraded mode and lets the owner fill, save, retry later, or cancel.
+5. **Memory/data plane:** Saves only content the owner intentionally submits; no failed-model output becomes memory.
+6. **Operations plane:** Records model/version/latency/error metadata without prompt content by default.
+
+**Safe visible end:** The owner either has a clearly labeled manual plan or a visible no-plan outcome; no hidden provider switch or external effect occurs.
+
+#### WF-01-F03 Calendar unavailable or stale
+
+1. **Calendar adapter:** Returns `failed`, `timed_out`, or a response with freshness outside policy; it never fabricates empty availability.
+2. **Execution gateway:** Records the typed result and avoids blind retry outside the original time/retry budget.
+3. **Workflow orchestrator:** Marks schedule context unknown and chooses only an approved degraded path: ask the owner for constraints or produce an unscheduled priority list.
+4. **Model router:** Excludes stale calendar facts unless policy explicitly permits display-only context with age.
+5. **Owner interface:** Shows calendar unavailable/stale and the exact freshness of any displayed cache.
+6. **Policy service:** Blocks calendar writes if current state cannot be checked and revalidated.
+
+**Safe visible end:** The owner receives a usable unscheduled draft or cancels; Osun never claims the time slots are free.
+
+#### WF-01-F04 Invalid or malicious external content
+
+1. **Calendar adapter/ingress:** Stage A excludes titles/descriptions/attendees/locations. If a later enabled field contains instruction-like text, it remains `content_origin: external`.
+2. **Schema/content boundary:** Validates size/type/encoding, strips active markup where needed, and stores source provenance without treating text as workflow instruction.
+3. **Model router:** Removes fields not authorized for WF-01 and labels remaining external text as untrusted data.
+4. **Model runtime:** May reference the data only within the supplied task; its proposal cannot grant authority.
+5. **Policy service:** Denies secret access, purpose expansion, egress, or tool action requested by content/model text.
+6. **Operations/security:** Records an injection/validation reason code and correlation ID without echoing malicious personal content.
+
+**Safe visible end:** The owner sees a normal/narrowed plan or an explicit blocked-content notice; no injected instruction changes memory, policy, or tools.
+
+#### WF-01-F05 Restart or duplicate event
+
+1. **Ingress service:** Recognizes duplicate trigger/event IDs and returns the existing run reference.
+2. **Workflow orchestrator:** Reloads the latest durable run state/version and resumes only an incomplete idempotent step.
+3. **Policy service:** Revalidates current policy and rejects expired approval/capability after restart.
+4. **Execution gateway:** Before retrying an ambiguous calendar action, reads authoritative provider state using idempotency/resource references.
+5. **Action ledger:** Appends recovery/verification evidence; it never overwrites the earlier attempt.
+6. **Owner interface:** Opens one plan/run and explains recovered, pending, unknown, or completed status.
+
+**Safe visible end:** There is one daily plan and at most one external event; ambiguous state is shown rather than retried blindly.
+
+#### WF-01-F06 Incorrect, stale, or conflicting memory
+
+1. **Memory API:** Returns validity, status, provenance, and conflict indicators with each retrieved goal/preference.
+2. **Owner interface:** Shows the memory/source that materially shaped the plan when the owner asks or when confidence/conflict requires it.
+3. **Owner:** Corrects, disputes, expires, or supersedes the memory.
+4. **Memory service:** Creates an attributed correction/version, prevents the old record from current retrieval, and rebuilds affected indexes/summaries.
+5. **Workflow orchestrator:** Invalidates the proposal and regenerates only after the corrected context is current.
+6. **Evaluation/audit:** Links the bad-memory event to the affected run and future memory-correction scenario without labeling the owner inconsistent.
+
+**Safe visible end:** The corrected memory and regenerated plan are visible; the prior claim remains historical evidence but no longer drives current decisions.
+
+#### WF-01-F07 Audit, correction, undo, and recovery
+
+1. **Owner interface:** Lets the owner inspect the run trace, source categories, model route, policy reasons, saved artifact, and verified effects.
+2. **Owner:** Requests a plan edit/delete, memory correction, calendar undo, source disconnect, or workflow pause.
+3. **Policy service:** Normalizes each request separately and requires exact approval for consequential external undo/delete.
+4. **Execution gateway:** Applies the local change or provider action and independently verifies the resulting state.
+5. **Memory/data plane:** Supersedes/deletes governed records and propagates the deletion manifest through indexes/caches while preserving content-free audit evidence.
+6. **Operations plane:** Reports verified, scheduled-for-backup-expiry, provider-controlled, owner-exported, or unresolved copies honestly.
+7. **Workflow orchestrator:** Ends in `succeeded`, `partially_succeeded`, or `unknown` based on evidence and keeps the affected integration paused if privacy/integrity is uncertain.
+
+**Safe visible end:** The owner sees what changed, what was verified, what remains, and what is paused; recovery never silently rewrites history.
+
+### 8.2 WF-02 Weekly Health Plan
+
+#### WF-02-N01 Normal request to verified outcome
+
+1. **Owner interface:** Captures an authenticated weekly request or one permitted weekly prompt after quiet-hour/frequency checks.
+2. **Ingress/orchestrator:** Creates one WF-02 run and requests only explicit current meal/workout constraints, schedule availability, and any individually authorized local wellness aggregates.
+3. **Memory/data plane:** Returns Sensitive purpose-filtered records with provenance/validity; missing HealthKit data remains unknown.
+4. **Calendar adapter:** Reads Stage A availability only and labels freshness.
+5. **Model router:** Forces Sensitive context to an approved local model and provides no cloud fallback.
+6. **Local model:** Produces an editable meal/workout proposal with assumptions and uncertainty as an untrusted artifact.
+7. **Policy/orchestrator:** Reject diagnosis, treatment, injury direction, restrictive automatic targets, purchases, health-record writes, and conflict with owner-reported pain/fatigue/schedule.
+8. **Owner interface:** Shows the proposal, assumptions, freshness, and sources; owner edits, saves, dismisses, or cancels.
+9. **Memory/data plane:** Stores the exact accepted plan locally under RET-2; any reusable procedure/preference remains candidate until confirmed.
+10. **Policy/execution gateway:** Optional calendar items each receive exact preview/approval, restricted execution, provider read-back, and undo.
+11. **Orchestrator:** Records verified outcome and optional usefulness/rework feedback without moralizing adherence.
+
+**Safe visible end:** The owner has a local wellness plan reflecting stated constraints and sees that it is not medical advice or an autonomous commitment.
+
+#### WF-02-F01 Owner denial, dismissal, or cancellation
+
+1. **Owner interface:** Records dismissal, edit rejection, snooze, or cancellation.
+2. **Workflow orchestrator:** Stops generation/execution and moves the run to a visible terminal state.
+3. **Policy service:** Issues no calendar/purchase/health capability and revokes unused grants.
+4. **Memory service:** Does not interpret dismissal or lack of adherence as health failure, motivation, or diagnosis.
+5. **Proactivity controller:** Lowers frequency after repeated dismissals and preserves manual access.
+
+**Safe visible end:** No plan or external action is saved unless the owner intentionally saved an exact reviewed version.
+
+#### WF-02-F02 Local model unavailable or malformed
+
+1. **Model router:** Emits an unavailable/malformed result and blocks cloud fallback because context is Sensitive.
+2. **Workflow orchestrator:** Offers a blank structured meal/workout planner populated only with owner-visible schedule fields if allowed.
+3. **Policy service:** Prevents old cached model output from being relabeled current.
+4. **Owner interface:** Shows degraded/manual mode and lets the owner save, retry later, or cancel.
+5. **Memory/data plane:** Stores only owner-submitted content and no failed proposal.
+
+**Safe visible end:** The owner retains a usable manual template or clear failure; sensitive context never leaves locally as a fallback.
+
+#### WF-02-F03 Calendar or HealthKit unavailable/stale/denied
+
+1. **Calendar/Health source adapter:** Returns unavailable, stale, limited-window, or no-data state without guessing whether HealthKit permission was denied.
+2. **Memory/data plane:** Preserves source authorization/freshness metadata and treats absent samples as unknown.
+3. **Workflow orchestrator:** Omits unavailable inputs and asks only for the minimum explicit constraint needed, if any.
+4. **Local model:** Receives no fabricated zeros/history and states assumptions.
+5. **Policy service:** Blocks any output that claims medical/behavioral meaning from missing data.
+6. **Owner interface:** Shows which sources were unavailable and permits plan creation without them.
+
+**Safe visible end:** A constrained plan may proceed with explicit unknowns, or the owner cancels; missing health/calendar data never becomes a negative judgment.
+
+#### WF-02-F04 Invalid or malicious reference/content
+
+1. **Reference/source adapter:** Labels recipes, workout references, calendar content, and tool output as external data with provenance.
+2. **Validation boundary:** Rejects malformed units, impossible values, active markup, oversized payloads, and instruction-like attempts to change policy/tools.
+3. **Model router/local model:** Receives only authorized fields and returns a proposal without authority.
+4. **Policy service:** Rejects diagnosis, unsafe constraint override, data egress, purchase, or external action regardless of content/model wording.
+5. **Security/evaluation:** Records the blocked class/reason and links the case to injection/unsafe-advice tests.
+
+**Safe visible end:** The suspicious item is omitted or the plan is blocked with a clear explanation; no memory promotion or sensitive egress occurs.
+
+#### WF-02-F05 Restart or duplicate event
+
+1. **Ingress/orchestrator:** Uses owner/week/workflow idempotency identity to reopen the existing weekly run.
+2. **Memory service:** Returns the current accepted plan version and refuses stale state overwrite.
+3. **Policy service:** Expires previous one-time approvals and rechecks constraints after restart.
+4. **Execution gateway:** Reconciles any ambiguous calendar action before retry and avoids duplicate events.
+5. **Owner interface:** Shows one active/accepted weekly plan and recovered state.
+
+**Safe visible end:** Restart cannot produce competing plans, duplicated events, or a broader permission scope.
+
+#### WF-02-F06 Incorrect health preference, constraint, or memory
+
+1. **Owner interface:** Exposes source/validity when a constraint affects the proposal and lets the owner report it wrong or outdated.
+2. **Memory service:** Marks the record disputed/superseded, preserves provenance, and blocks current retrieval.
+3. **Policy service:** Quarantines affected plans when the bad memory relates to pain, fatigue, allergy-like constraints, or other safety-relevant owner statements.
+4. **Workflow orchestrator/local model:** Rebuilds a proposal only from corrected explicit information.
+5. **Evaluation/audit:** Records the correction path and checks that no diagnosis or hidden health inference was created.
+
+**Safe visible end:** The incorrect constraint no longer influences plans; the owner sees the corrected plan and evidence trail.
+
+#### WF-02-F07 Audit, correction, deletion, and recovery
+
+1. **Owner interface:** Shows which preference, calendar fields, optional health types, local model, and policy rules influenced the plan.
+2. **Owner:** May revoke a HealthKit type on iPhone, disconnect Calendar, delete a plan, correct a preference, undo a calendar item, or disable WF-02.
+3. **Source adapters/policy:** Stop future collection and revoke/expire related capabilities without affecting unrelated local functions.
+4. **Memory/data plane:** Applies correction/deletion manifests across raw, derived, index, cache, and debug records; no health content remains in ordinary audit.
+5. **Execution gateway:** Verifies external calendar undo when requested.
+6. **Operations plane:** Reports restore/backup/provider limitations honestly and keeps the workflow paused on unresolved privacy state.
+
+**Safe visible end:** The owner sees verified source revocation, local deletion/correction, external effect state, and any remaining copy/expiry limitation.
+
+### 8.3 WF-03 Low-Friction Calorie Capture
+
+#### WF-03-N01 Normal request to verified outcome
+
+1. **Owner interface:** Accepts one manual meal/food text entry; no unsolicited calorie reminder or photo/audio capture occurs.
+2. **Ingress/orchestrator:** Validates schema, time/group, size, origin, and Sensitive/local-only purpose; creates one idempotent WF-03 run.
+3. **Local reference adapter:** Searches only approved local nutrition references and returns attributed candidate matches/units.
+4. **Model router/local calculator/model:** Uses local-only processing to produce an estimate/range, units, confidence, sources, and alternatives as an untrusted proposal.
+5. **Policy/orchestrator:** Rejects fabricated precision, impossible units, hidden restrictive target, diagnosis/treatment, external sharing, or health-record write.
+6. **Owner interface:** Shows the estimate, uncertainty, source, alternatives, and easy correction; owner edits, confirms, saves unresolved, or cancels.
+7. **Memory/data plane:** Saves the exact intentional local record under RET-2 with derivation links; no cloud egress occurs.
+8. **Local review service:** Aggregates only saved records and labels summaries incomplete when entries are missing.
+9. **Memory service:** Treats corrected food mappings as candidates until owner confirmation.
+
+**Safe visible end:** The owner sees a local, correctable record with uncertainty and no implication that missing entries are failures.
+
+#### WF-03-F01 Owner denial or cancellation
+
+1. **Owner interface:** Records cancel/discard without saving the draft unless the owner explicitly chooses a raw unresolved save.
+2. **Workflow orchestrator:** Terminates the run and cancels local estimation work.
+3. **Policy service:** Issues no external capability because none exists for the initial workflow.
+4. **Memory/data plane:** Persists no meal/calorie record from a discarded draft; content-minimized run metadata follows short retention if needed.
+5. **Evaluation service:** Does not count cancellation as dietary noncompliance or motivation evidence.
+
+**Safe visible end:** The interface confirms nothing was saved and provides no shame, streak loss, or repeated unsolicited prompt.
+
+#### WF-03-F02 Local model/calculator unavailable or malformed
+
+1. **Model router/local computation service:** Returns typed unavailable, timeout, or invalid-unit/output failure and forbids cloud fallback.
+2. **Workflow orchestrator:** Offers manual raw entry without estimate, a clarification field, or retry later.
+3. **Policy service:** Blocks stale/cached estimates from being presented as current and prevents fabricated default values.
+4. **Owner interface:** Labels the entry unresolved and lets the owner intentionally save only known text/amount or cancel.
+5. **Memory service:** Does not promote an unresolved match into a food mapping.
+
+**Safe visible end:** The owner has either an explicitly unresolved local entry or no saved record; Osun never invents precision.
+
+#### WF-03-F03 Reference source unavailable or stale
+
+1. **Local reference adapter:** Returns unavailable/stale database version rather than an empty confident match.
+2. **Workflow orchestrator:** Does not add an external/cloud lookup because the approved workflow has no such route.
+3. **Local calculator/model:** Uses only still-valid local evidence or abstains.
+4. **Owner interface:** Shows reference unavailability/version age and provides manual entry/cancel.
+5. **Operations plane:** Records source health/version without food content.
+
+**Safe visible end:** Tracking can continue as a raw/manual local record, or stop, without hidden egress or fabricated estimate.
+
+#### WF-03-F04 Invalid or malicious reference/input
+
+1. **Ingress/reference adapter:** Treats owner-pasted/external reference text as untrusted, validates encoding/size/unit/value bounds, and strips active behavior.
+2. **Orchestrator:** Keeps instructions separate from food data and rejects attempts to request secrets, tools, cloud calls, or policy changes.
+3. **Local model:** Returns a structured proposal only; confidence cannot override validation.
+4. **Policy service:** Denies fabricated precision, unsafe target, cross-purpose memory, external sharing, or generated code.
+5. **Memory service:** Quarantines the bad mapping/reference from promotion and retrieval.
+
+**Safe visible end:** The owner sees an invalid/ambiguous input explanation or alternatives; no poisoned mapping, execution, or egress occurs.
+
+#### WF-03-F05 Restart or duplicate submit
+
+1. **Ingress/orchestrator:** Uses run and owner-submit idempotency keys to locate the existing draft/record.
+2. **Memory/data plane:** Returns the existing record/version instead of inserting a second meal.
+3. **Workflow orchestrator:** Resumes only incomplete local estimation/correction work and rejects stale state writes.
+4. **Owner interface:** Shows one saved entry and whether any calculation remains unresolved.
+5. **Local review service:** Recomputes summaries from authoritative saved record IDs, preventing double count.
+
+**Safe visible end:** Restart/retry cannot duplicate the meal or calories; the one authoritative record is editable.
+
+#### WF-03-F06 Incorrect food mapping or memory
+
+1. **Owner interface:** Shows match/source/unit/confidence and lets the owner select another match, change amount, or mark unknown.
+2. **Memory service:** Marks the old mapping disputed/superseded and prevents it from silently matching later entries.
+3. **Memory/data plane:** Creates a new version of the meal/estimate with derivation to the correction; prior value remains historical evidence.
+4. **Local review service:** Recomputes affected summaries and labels version/time.
+5. **Memory service:** Creates a candidate corrected mapping and requests confirmation before reusable promotion.
+
+**Safe visible end:** Current records/summaries reflect the correction, and the wrong mapping cannot continue as a hidden fact.
+
+#### WF-03-F07 Audit, correction, deletion, and recovery
+
+1. **Owner interface:** Shows saved food text, estimate/range, units, source, confidence, corrections, local model/version, and summary derivation.
+2. **Owner:** Requests edit, supersession, delete by record/time range, export, or WF-03 pause.
+3. **Policy/memory service:** Builds the exact correction/deletion/export plan and blocks new affected ingestion while it runs.
+4. **Memory/data plane:** Updates/deletes raw records, estimates, candidate mappings, indexes, caches, and summaries; tombstones contain no meal content.
+5. **Backup/recovery service:** Applies restore-time deletion handling and reports any delayed backup expiry rather than claiming immediate erasure.
+6. **Local review service:** Recomputes summaries from remaining authoritative records and keeps missing periods missing.
+7. **Operations plane:** Records content-minimized verification and unresolved state.
+
+**Safe visible end:** The owner sees corrected/deleted/exported state, rebuilt summaries, and honest remaining-copy status; no external party receives the data.
+
+---
+
+## 9. M0-25 narrative coverage
+
+| Workflow | Normal | Denial/cancel | Model unavailable | Source unavailable/stale | Invalid/malicious | Restart/duplicate | Incorrect memory | Audit/recovery |
+|---|---|---|---|---|---|---|---|---|
+| WF-01 | WF-01-N01 | WF-01-F01 | WF-01-F02 | WF-01-F03 | WF-01-F04 | WF-01-F05 | WF-01-F06 | WF-01-F07 |
+| WF-02 | WF-02-N01 | WF-02-F01 | WF-02-F02 | WF-02-F03 | WF-02-F04 | WF-02-F05 | WF-02-F06 | WF-02-F07 |
+| WF-03 | WF-03-N01 | WF-03-F01 | WF-03-F02 | WF-03-F03 | WF-03-F04 | WF-03-F05 | WF-03-F06 | WF-03-F07 |
+
+Acceptance checks:
+
+- [x] Every selected workflow has a normal request-to-verified-outcome story.
+- [x] Every selected workflow has owner denial/cancellation, model unavailable, and source unavailable/stale stories.
+- [x] Every selected workflow has invalid/malicious input, restart/duplicate, incorrect-memory, and audit/recovery stories.
+- [x] Every step names the responsible component.
+- [x] Every failure ends in a safe, owner-visible state.
+- [x] Narratives use typed version-zero contracts and preserve accepted data/autonomy boundaries.
+- [ ] Owner accepts or amends the narratives.
 
 ---
 
@@ -299,9 +594,9 @@ Detailed success, denial, outage, injection, duplicate-event, bad-memory, and re
 
 - Author/agent: Primary AI coordinator acting as workflow analyst
 - Reviewer: Owner
-- Status: M0-12 and M0-13 accepted; M0-25 narratives remain future work
-- Inputs used: Accepted owner charter, current-system inventory, M0 scoring rubric
+- Status: M0-12 and M0-13 accepted; M0-25 narratives in owner review
+- Inputs used: Accepted owner charter, current-system inventory, M0 scoring rubric, accepted workflow/data/autonomy/architecture/security/privacy specifications, version-zero contracts
 - Assumptions: Time savings lack baseline; workflow complexity and privacy scores are provisional; health workflows are wellness support, not diagnosis or treatment
-- Open questions: Detailed M0-25 success and failure narratives after architecture and contracts stabilize
-- Acceptance evidence: Twelve comparable workflow cards, consistent scoring table, owner-approved ranked trio, owner-approved workflow boundaries, recommendation, caveats, and selection criteria
+- Open questions: Owner acceptance or amendment of Sections 8-9; success thresholds after private baseline completion
+- Acceptance evidence: Twelve comparable workflow cards, consistent scoring table, owner-approved ranked trio/boundaries, and 24 component-named success/failure/recovery narratives
 - Last updated: 2026-07-26
