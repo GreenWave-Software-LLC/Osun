@@ -1,7 +1,7 @@
 # Osun M0 Threat Model
 
 **Task:** M0-22 - Complete the initial threat model \
-**State:** Agent and systems-architecture review complete; owner disposition decision required \
+**State:** Accepted for M0-22 \
 **Accountable:** Security analyst \
 **Reviewers:** Primary AI systems-architecture consistency review; owner for residual-risk dispositions; independent M0-46 review later \
 **Scope:** M0 design and the proposed M1 WF-01 vertical slice \
@@ -389,6 +389,8 @@ The owner is not being asked to accept a Critical or High risk for production. T
 
 Approval applies only to the M0 threat-model treatment plan. Later gates must decide whether implementation evidence actually reduces each risk enough for its exact data and autonomy scope.
 
+**Owner decision:** All eight M0-22 residual-risk dispositions and gates accepted as written on 2026-07-26.
+
 ---
 
 ## 13. M0-22 acceptance checklist
@@ -402,17 +404,17 @@ Approval applies only to the M0 threat-model treatment plan. Later gates must de
 - [x] M0 design controls are separated from M1 implementation evidence.
 - [x] Stable security requirement and future scenario identifiers provide traceability.
 - [x] Systems architect confirms controls fit the accepted architecture.
-- [ ] Owner approves or amends the residual-risk dispositions in Section 12.
+- [x] Owner approves or amends the residual-risk dispositions in Section 12.
 
 ---
 
 ## Artifact status
 
 - Author/agent: Primary AI coordinator acting as security analyst
-- Reviewers: Primary AI systems-architecture consistency review complete; owner decision pending; independent M0-46 review later
-- Status: Agent and architecture review complete; M0-22 owner decision pending
+- Reviewers: Primary AI systems-architecture consistency review and owner review complete; independent M0-46 review later
+- Status: Owner accepted; M0-22 complete
 - Inputs used: Accepted charter, data/autonomy boundaries, system inventory, accepted architecture/trust flows, NIST AI RMF/GAI Profile, OWASP Agentic Top 10 2026, CISA Secure by Design
 - Assumptions: M1 remains WF-01-first, no public exposure is required, Home Assistant control is deferred, and synthetic data can support early implementation tests
-- Open questions: Section 12 owner decision; exact technology controls after M0-24/M0-40; privacy analysis in M0-23; independent challenge in M0-46
+- Open questions: Exact technology controls after M0-24/M0-40; privacy analysis in M0-23; independent challenge in M0-46
 - Acceptance evidence: Thirty scored threats, three workflow abuse cases, full control catalog, High/Critical dispositions, 29 stable security requirements, and 45 reserved adversarial scenarios
 - Last updated: 2026-07-26

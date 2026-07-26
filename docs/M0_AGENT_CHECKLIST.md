@@ -198,8 +198,8 @@ Status marks:
 
 - [x] **M0-20 - Define component responsibilities and non-responsibilities**
 - [x] **M0-21 - Map identities, trust zones, and end-to-end data flows**
-- [-] **M0-22 - Complete the initial threat model**
-- [ ] **M0-23 - Complete the initial privacy impact assessment**
+- [x] **M0-22 - Complete the initial threat model**
+- [-] **M0-23 - Complete the initial privacy impact assessment**
 - [ ] **M0-24 - Draft version-zero system contracts**
 - [ ] **M0-25 - Write success and failure narratives for the selected workflows**
 
@@ -563,12 +563,12 @@ Acceptance evidence:
 
 Checklist:
 
-- [ ] State purpose and necessity for every data flow.
-- [ ] Check minimization, sensitivity, retention, access, egress, correction, deletion, export, and pause.
-- [ ] Identify affected people, including non-users.
-- [ ] Analyze inference risks, function creep, chilling effects, dependency, and future household leakage.
-- [ ] Define privacy tests and deletion verification expectations.
-- [ ] Record residual risks and required owner decisions.
+- [x] State purpose and necessity for every data flow.
+- [x] Check minimization, sensitivity, retention, access, egress, correction, deletion, export, and pause.
+- [x] Identify affected people, including non-users.
+- [x] Analyze inference risks, function creep, chilling effects, dependency, and future household leakage.
+- [x] Define privacy tests and deletion verification expectations.
+- [x] Record residual risks and required owner decisions.
 
 Acceptance evidence:
 
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; baseline active, M0-21 accepted, M0-22 threat model in review \
-**Current critical path:** M0-22 -> M0-23 -> M0-24 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
-**Next owner action:** Complete private baseline cards and approve or amend Section 12 of `m0/07_THREAT_MODEL.md`. \
-**Next agent action:** Close M0-22 after review, then open M0-23 within the WIP limit.
+**Milestone state:** In progress; baseline active, M0-22 accepted, M0-23 privacy assessment in review \
+**Current critical path:** M0-23 -> M0-24 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47; M0-16 runs alongside \
+**Next owner action:** Complete private baseline cards and approve or amend Section 13 of `m0/08_PRIVACY_IMPACT_ASSESSMENT.md`. \
+**Next agent action:** Close M0-23 after review, then open M0-24 within the WIP limit.
