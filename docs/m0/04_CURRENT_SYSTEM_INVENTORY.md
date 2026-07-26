@@ -1,7 +1,7 @@
 # Osun Current System Inventory
 
 **Task:** M0-11 - Inventory current systems, devices, services, and data sources \
-**State:** In progress; Windows Agent Box inspected, remaining systems require owner input \
+**State:** Core inventory complete; selected-workflow integration validation waits for M0-13 \
 **Technology scout:** Primary AI coordinator \
 **Last updated:** 2026-07-25
 
@@ -99,26 +99,25 @@ Questions, not decisions:
 | Attribute | Current value |
 |---|---|
 | Pi units | Three units described by owner |
-| Pi model | At least one Raspberry Pi 4 Model B; exact model per unit UNCONFIRMED |
-| RAM | UNCONFIRMED |
-| Storage type/capacity | UNCONFIRMED |
+| Pi model | Three Raspberry Pi 4 Model B units, owner-reported |
+| RAM | 4 GB per unit, owner-reported with mild uncertainty |
+| Storage type/capacity | 128 GB SD card per unit, owner-reported |
 | Operating system/version | One unit runs Raspberry Pi OS; one runs Home Assistant OS; versions UNCONFIRMED |
 | Current use | Home Assistant server is running but not configured; third unit is unconfigured |
-| Network connection | UNCONFIRMED |
+| Network connection | Home Assistant unit uses Ethernet; Raspberry Pi OS and unconfigured units use Wi-Fi |
 | Power supply/UPS | UNCONFIRMED |
 | Cooling/case | A cooling fan/block was reported; unit mapping UNCONFIRMED |
 | Backup method | No backups currently exist |
 | Remote administration method | UNCONFIRMED |
-| Availability for Osun experiments | All units may be reconfigured; timing and preservation requirements need confirmation |
+| Availability for Osun experiments | Units may eventually be reconfigured, but existing Raspberry Pi OS and Home Assistant OS installations must be preserved |
 
 Owner questions:
 
-1. Are all three units Raspberry Pi 4 Model B, and how much RAM does each have?
-2. What storage does each use: microSD, USB SSD, NVMe, or something else, and what capacity?
-3. Which physical unit has the cooling fan/block?
-4. Is each unit connected by Ethernet or Wi-Fi?
-5. What power supplies are used, and is any UPS present?
-6. Should the current Raspberry Pi OS and Home Assistant OS installations be preserved before later reconfiguration?
+Remaining non-blocking questions:
+
+1. Which physical unit has the cooling fan/block?
+2. What power supplies are used, and is any UPS present?
+3. Confirm installed OS versions during a later authorized device inspection.
 
 ---
 
@@ -130,19 +129,22 @@ Owner questions:
 |---|---|
 | Currently deployed | Yes |
 | Deployment type | Home Assistant OS |
-| Host hardware | One of the Raspberry Pi units; exact model/RAM/storage UNCONFIRMED |
+| Host hardware | Raspberry Pi 4 Model B, approximately 4 GB RAM, 128 GB SD card, Ethernet |
 | Version/update channel | UNCONFIRMED |
 | Existing integrations | None configured |
 | Existing automations | None configured |
 | Backup method | None currently exists |
-| External access | UNCONFIRMED |
+| External access | UNCONFIRMED; no external access should be assumed |
 | Osun integration timing | Planned for M4, unless requirements change |
 
 Owner questions:
 
-1. Which Raspberry Pi unit hosts Home Assistant OS?
-2. Is Home Assistant reachable only on the home network, or is external access enabled?
-3. Confirm that it controls no safety- or security-relevant devices because nothing is configured.
+Remaining non-blocking questions:
+
+1. Is Home Assistant reachable only on the home network, or is external access enabled?
+2. Confirm installed version during a later authorized device inspection.
+
+Because no integrations or automations are configured, it currently controls no safety- or security-relevant devices.
 
 ---
 
@@ -154,23 +156,25 @@ No accounts were inspected. The owner should name products and broad usage only;
 |---|---|---|---|---|---|
 | Phone ecosystem | Apple iPhone | TBD | Potentially sensitive | TBD | Owner confirmed |
 | Calendar | Apple Calendar and Google Calendar | Likely daily planning | Personal/sensitive | TBD | Owner confirmed products |
-| Tasks/reminders | UNCONFIRMED | Likely all initial workflows | Personal | TBD | Owner input |
+| Tasks/reminders | None currently used | Candidate local Osun capability | Personal | Not applicable yet | Owner confirmed |
 | Notes/knowledge | Apple Notes | Likely capture/review | Personal/sensitive | TBD | Owner confirmed product |
 | Email | Gmail | Candidate inbox/job workflow | Sensitive | TBD | Owner confirmed product |
 | Wearables/health | Apple Watch | Candidate health workflows; data use not approved | Sensitive | TBD | Owner confirmed product |
-| Cloud storage | iCloud, Google cloud storage, and OneDrive for project path | Project documents and future integrations TBD | Personal/sensitive | TBD | Google product name needs confirmation |
+| Cloud storage | iCloud, Google Drive, and OneDrive for project path | Project documents and future integrations TBD | Personal/sensitive | TBD | Owner confirmed products |
 | Cloud AI subscriptions/APIs | ChatGPT Plus, Kimi API, Claude reactivation available, other APIs acceptable if needed | Optional model routing later | Depends on payload | TBD | ChatGPT subscription is not assumed to include API access |
 | Smart-home platforms | Home Assistant intended | M4 | Personal/sensitive | TBD | Owner input |
-| Password/secrets manager | Apple passkeys used; dedicated password/secrets manager UNCONFIRMED | M1 security design | Restricted | TBD | Passkeys do not by themselves define server secret storage |
+| Password/secrets manager | Apple Passwords/iCloud Keychain and passkeys | M1 security design | Restricted | TBD | Server secret storage remains a separate M1 decision |
 | Backup destinations | None currently exists | M1 recovery design | Sensitive/restricted | TBD | Early project risk |
 
 Owner questions:
 
-1. Which task/reminder application do you use, if any (for example Apple Reminders)?
-2. By Google storage, do you mean Google Drive?
-3. Do you use Apple Passwords/iCloud Keychain as a password manager, or only passkeys?
-4. Which calendar is the primary source when Apple and Google contain overlapping events?
-5. Are Apple Watch health/fitness data and calorie data allowed for future local analysis, or should that decision wait for M0-14?
+Confirmed owner choices:
+
+- No task or reminder application is currently used.
+- Google storage means Google Drive.
+- Apple Passwords/iCloud Keychain and passkeys are used.
+- Google Calendar is the primary calendar.
+- Future local analysis of Apple Watch and calorie data is allowed in principle; exact fields, retention, purpose, and consent controls remain for M0-14.
 
 ---
 
@@ -192,13 +196,13 @@ No system is marked Ready during this initial inventory.
 
 - [x] Windows Agent Box hardware, OS, storage, and relevant command availability recorded.
 - [x] Serial numbers, network identifiers, credentials, and personal contents excluded.
-- [ ] Raspberry Pi facts confirmed; unit mapping, RAM, storage, network, and power remain open.
-- [ ] Home Assistant facts confirmed; host mapping and external access remain open.
-- [ ] Calendar, task, note, phone, AI, secrets, and backup systems named.
+- [x] Core Raspberry Pi facts confirmed; power/cooling mapping and OS versions remain explicit unknowns.
+- [x] Core Home Assistant facts confirmed; external access and version remain explicit unknowns.
+- [x] Calendar, task, note, phone, AI, secrets, and backup systems named.
 - [ ] Each system required by a selected workflow is present or marked missing.
 - [ ] Authentication method, API/export availability, sensitivity, expected rate, and offline behavior recorded for selected systems.
-- [ ] Unknowns remain explicitly unconfirmed rather than guessed.
-- [ ] Owner reviews the inventory for accuracy.
+- [x] Unknowns remain explicitly unconfirmed rather than guessed.
+- [x] Owner reviews the inventory for accuracy.
 
 ---
 
@@ -206,9 +210,9 @@ No system is marked Ready during this initial inventory.
 
 - Author/agent: Primary AI coordinator acting as technology scout
 - Reviewer: Owner and future privacy analyst
-- Status: Owner review
+- Status: Core inventory accepted; selected-workflow validation pending
 - Inputs used: Read-only Windows inspection, command/version checks, owner project statements
-- Assumptions: Exact Pi unit mapping, RAM/storage/network/power, task app, password manager, storage purpose/media, and local-AI support remain unconfirmed
-- Open questions: Sections 3-5
-- Acceptance evidence: Windows facts recorded without credentials, identifiers, or personal content; remaining acceptance items are explicit
+- Assumptions: Owner-reported Pi RAM is mildly uncertain; power/cooling, OS versions, Home Assistant external access, storage purpose/media, and local-AI support remain unconfirmed
+- Open questions: Selected-workflow API, authentication, expected-rate, and offline requirements after M0-13; non-blocking hardware questions in Sections 3-4
+- Acceptance evidence: Windows and core Pi/service facts recorded without credentials, identifiers, or personal content; owner reviewed and corrected the inventory
 - Last updated: 2026-07-25

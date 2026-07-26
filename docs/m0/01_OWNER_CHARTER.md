@@ -1,7 +1,7 @@
 # Osun Owner Charter
 
 **Task:** M0-10 - Define the owner charter and "better life" outcomes \
-**State:** In progress; owner interview required \
+**State:** Owner accepted; M0-10 complete \
 **Owner:** Primary owner \
 **Interview analyst:** Primary AI coordinator \
 **Last updated:** 2026-07-25
@@ -40,7 +40,7 @@ These statements define direction but do not yet rank the first six-month life o
 
 > Build an owner-controlled personal intelligence system that learns how the owner lives and prefers to work, coordinates authorized tools and environments, and provides timely help that improves daily life while preserving privacy, agency, explainability, and long-term portability.
 
-**Status:** UNCONFIRMED wording. The master-plan mission is accepted as planning context, but this first-person charter wording still requires owner confirmation or revision.
+**Status:** Owner accepted on 2026-07-25.
 
 ---
 
@@ -79,7 +79,7 @@ These are draft owner principles derived from the accepted master plan. The owne
 8. Speed and seamlessness.
 9. Cost and feature breadth.
 
-**Status:** UNCONFIRMED ordering.
+**Status:** Owner accepted on 2026-07-25.
 
 ---
 
@@ -107,7 +107,7 @@ Unacceptable project outcomes proposed for owner review:
 - The owner cannot understand why an important suggestion or action occurred.
 - The owner becomes unable to perform essential life functions when Osun is unavailable.
 
-**Status:** UNCONFIRMED additions and wording.
+**Status:** Owner accepted on 2026-07-25, including safeguards against unintended influence while retaining a strong Osun personality.
 
 ---
 
@@ -186,10 +186,12 @@ Osun should be allowed to develop a recognizable personality and point of view. 
 
 ### 8.4 Questions required to complete M0-10
 
-1. Do you accept the draft mission in Section 3, or how should it change?
-2. What one consistent behavior should Osun reinforce first?
-3. Do you accept the non-goals and unacceptable outcomes in Section 6, including safeguards against unintended influence while retaining a strong personality?
-4. Do you accept the principle conflict order in Section 5, or what should move?
+1. **Mission:** Accepted as written on 2026-07-25.
+2. **Behavior to reinforce:** Living consistently and continuing to act toward the owner's dreams.
+3. **Non-goals and safeguards:** Accepted as written on 2026-07-25.
+4. **Principle conflict order:** Accepted as written on 2026-07-25.
+
+The behavior statement is intentionally aspirational. Individual workflows must translate it into small owner-chosen actions rather than a universal streak score.
 
 ---
 
@@ -210,12 +212,12 @@ These will be asked after Round 1 so the owner is not required to answer everyth
 ## 10. M0-10 acceptance checklist
 
 - [x] Existing owner statements separated from agent interpretations.
-- [ ] Owner confirms or revises the mission.
+- [x] Owner confirms or revises the mission.
 - [x] Owner selects five to eight prioritized life outcomes.
-- [ ] Owner confirms non-goals and unacceptable outcomes.
-- [ ] Owner confirms principle conflict order.
-- [ ] Each outcome can connect to observable evidence without becoming a hidden optimization score.
-- [ ] Owner confirms the charter preserves their meaning.
+- [x] Owner confirms non-goals and unacceptable outcomes.
+- [x] Owner confirms principle conflict order.
+- [x] Each outcome can connect to observable evidence without becoming a hidden optimization score.
+- [x] Owner confirms the charter preserves their meaning.
 
 ---
 
@@ -223,9 +225,9 @@ These will be asked after Round 1 so the owner is not required to answer everyth
 
 - Author/agent: Primary AI coordinator acting as owner-interview analyst
 - Reviewer: Owner
-- Status: Owner review
+- Status: Accepted
 - Inputs used: Owner's project vision, accepted master plan, accepted M0 operating rules
-- Assumptions: Mission wording, principle order, non-goal confirmation, and a specific behavior to reinforce remain UNCONFIRMED
-- Open questions: Section 8.4
-- Acceptance evidence: Pending owner responses and confirmation
+- Assumptions: Workflow-level definitions of consistency remain to be designed and evaluated
+- Open questions: No blocker for M0-10; later interview topics remain in Section 9
+- Acceptance evidence: Owner accepted mission, ranked outcomes, non-goals, principle order, and consistency direction on 2026-07-25
 - Last updated: 2026-07-25

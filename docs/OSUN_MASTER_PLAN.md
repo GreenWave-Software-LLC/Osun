@@ -1,7 +1,7 @@
 # Osun: Living Master Plan
 
 **Document status:** Living specification  
-**Version:** 0.1.3 \
+**Version:** 0.1.4 \
 **Last updated:** 2026-07-25  
 **Planning horizon:** 2026-2036+  
 **Initial operator:** One person with AI development assistance  
@@ -1250,6 +1250,6 @@ These references should be reviewed for newer revisions during annual planning. 
 ## 18. Current status
 
 **Active milestone:** M0 — Charter, requirements, and evidence plan  
-**Current gate status:** In progress; M0-00/M0-01 complete and M0-10/M0-11 in progress \
-**Next action:** Complete the charter confirmations in the [owner charter](m0/01_OWNER_CHARTER.md) and clarify the remaining Pi and service details in the [current-system inventory](m0/04_CURRENT_SYSTEM_INVENTORY.md). \
+**Current gate status:** In progress; owner charter accepted and first-three workflow selection in progress \
+**Next action:** Review the [workflow catalog](m0/02_WORKFLOW_CATALOG.md), correct any scoring assumptions, and select/rank three workflows. \
 **Build authorization:** Not yet granted; architecture and specification work only.

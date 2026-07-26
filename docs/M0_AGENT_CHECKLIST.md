@@ -186,10 +186,10 @@ Status marks:
 
 ### Week 1 - Life outcomes and boundaries
 
-- [-] **M0-10 - Define the owner charter and “better life” outcomes**
+- [x] **M0-10 - Define the owner charter and “better life” outcomes**
 - [-] **M0-11 - Inventory current systems, devices, services, and data sources**
-- [ ] **M0-12 - Create and score at least ten candidate workflows**
-- [ ] **M0-13 - Owner selects the first three workflows**
+- [-] **M0-12 - Create and score at least ten candidate workflows**
+- [-] **M0-13 - Owner selects the first three workflows**
 - [ ] **M0-14 - Define data collection, retention, deletion, and cloud-egress boundaries**
 - [ ] **M0-15 - Define autonomy and approval boundaries**
 - [ ] **M0-16 - Define and begin baseline measurement**
@@ -1191,7 +1191,7 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 ## 12. Current checklist status
 
-**Milestone state:** In progress; M0-00 and M0-01 complete, M0-10 and M0-11 in progress \
-**Current critical path:** M0-10 -> M0-12 -> M0-13 -> M0-14/M0-15 -> M0-20/M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47 \
-**Next owner action:** Confirm the charter mission/principles/non-goals and clarify the remaining Pi and service inventory details. \
-**Next agent action:** Incorporate owner responses, complete M0-10/M0-11, and begin the workflow catalog.
+**Milestone state:** In progress; owner charter complete and workflow selection in progress \
+**Current critical path:** M0-13 -> M0-14/M0-15 -> M0-20/M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47 \
+**Next owner action:** Review the workflow catalog and select/rank three workflows. \
+**Next agent action:** Finalize workflow selection, validate selected integrations, and begin the data/autonomy boundaries.
