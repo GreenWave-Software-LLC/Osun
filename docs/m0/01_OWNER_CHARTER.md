@@ -50,15 +50,15 @@ The owner should rank these domains and may add, remove, merge, or rename them.
 
 | Domain | Proposed outcome | Six-month signal examples | Status |
 |---|---|---|---|
-| Time and attention | Spend less time remembering, organizing, and re-entering routine information | Fewer forgotten tasks; less planning time; fewer repeated explanations | UNCONFIRMED |
-| Execution | Turn intentions into completed actions with less friction | Higher completion of owner-selected priorities; fewer abandoned captures | UNCONFIRMED |
-| Self-knowledge | Understand patterns, routines, energy, and decisions without confusing correlation with value | Useful weekly reflections; corrected rather than hidden false inferences | UNCONFIRMED |
-| Learning and growth | Retain lessons and make progress on skills and long-term goals | Reused learning notes; sustained progress on chosen goals | UNCONFIRMED |
-| Health and wellbeing | Support owner-defined healthy routines without diagnosis or coercion | Better adherence to explicitly chosen routines; low notification regret | UNCONFIRMED |
+| Time and attention | Spend less time remembering, organizing, and re-entering routine information | Fewer forgotten tasks; less planning time; fewer repeated explanations | Not selected in top five |
+| Execution | Turn intentions into completed actions with less friction | Higher completion of owner-selected priorities; fewer abandoned captures | Not selected in top five; productivity remains a desired result |
+| Self-knowledge | Understand patterns, routines, energy, and decisions without confusing correlation with value | Useful weekly reflections; corrected rather than hidden false inferences | Selected priority 4 |
+| Learning and growth | Retain lessons and make progress on skills and long-term goals | Reused learning notes; sustained progress on chosen goals | Selected priority 2 |
+| Health and wellbeing | Support owner-defined healthy routines without diagnosis or coercion | Better adherence to explicitly chosen routines; owner-reported energy | Selected priority 1 |
 | Relationships | Remember commitments and create space for important people without surveilling them | Fewer missed commitments; owner-rated relationship support | UNCONFIRMED |
 | Home and environment | Reduce household friction through bounded coordination | Successful low-risk automations; fewer manual repeated steps | UNCONFIRMED |
-| Responsibilities and administration | Reduce avoidable life-admin burden | Less time on recurring administration; fewer late obligations | UNCONFIRMED |
-| Creativity and recreation | Protect time and context for meaningful creative or enjoyable activity | More owner-valued sessions; less setup friction | UNCONFIRMED |
+| Responsibilities and administration | Reduce avoidable life-admin burden | Less time on recurring administration; fewer late obligations | Selected priority 5 |
+| Creativity and recreation | Protect time and context for meaningful creative or enjoyable activity | More owner-valued sessions; more interest in intended weekly activities | Selected priority 3 |
 | System ownership | Maintain a private, portable, understandable system that can evolve for a decade | Successful export/restore; low maintenance; vendor replaceability | UNCONFIRMED |
 
 The final charter should contain five to eight prioritized outcomes rather than treating every domain as equally important.
@@ -119,41 +119,81 @@ These questions unblock the first charter draft and workflow catalog. Short, inf
 
 If Osun were genuinely helping six months from now, what three concrete differences would you notice in an ordinary week?
 
-**Owner response:** Pending.
+**Owner response (2026-07-25):** Be more productive in everyday life, have more energy for desired activities, and feel more interested in the things the owner wants to do each week.
 
 ### Q2 - Current friction
 
 Which recurring tasks, decisions, or responsibilities currently consume the most avoidable time or mental energy?
 
-**Owner response:** Pending.
+**Owner response (2026-07-25):** Calorie tracking, workout planning, applying to jobs, checking email, and meal planning currently consume the most time.
 
 ### Q3 - First workflow preference
 
 Of daily planning, universal capture, and daily review, which would help most first? Is there another workflow that clearly matters more?
 
-**Owner response:** Pending.
+**Owner response (2026-07-25):** No preferred starting workflow; choose the order that produces visible improvement in everyday life.
 
 ### Q4 - Support versus change
 
 Name one behavior or routine Osun should reinforce and one observed behavior it must not treat as a preference because you want to change it.
 
-**Owner response:** Pending.
+**Owner response (2026-07-25):** The owner wants to change inconsistency across activities. A specific behavior to reinforce was not yet named.
 
 ### Q5 - Intrusion boundary
 
 What would make Osun feel intrusive, manipulative, judgmental, or dependency-forming to you?
 
-**Owner response:** Pending.
+**Owner response (2026-07-25):** The owner does not initially consider intrusiveness, judgment, or manipulation a material risk and wants Osun to have its own personality.
+
+**Analyst interpretation:** A distinct, proactive personality is a product requirement. Non-coercion, pause, audit, and attention-burden controls remain engineering safeguards against unintended influence; they are not a request to make Osun bland or passive.
 
 ### Q6 - Outcome priorities
 
 Choose and rank five outcome domains from Section 4, or replace them with your own terms.
 
-**Owner response:** Pending.
+**Owner response (2026-07-25):** 1. Health and wellbeing; 2. Learning and growth; 3. Creativity and recreation; 4. Self-knowledge; 5. Responsibilities and life administration.
 
 ---
 
-## 8. Later owner interview topics
+## 8. Round 1 synthesis
+
+### 8.1 Six-month outcome statement
+
+The first six-month system should help the owner:
+
+1. act more consistently on intended activities;
+2. reduce planning and tracking burden around health, meals, workouts, job applications, and email;
+3. experience more usable energy and engagement for chosen weekly activities.
+
+This is not a mandate to maximize task count. Productivity is valuable when it supports health, learning, creativity, self-knowledge, and life administration in that priority order.
+
+### 8.2 Initial workflow implications
+
+The workflow catalog should give special consideration to:
+
+- meal planning plus low-friction calorie capture;
+- workout planning and follow-through;
+- daily/weekly planning focused on consistency and energy;
+- job discovery/application tracking;
+- email triage and actionable summaries;
+- a weekly reflection that detects obstacles without labeling inconsistent behavior as a preference.
+
+No workflow is selected yet. M0-12 will compare at least ten candidates using value, frequency, privacy, reversibility, feasibility, and maintenance burden.
+
+### 8.3 Personality requirement
+
+Osun should be allowed to develop a recognizable personality and point of view. Personality does not grant authority: action permissions, data boundaries, explanations, pause, and owner correction remain deterministic product controls.
+
+### 8.4 Questions required to complete M0-10
+
+1. Do you accept the draft mission in Section 3, or how should it change?
+2. What one consistent behavior should Osun reinforce first?
+3. Do you accept the non-goals and unacceptable outcomes in Section 6, including safeguards against unintended influence while retaining a strong personality?
+4. Do you accept the principle conflict order in Section 5, or what should move?
+
+---
+
+## 9. Later owner interview topics
 
 These will be asked after Round 1 so the owner is not required to answer everything at once:
 
@@ -167,11 +207,11 @@ These will be asked after Round 1 so the owner is not required to answer everyth
 
 ---
 
-## 9. M0-10 acceptance checklist
+## 10. M0-10 acceptance checklist
 
 - [x] Existing owner statements separated from agent interpretations.
 - [ ] Owner confirms or revises the mission.
-- [ ] Owner selects five to eight prioritized life outcomes.
+- [x] Owner selects five to eight prioritized life outcomes.
 - [ ] Owner confirms non-goals and unacceptable outcomes.
 - [ ] Owner confirms principle conflict order.
 - [ ] Each outcome can connect to observable evidence without becoming a hidden optimization score.
@@ -185,7 +225,7 @@ These will be asked after Round 1 so the owner is not required to answer everyth
 - Reviewer: Owner
 - Status: Owner review
 - Inputs used: Owner's project vision, accepted master plan, accepted M0 operating rules
-- Assumptions: Proposed outcomes and principle order are UNCONFIRMED until owner response
-- Open questions: Owner Interview Round 1 in Section 7
+- Assumptions: Mission wording, principle order, non-goal confirmation, and a specific behavior to reinforce remain UNCONFIRMED
+- Open questions: Section 8.4
 - Acceptance evidence: Pending owner responses and confirmation
 - Last updated: 2026-07-25

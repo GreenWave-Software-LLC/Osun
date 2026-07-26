@@ -1193,5 +1193,5 @@ Unchanged background detail remains in the status artifact rather than consuming
 
 **Milestone state:** In progress; M0-00 and M0-01 complete, M0-10 and M0-11 in progress \
 **Current critical path:** M0-10 -> M0-12 -> M0-13 -> M0-14/M0-15 -> M0-20/M0-21 -> M0-25 -> M0-30 -> M0-40 -> M0-43 -> M0-46 -> M0-47 \
-**Next owner action:** Answer Owner Interview Round 1 and provide the missing Pi, Home Assistant, and current-service inventory details. \
+**Next owner action:** Confirm the charter mission/principles/non-goals and clarify the remaining Pi and service inventory details. \
 **Next agent action:** Incorporate owner responses, complete M0-10/M0-11, and begin the workflow catalog.

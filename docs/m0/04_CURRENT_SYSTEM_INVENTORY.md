@@ -94,55 +94,55 @@ Questions, not decisions:
 
 ## 3. Raspberry Pi Personal Core
 
-**Status:** Owner input required; no network probing or remote access attempted.
+**Status:** Partial owner inventory received; no network probing or remote access attempted.
 
 | Attribute | Current value |
 |---|---|
-| Pi model | UNCONFIRMED |
+| Pi units | Three units described by owner |
+| Pi model | At least one Raspberry Pi 4 Model B; exact model per unit UNCONFIRMED |
 | RAM | UNCONFIRMED |
 | Storage type/capacity | UNCONFIRMED |
-| Operating system/version | UNCONFIRMED |
-| Current use | UNCONFIRMED |
+| Operating system/version | One unit runs Raspberry Pi OS; one runs Home Assistant OS; versions UNCONFIRMED |
+| Current use | Home Assistant server is running but not configured; third unit is unconfigured |
 | Network connection | UNCONFIRMED |
 | Power supply/UPS | UNCONFIRMED |
-| Cooling/case | UNCONFIRMED |
-| Backup method | UNCONFIRMED |
+| Cooling/case | A cooling fan/block was reported; unit mapping UNCONFIRMED |
+| Backup method | No backups currently exist |
 | Remote administration method | UNCONFIRMED |
-| Availability for Osun experiments | UNCONFIRMED |
+| Availability for Osun experiments | All units may be reconfigured; timing and preservation requirements need confirmation |
 
 Owner questions:
 
-1. Which Raspberry Pi model and RAM size do you have?
-2. What storage does it use: microSD, USB SSD, NVMe, or something else?
-3. Is an operating system installed, and is the Pi currently used for anything important?
-4. Is it connected by Ethernet or Wi-Fi?
-5. Does it have reliable power, cooling, and any UPS?
-6. Can it be wiped/reconfigured later, or must existing services be preserved?
+1. Are all three units Raspberry Pi 4 Model B, and how much RAM does each have?
+2. What storage does each use: microSD, USB SSD, NVMe, or something else, and what capacity?
+3. Which physical unit has the cooling fan/block?
+4. Is each unit connected by Ethernet or Wi-Fi?
+5. What power supplies are used, and is any UPS present?
+6. Should the current Raspberry Pi OS and Home Assistant OS installations be preserved before later reconfiguration?
 
 ---
 
 ## 4. Home Assistant
 
-**Status:** Owner input required; no Home Assistant access attempted.
+**Status:** Server running on one Raspberry Pi using Home Assistant OS; no integrations or automations configured. No Home Assistant access attempted.
 
 | Attribute | Current value |
 |---|---|
-| Currently deployed | UNCONFIRMED |
-| Deployment type | UNCONFIRMED |
-| Host hardware | UNCONFIRMED |
+| Currently deployed | Yes |
+| Deployment type | Home Assistant OS |
+| Host hardware | One of the Raspberry Pi units; exact model/RAM/storage UNCONFIRMED |
 | Version/update channel | UNCONFIRMED |
-| Existing integrations | UNCONFIRMED |
-| Existing automations | UNCONFIRMED |
-| Backup method | UNCONFIRMED |
+| Existing integrations | None configured |
+| Existing automations | None configured |
+| Backup method | None currently exists |
 | External access | UNCONFIRMED |
 | Osun integration timing | Planned for M4, unless requirements change |
 
 Owner questions:
 
-1. Is Home Assistant already running?
-2. If yes, where and how is it installed?
-3. Which device categories or integrations are already connected?
-4. Does it currently control anything safety- or security-relevant?
+1. Which Raspberry Pi unit hosts Home Assistant OS?
+2. Is Home Assistant reachable only on the home network, or is external access enabled?
+3. Confirm that it controls no safety- or security-relevant devices because nothing is configured.
 
 ---
 
@@ -152,26 +152,25 @@ No accounts were inspected. The owner should name products and broad usage only;
 
 | Category | Product/system | Needed for selected workflow | Data sensitivity | API/export known | Status |
 |---|---|---|---|---|---|
-| Phone ecosystem | UNCONFIRMED | TBD | Potentially sensitive | TBD | Owner input |
-| Calendar | UNCONFIRMED | Likely daily planning | Personal/sensitive | TBD | Owner input |
+| Phone ecosystem | Apple iPhone | TBD | Potentially sensitive | TBD | Owner confirmed |
+| Calendar | Apple Calendar and Google Calendar | Likely daily planning | Personal/sensitive | TBD | Owner confirmed products |
 | Tasks/reminders | UNCONFIRMED | Likely all initial workflows | Personal | TBD | Owner input |
-| Notes/knowledge | UNCONFIRMED | Likely capture/review | Personal/sensitive | TBD | Owner input |
-| Email | UNCONFIRMED | Deferred unless selected | Sensitive | TBD | Owner input |
-| Wearables/health | UNCONFIRMED | Deferred by M0 default | Sensitive | TBD | Owner input |
-| Cloud storage | OneDrive observed for repository path | Project documents | Personal | Local sync observed | Partial |
-| Cloud AI subscriptions/APIs | UNCONFIRMED | Optional model routing later | Depends on payload | TBD | Owner input |
+| Notes/knowledge | Apple Notes | Likely capture/review | Personal/sensitive | TBD | Owner confirmed product |
+| Email | Gmail | Candidate inbox/job workflow | Sensitive | TBD | Owner confirmed product |
+| Wearables/health | Apple Watch | Candidate health workflows; data use not approved | Sensitive | TBD | Owner confirmed product |
+| Cloud storage | iCloud, Google cloud storage, and OneDrive for project path | Project documents and future integrations TBD | Personal/sensitive | TBD | Google product name needs confirmation |
+| Cloud AI subscriptions/APIs | ChatGPT Plus, Kimi API, Claude reactivation available, other APIs acceptable if needed | Optional model routing later | Depends on payload | TBD | ChatGPT subscription is not assumed to include API access |
 | Smart-home platforms | Home Assistant intended | M4 | Personal/sensitive | TBD | Owner input |
-| Password/secrets manager | UNCONFIRMED | M1 security design | Restricted | TBD | Owner input |
-| Backup destinations | UNCONFIRMED | M1 recovery design | Sensitive/restricted | TBD | Owner input |
+| Password/secrets manager | Apple passkeys used; dedicated password/secrets manager UNCONFIRMED | M1 security design | Restricted | TBD | Passkeys do not by themselves define server secret storage |
+| Backup destinations | None currently exists | M1 recovery design | Sensitive/restricted | TBD | Early project risk |
 
 Owner questions:
 
-1. What phone ecosystem do you use?
-2. Which calendar, task/reminder, and note applications do you use now?
-3. Which email and cloud-storage systems matter to you?
-4. Do you use a wearable or health platform that might be considered years later?
-5. Do you already pay for any AI subscriptions or API access?
-6. Do you use a password manager and an existing backup system? Product names are sufficient.
+1. Which task/reminder application do you use, if any (for example Apple Reminders)?
+2. By Google storage, do you mean Google Drive?
+3. Do you use Apple Passwords/iCloud Keychain as a password manager, or only passkeys?
+4. Which calendar is the primary source when Apple and Google contain overlapping events?
+5. Are Apple Watch health/fitness data and calorie data allowed for future local analysis, or should that decision wait for M0-14?
 
 ---
 
@@ -193,8 +192,8 @@ No system is marked Ready during this initial inventory.
 
 - [x] Windows Agent Box hardware, OS, storage, and relevant command availability recorded.
 - [x] Serial numbers, network identifiers, credentials, and personal contents excluded.
-- [ ] Raspberry Pi facts confirmed.
-- [ ] Home Assistant facts confirmed.
+- [ ] Raspberry Pi facts confirmed; unit mapping, RAM, storage, network, and power remain open.
+- [ ] Home Assistant facts confirmed; host mapping and external access remain open.
 - [ ] Calendar, task, note, phone, AI, secrets, and backup systems named.
 - [ ] Each system required by a selected workflow is present or marked missing.
 - [ ] Authentication method, API/export availability, sensitivity, expected rate, and offline behavior recorded for selected systems.
@@ -209,7 +208,7 @@ No system is marked Ready during this initial inventory.
 - Reviewer: Owner and future privacy analyst
 - Status: Owner review
 - Inputs used: Read-only Windows inspection, command/version checks, owner project statements
-- Assumptions: Pi, Home Assistant, services, storage purpose/media, backup, and local-AI support remain unconfirmed
+- Assumptions: Exact Pi unit mapping, RAM/storage/network/power, task app, password manager, storage purpose/media, and local-AI support remain unconfirmed
 - Open questions: Sections 3-5
 - Acceptance evidence: Windows facts recorded without credentials, identifiers, or personal content; remaining acceptance items are explicit
 - Last updated: 2026-07-25

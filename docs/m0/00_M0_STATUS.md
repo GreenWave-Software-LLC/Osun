@@ -22,7 +22,7 @@ M0 has started and the owner has accepted the operating rules. Two tasks are ope
 - **Completed:** M0-01 status register and M0-00 owner acceptance.
 - **In progress:** M0-10 owner charter and M0-11 current-system inventory.
 - **Queued by WIP limit:** M0-02 glossary and naming.
-- **Current input dependency:** Owner responses for the charter, Raspberry Pi, Home Assistant, and current services.
+- **Current input dependency:** Four charter confirmations and remaining Pi/service details after Round 1 responses were received.
 - **Production build authorization:** Not granted; M0 remains specification-first.
 
 ### Critical path
@@ -35,9 +35,9 @@ M0-01 -> M0-00 -> M0-10 -> M0-12 -> M0-13
 
 ### Next three assignments
 
-1. **Owner:** Answer Owner Interview Round 1 in `01_OWNER_CHARTER.md`.
-2. **Owner:** Provide the missing Pi, Home Assistant, and service names requested in `04_CURRENT_SYSTEM_INVENTORY.md`.
-3. **AI coordinator:** Incorporate responses, complete M0-10/M0-11 acceptance checks, and begin M0-12.
+1. **Owner:** Answer the four completion questions in Section 8.4 of `01_OWNER_CHARTER.md`.
+2. **Owner:** Clarify Pi unit specifications, task app, Google storage, password manager, and primary calendar.
+3. **AI coordinator:** Complete M0-10/M0-11 acceptance checks and begin M0-12.
 
 ---
 
@@ -176,7 +176,7 @@ The coordinator updates this table from owner-reported focused time; it must not
 |---|---|---|---|---|
 | OD-001 | Accept or amend M0 operating rules | Now | Accepted as written 2026-07-25 | Section 7.1 response |
 | OD-002 | Confirm AI-assisted coordinator | M0-00 | Approved 2026-07-25 | Owner statement |
-| OD-003 | Define “better life” and prioritized outcomes | M0-10 | Pending | Owner interview |
+| OD-003 | Define “better life” and prioritized outcomes | M0-10 | Top five and six-month direction received; mission/principles/non-goals pending | Owner interview |
 | OD-004 | Select first three workflows | M0-13 | Pending | Workflow catalog and scoring |
 | OD-005 | Set prohibited, confirmation-only, and allowed data | M0-14 | Pending | Data inventory and privacy analysis |
 | OD-006 | Set local/cloud processing rule | M0-14 | Pending | Sensitivity, quality, latency, cost evidence |
@@ -207,6 +207,7 @@ The coordinator updates this table from owner-reported focused time; it must not
 | ER-003 | Technology preferences bias architecture prematurely | High | Medium | No scorecard until requirements/contracts exist |
 | ER-004 | Real personal data enters planning artifacts unnecessarily | Medium | High | Synthetic examples and data minimization |
 | ER-005 | “Start M0” is mistaken for production-build authority | Medium | High | Maintain explicit M0 scope and build-authorization status |
+| ER-006 | No backup currently exists for project or target systems | High | Critical | Preserve repository history; design and test backup/restore before M1 production data |
 
 ---
 
@@ -254,6 +255,7 @@ After the response, the coordinator will:
 | 2026-07-25 | M0-01 started and status/evidence register created | This file |
 | 2026-07-25 | Owner accepted M0 scope/rules as written and approved AI-assisted coordination | Section 7.2 |
 | 2026-07-25 | M0-10 and M0-11 opened; Windows Agent Box inventory completed | `01_OWNER_CHARTER.md`, `04_CURRENT_SYSTEM_INVENTORY.md` |
+| 2026-07-25 | Owner Interview Round 1 and initial Pi/service inventory captured | `01_OWNER_CHARTER.md`, `04_CURRENT_SYSTEM_INVENTORY.md` |
 
 ---
 
@@ -264,6 +266,6 @@ After the response, the coordinator will:
 - Status: Accepted for M0-01; living register remains active
 - Inputs used: `docs/OSUN_MASTER_PLAN.md`, `docs/M0_AGENT_CHECKLIST.md`, repository history
 - Assumptions: Listed in Section 6.3
-- Open questions: Owner charter and inventory inputs; decision queue in Section 6.2
+- Open questions: Charter Section 8.4, inventory Sections 3-5, and decision queue in Section 6.2
 - Acceptance evidence: All 29 tasks registered once; accountable roles, dependencies, artifact paths, critical path, evidence gates, blockers, assumptions, decisions, and human budget are present
 - Last updated: 2026-07-25
