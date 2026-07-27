@@ -120,7 +120,8 @@
           <span id="connectionResult" class="muted small">No live connection tested in this session.</span>
         </div>
         <div id="discoveredLights" class="discovered-lights"></div>
-        <label class="switch-row"><span><strong>Enable live light execution</strong><small>Still requires an exact proposal and Apply</small></span><input id="liveEnabled" type="checkbox"></label>
+        <label class="switch-row"><span><strong>Enable live light execution</strong><small>Allows exact proposals to reach allowlisted Home Assistant lights</small></span><input id="liveEnabled" type="checkbox"></label>
+        <label class="switch-row authority-switch"><span><strong>Autonomous execution</strong><small>Runs new Lighting proposals immediately without Apply; Pause always overrides</small></span><input id="autonomousExecution" type="checkbox"></label>
         <label class="switch-row"><span><strong>Pause execution</strong><small>Blocks Apply outside the model layer</small></span><input id="globalPause" type="checkbox" checked></label>
       </section>
 

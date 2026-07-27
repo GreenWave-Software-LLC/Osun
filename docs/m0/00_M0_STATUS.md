@@ -194,6 +194,7 @@ The coordinator updates this table from owner-reported focused time; it must not
 | OD-016 | Approve privacy residual-risk dispositions and gates | M0-23 | Approved 2026-07-26 | `08_PRIVACY_IMPACT_ASSESSMENT.md` Section 13 |
 | OD-017 | Approve selected-workflow success/failure/recovery narratives | M0-25 | Accepted as written 2026-07-26 | `02_WORKFLOW_CATALOG.md` Sections 8-9 |
 | OD-018 | Authorize a parallel Windows chat lighting prototype and narrow Home Assistant light control exception | P0-LIGHT-01 | Authorized 2026-07-26; simulator first, exact Apply, light allowlist, local credential protection, no other device domains | `../prototypes/P0_LIGHTING_ASSISTANT.md` |
+| OD-019 | Authorize independent default-off autonomous execution controls for agent widgets | P1-SHELL-01 | Authorized 2026-07-27; Lighting first, owner-request-triggered exact proposals only, Pause overrides, no cross-agent authority | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` Section 10.6, `../prototypes/P1_OSUN_SHELL.md` |
 | OD-019 | Promote the UI into Osun's main chat shell, use local Qwen as the Agent Box, and make Lighting the first agent widget | P1-SHELL-01 | Authorized 2026-07-27; model routes only to registered review tools, no direct execution, no persistent chat | `../prototypes/P1_OSUN_SHELL.md` |
 
 ### 6.3 Assumptions
@@ -290,6 +291,7 @@ After the response, the coordinator will:
 | 2026-07-27 | P1-SHELL-01 implemented with local Qwen, extensible widget dock, and Lighting promoted to the first agent widget | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
 | 2026-07-27 | Home Assistant later became reachable and discovery/configuration succeeded; first Apply attempts were locally denied because live execution was disabled and global pause remained active | `../prototypes/P1_OSUN_USER_GUIDE.md` |
 | 2026-07-27 | Real Hue grouped lights actuated; misleading follow-up denial traced to duplicate Apply after a partial group read-back; proposal idempotency and first-class Zones/Lights metadata implemented | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
+| 2026-07-27 | Owner authorized a default-off autonomous-execution switch per agent widget; Lighting implementation preserves exact proposals, allowlists, local audit, verification, and Emergency Pause precedence | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` Section 10.6, `../prototypes/P1_OSUN_SHELL.md` |
 | 2026-07-27 | All-partial Hue zone results were found to be misclassified as failed; aggregation corrected and Bright Morning promoted to a deterministic built-in theme | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
 | 2026-07-27 | Zone authority refined: themes expand to unique physical members with coordinated colors and per-bulb verification; an explicitly named selected light overrides broader selected zones | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
 

@@ -113,7 +113,13 @@ class OsunController:
                 result = {
                     "text": visible_text,
                     "agent": "lighting",
-                    "widgets": [self._lighting_widget(lighting_reply.get("proposal"))],
+                    "widgets": [
+                        self._lighting_widget(
+                            lighting_reply.get("proposal"),
+                            lighting_reply.get("execution"),
+                        )
+                    ],
+                    "execution": lighting_reply.get("execution"),
                     "model": {"used": bool(tool_names), "metrics": metrics},
                 }
             elif qwen_content:
@@ -176,7 +182,11 @@ class OsunController:
     def lighting_delete_credential(self) -> dict[str, Any]:
         return self.lighting.delete_credential()
 
-    def _lighting_widget(self, proposal: dict[str, Any] | None) -> dict[str, Any]:
+    def _lighting_widget(
+        self,
+        proposal: dict[str, Any] | None,
+        execution: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         status = self.lighting.status()
         return {
             "id": "lighting",
@@ -187,6 +197,12 @@ class OsunController:
             "mode": status.get("effective_mode"),
             "paused": status.get("paused"),
             "live_enabled": status.get("live_enabled"),
+            "autonomous_execution": status.get("autonomous_execution"),
+            "execution_policy": {
+                "autonomous": bool(status.get("autonomous_execution")),
+                "paused": bool(status.get("paused")),
+            },
+            "execution": execution,
             "lights": status.get("lights", []),
             "warning": status.get("warning"),
         }

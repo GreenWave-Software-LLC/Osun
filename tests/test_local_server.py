@@ -25,6 +25,14 @@ class LocalServerTests(unittest.TestCase):
             AuditLog(root / "audit.jsonl"),
             WindowsCredentialStore(root / "credential.bin"),
         )
+        controller.save_settings(
+            {
+                "mode": "simulator",
+                "live_enabled": False,
+                "global_pause": False,
+                "autonomous_execution": False,
+            }
+        )
         self.server = OsunServer(("127.0.0.1", 0), controller, "synthetic-session")
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()

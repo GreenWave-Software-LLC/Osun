@@ -23,6 +23,7 @@ class AppConfig:
     allowed_entities: list[str] = field(default_factory=list)
     live_enabled: bool = False
     global_pause: bool = True
+    autonomous_execution: bool = False
 
     def validate(self) -> None:
         if self.mode not in {"simulator", "home_assistant"}:
@@ -30,6 +31,8 @@ class AppConfig:
         if any(not item.startswith("light.") for item in self.allowed_entities):
             raise ValueError("Only light.* entities may be allowlisted")
         self.allowed_entities = sorted(set(self.allowed_entities))
+        if self.mode == "home_assistant" and self.autonomous_execution and not self.live_enabled:
+            raise ValueError("Enable live light execution before autonomous execution")
         if self.mode == "home_assistant" and not self.live_enabled:
             self.global_pause = True
 
@@ -49,6 +52,7 @@ class ConfigStore:
                 allowed_entities=list(raw.get("allowed_entities", [])),
                 live_enabled=bool(raw.get("live_enabled", False)),
                 global_pause=bool(raw.get("global_pause", True)),
+                autonomous_execution=bool(raw.get("autonomous_execution", False)),
             )
             config.validate()
             return config

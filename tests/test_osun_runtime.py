@@ -63,6 +63,47 @@ class OsunRuntimeTests(unittest.TestCase):
         self.assertEqual("lighting", reply["agent"])
         self.assertEqual("Deep Ocean", reply["widgets"][0]["proposal"]["theme_name"])
         self.assertEqual("I want to feel like I am in the ocean", qwen.received[0])
+        self.assertIsNone(reply["execution"])
+        self.assertFalse(reply["widgets"][0]["execution_policy"]["autonomous"])
+        self.assertTrue(all(light["state"] == "off" for light in self.lighting.status()["lights"]))
+
+    def test_widget_autonomy_executes_exact_proposal_without_apply(self) -> None:
+        self.lighting.save_settings(
+            {
+                "mode": "simulator",
+                "live_enabled": False,
+                "global_pause": False,
+                "autonomous_execution": True,
+            }
+        )
+        controller = OsunController(self.lighting, FakeQwen(tool=True))
+        reply = controller.message("I want to feel like I am in the ocean")
+
+        self.assertEqual("verified", reply["execution"]["state"])
+        self.assertIn("Applied autonomously", reply["text"])
+        self.assertFalse(reply["widgets"][0]["proposal"]["requires_confirmation"])
+        self.assertTrue(reply["widgets"][0]["execution_policy"]["autonomous"])
+        self.assertIsNone(self.lighting.assistant.pending)
+        self.assertTrue(all(light["state"] == "on" for light in self.lighting.status()["lights"]))
+        audit_text = self.lighting.audit.path.read_text(encoding="utf-8")
+        self.assertIn("lighting.autonomous_requested", audit_text)
+        self.assertNotIn("I want to feel like I am in the ocean", audit_text)
+
+    def test_emergency_pause_overrides_widget_autonomy(self) -> None:
+        self.lighting.save_settings(
+            {
+                "mode": "simulator",
+                "live_enabled": False,
+                "global_pause": True,
+                "autonomous_execution": True,
+            }
+        )
+        controller = OsunController(self.lighting, FakeQwen(tool=True))
+        reply = controller.message("turn the lights on")
+
+        self.assertEqual("denied", reply["execution"]["state"])
+        self.assertIn("Autonomous execution was blocked", reply["text"])
+        self.assertTrue(reply["widgets"][0]["execution_policy"]["paused"])
         self.assertTrue(all(light["state"] == "off" for light in self.lighting.status()["lights"]))
 
     def test_model_failure_keeps_explicit_lighting_fallback(self) -> None:

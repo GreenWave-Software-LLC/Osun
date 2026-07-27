@@ -41,6 +41,7 @@ const ui = {
   connectionResult: document.getElementById("connectionResult"),
   discoveredLights: document.getElementById("discoveredLights"),
   liveEnabled: document.getElementById("liveEnabled"),
+  autonomousExecution: document.getElementById("autonomousExecution"),
   globalPause: document.getElementById("globalPause"),
   deleteToken: document.getElementById("deleteTokenButton"),
   quit: document.getElementById("quitButton"),
@@ -74,6 +75,16 @@ function showToast(message) {
   ui.toast.classList.add("show");
   clearTimeout(showToast.timer);
   showToast.timer = setTimeout(() => ui.toast.classList.remove("show"), 3400);
+}
+
+function updateComposerHint() {
+  if (state.status?.lighting?.paused) {
+    ui.hint.textContent = "Qwen runs locally. Lighting execution is paused outside the model layer.";
+  } else {
+    ui.hint.textContent = state.status?.lighting?.autonomous_execution
+      ? "Qwen runs locally. Lighting proposals execute under the widget's autonomous policy."
+      : "Qwen runs locally. Lighting changes require a visible Apply.";
+  }
 }
 
 function appendMessage(role, text, agent = "osun") {
@@ -114,10 +125,17 @@ function paletteFromProposal(proposal) {
 
 function lightingExecutionGate(widget) {
   const reasons = [];
-  if (widget.mode === "home_assistant" && !widget.live_enabled) reasons.push("live light execution is disabled");
-  if (widget.paused) reasons.push("execution is paused");
+  const recovery = ["review the allowlist"];
+  if (widget.mode === "home_assistant" && !widget.live_enabled) {
+    reasons.push("live light execution is disabled");
+    recovery.push("enable live execution");
+  }
+  if (widget.paused) {
+    reasons.push("execution is paused");
+    recovery.push("clear Pause");
+  }
   if (!reasons.length) return null;
-  return `${reasons.join(" and ")}. Open Connection, review the allowlist, enable live execution, clear Pause, and save.`;
+  return `${reasons.join(" and ")}. Open Connection, ${recovery.join(", ")}, and save.`;
 }
 
 function lightingTargetRow(light) {
@@ -150,18 +168,25 @@ function renderLightingWidget(widget = state.activeWidget) {
   const proposal = widget.proposal;
   const executionGate = lightingExecutionGate(widget);
   const proposalApplying = proposal && state.applyingProposalId === proposal.proposal_id;
+  const autonomousExecution = proposal && widget.execution?.proposal_id === proposal.proposal_id
+    ? widget.execution
+    : null;
+  const proposalConsumed = autonomousExecution && autonomousExecution.state !== "denied";
+  const autonomousLabel = autonomousExecution?.state === "failed"
+    ? "Autonomous attempt"
+    : "Executed autonomously";
   const changes = (proposal?.changes || []).map(change => `
     <div class="change"><strong>${escapeHtml(change.friendly_name)}</strong><span>${escapeHtml(change.preview)}</span></div>`).join("");
   const proposalHtml = proposal ? `
     <div class="proposal-card">
-      <div class="proposal-heading"><h3>${escapeHtml(proposal.theme_name || "Lighting change")}</h3><span>Review only</span></div>
+      <div class="proposal-heading"><h3>${escapeHtml(proposal.theme_name || "Lighting change")}</h3><span>${proposalConsumed ? autonomousLabel : "Review only"}</span></div>
       <p class="proposal-summary">${escapeHtml(proposal.summary)}</p>
       ${paletteFromProposal(proposal) ? `<div class="palette">${paletteFromProposal(proposal)}</div>` : ""}
       <div class="change-list">${changes}</div>
-      <div class="widget-actions">
+      ${proposalConsumed ? `<div class="autonomous-result">${escapeHtml(autonomousExecution.summary)}</div>` : `<div class="widget-actions">
         <button class="secondary-button" id="cancelLighting" type="button">Cancel</button>
         <button class="primary-button" id="applyLighting" type="button" ${executionGate || proposalApplying ? "disabled" : ""}>${executionGate ? "Execution locked" : proposalApplying ? "Applying…" : "Apply exact proposal"}</button>
-      </div>
+      </div>`}
     </div>` : '<p class="muted small">Ask Osun for a lighting change to create an exact preview.</p>';
   ui.activeWidget.innerHTML = `
     <div class="widget-card">
@@ -172,6 +197,7 @@ function renderLightingWidget(widget = state.activeWidget) {
         </div>
         <div class="widget-mode">
           <span class="${widget.mode === "home_assistant" ? "live" : ""}">${escapeHtml(widget.mode === "home_assistant" ? "Home Assistant" : "Simulator")}</span>
+          <span class="${widget.autonomous_execution ? "autonomous" : ""}">${widget.autonomous_execution ? "Autonomous" : "Manual Apply"}</span>
           <span>${widget.paused ? "Paused" : "Execution ready"}</span>
           <span>${zones.length} zone${zones.length === 1 ? "" : "s"} · ${individualLights.length} light${individualLights.length === 1 ? "" : "s"}</span>
         </div>
@@ -226,7 +252,7 @@ async function sendMessage(text) {
     thinking.remove();
     appendMessage("assistant", response.text, response.agent);
     if (response.widgets?.length) {
-      state.resultText = "";
+      state.resultText = response.execution?.summary || "";
       renderLightingWidget(response.widgets[0]);
     }
   } catch (error) {
@@ -235,7 +261,7 @@ async function sendMessage(text) {
   } finally {
     state.busy = false;
     ui.send.disabled = false;
-    ui.hint.textContent = "Qwen runs locally. Device changes always require a visible Apply.";
+    updateComposerHint();
     ui.input.focus();
   }
 }
@@ -254,6 +280,7 @@ async function applyLighting() {
     state.activeWidget.lights = state.status.lighting.lights;
     state.activeWidget.paused = state.status.lighting.paused;
     state.activeWidget.live_enabled = state.status.lighting.live_enabled;
+    state.activeWidget.autonomous_execution = state.status.lighting.autonomous_execution;
     renderLightingWidget();
   } catch (error) {
     showToast(error.message);
@@ -281,12 +308,14 @@ async function pauseLighting() {
     state.activeWidget.proposal = null;
     state.activeWidget.paused = true;
     state.activeWidget.live_enabled = state.status.lighting.live_enabled;
+    state.activeWidget.autonomous_execution = state.status.lighting.autonomous_execution;
     renderLightingWidget();
   } catch (error) { showToast(error.message); }
 }
 
 async function refreshStatus(renderWidget = true) {
   state.status = await request("/status");
+  updateComposerHint();
   const box = state.status.agent_box;
   ui.agentBoxModel.textContent = box.model;
   ui.agentBoxDot.classList.toggle("online", box.online && box.model_available);
@@ -299,6 +328,7 @@ async function refreshStatus(renderWidget = true) {
     state.activeWidget.paused = state.status.lighting.paused;
     state.activeWidget.mode = state.status.lighting.effective_mode;
     state.activeWidget.live_enabled = state.status.lighting.live_enabled;
+    state.activeWidget.autonomous_execution = state.status.lighting.autonomous_execution;
     renderLightingWidget();
   }
 }
@@ -322,6 +352,7 @@ function renderSettings() {
   ui.haUrl.value = settings.home_assistant_url;
   ui.haToken.value = "";
   ui.liveEnabled.checked = settings.live_enabled;
+  ui.autonomousExecution.checked = settings.autonomous_execution;
   ui.globalPause.checked = settings.global_pause;
   ui.lightingModeBadge.textContent = lighting.effective_mode === "home_assistant" ? "Home Assistant" : "Simulator";
   state.discoveredLights = lighting.lights;
@@ -375,6 +406,7 @@ async function saveSettings() {
       token: ui.haToken.value,
       allowed_entities: allowed,
       live_enabled: ui.liveEnabled.checked,
+      autonomous_execution: ui.autonomousExecution.checked,
       global_pause: ui.globalPause.checked,
     });
     ui.haToken.value = "";
@@ -388,6 +420,7 @@ async function saveSettings() {
         mode: lighting.effective_mode,
         paused: lighting.paused,
         live_enabled: lighting.live_enabled,
+        autonomous_execution: lighting.autonomous_execution,
         lights: lighting.lights,
         warning: lighting.warning,
       };
@@ -431,7 +464,7 @@ ui.newChat.addEventListener("click", newChat);
 ui.lightingNav.addEventListener("click", () => {
   const lighting = state.status?.lighting;
   if (!lighting) return;
-  renderLightingWidget({ id: "lighting", kind: "lighting", title: "Lighting", agent: "lighting", proposal: lighting.pending, mode: lighting.effective_mode, paused: lighting.paused, live_enabled: lighting.live_enabled, lights: lighting.lights, warning: lighting.warning });
+  renderLightingWidget({ id: "lighting", kind: "lighting", title: "Lighting", agent: "lighting", proposal: lighting.pending, mode: lighting.effective_mode, paused: lighting.paused, live_enabled: lighting.live_enabled, autonomous_execution: lighting.autonomous_execution, lights: lighting.lights, warning: lighting.warning });
 });
 ui.settingsButton.addEventListener("click", openSettings);
 ui.discover.addEventListener("click", discoverLights);

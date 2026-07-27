@@ -51,6 +51,33 @@ class AuditLog:
             }
         )
 
+    def autonomous_requested(self, proposal_id: str, mode: str) -> None:
+        self._write(
+            {
+                "event": "lighting.autonomous_requested",
+                "proposal_id": proposal_id,
+                "mode": mode,
+            }
+        )
+
+    def policy_changed(
+        self,
+        *,
+        mode: str,
+        live_enabled: bool,
+        autonomous_execution: bool,
+        paused: bool,
+    ) -> None:
+        self._write(
+            {
+                "event": "lighting.policy_changed",
+                "mode": mode,
+                "live_enabled": live_enabled,
+                "autonomous_execution": autonomous_execution,
+                "paused": paused,
+            }
+        )
+
     def _write(self, payload: dict[str, object]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         payload = {"time": datetime.now(UTC).isoformat(), **payload}

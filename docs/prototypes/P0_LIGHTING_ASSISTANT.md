@@ -7,7 +7,7 @@
 **Device authority:** Home Assistant \
 **Last updated:** 2026-07-26
 
-> **Interface update (2026-07-27):** Lighting is no longer the primary application brand. This bounded implementation is preserved as the first agent and widget inside the general [P1 Osun Shell](P1_OSUN_SHELL.md). Its light-only authority, proposal, Apply, pause, credential, and read-back constraints remain in force.
+> **Interface update (2026-07-27):** Lighting is no longer the primary application brand. This bounded implementation is preserved as the first agent and widget inside the general [P1 Osun Shell](P1_OSUN_SHELL.md). Its light-only authority, proposal, pause, credential, and read-back constraints remain in force. Exact Apply remains the default; P1 adds a separately authorized, default-off, per-widget standing policy for request-triggered autonomous execution.
 
 ---
 
