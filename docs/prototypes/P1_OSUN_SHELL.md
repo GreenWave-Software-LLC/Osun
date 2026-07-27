@@ -125,7 +125,7 @@ The shell is responsive down to a single-column layout. It uses no cloud assets,
 2. Browser writes require the high-entropy session path and reject foreign origins.
 3. Raw chat remains memory-only.
 4. Qwen sees no Home Assistant token and receives no general execution tool.
-5. Lighting remains `light.*` only, explicitly allowlisted, paused by default for live setup, exact-Apply, and state-read-back verified.
+5. Lighting remains `light.*` only, explicitly allowlisted, paused by default for live setup, exact-Apply, and state-read-back verified. Physical members derived from an allowlisted zone are authorized only while Home Assistant still reports them as members at Apply time.
 6. Unknown model tool calls are discarded.
 7. Qwen unavailability cannot disable deterministic pause or lighting policy.
 8. General requests never fabricate calendar, email, memory, sensor, or internet access.
@@ -133,6 +133,8 @@ The shell is responsive down to a single-column layout. It uses no cloud assets,
 10. Simulator remains a first-class fallback if the Pi, Qwen, or Home Assistant is unavailable.
 11. Home Assistant grouped lights are modeled as zones with member-light metadata, separated from individual lights in the widget and connection allowlist.
 12. Apply is idempotent per proposal ID: a duplicate local request returns the original report without a second Home Assistant service call.
+13. A selected zone expands recursively to unique physical member lights before proposal construction, so themes coordinate a palette across bulbs and read-back verifies each bulb rather than an aggregate group value.
+14. An explicitly named selected light takes precedence over broader selected zones; overlapping zone/member selections are deduplicated by entity ID.
 
 ---
 
@@ -170,8 +172,8 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 
 - Author/agent: Primary AI coordinator acting as product engineer and security reviewer
 - Owner decision: Main Osun chat shell, pluggable widgets, Lighting as first agent, local Qwen Agent Box
-- Status: Shell and Qwen implemented; simulator verified; Home Assistant connected; real-light canary waiting for a narrow allowlist plus deliberate live-enable/unpause
-- Automated evidence: 41 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
+- Status: Shell and Qwen implemented; simulator verified; Home Assistant connected and actuating real lights; final supervised per-bulb zone verification remains
+- Automated evidence: 43 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
 - Runtime evidence: official Qwen model downloaded, 100% GPU placement observed, warm chat and tool-call smoke tests passed
 - Visual evidence: neutral shell, agent dock, real-Qwen Lighting widget, exact Deep Ocean preview, and separate Zones/Lights layouts with group membership; visual QA found and corrected simultaneous empty/widget rendering
 - Sensitive-data status: No token, real entity inventory, raw chat, or baseline data committed

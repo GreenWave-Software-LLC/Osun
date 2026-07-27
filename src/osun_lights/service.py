@@ -46,8 +46,9 @@ class LightingAssistant:
 
     def handle(self, text: str, selected_entities: tuple[str, ...] = ()) -> AssistantReply:
         intent = self.parser.parse(text)
-        lights = self.list_lights()
-        mentioned = self._mentioned_targets(text, lights)
+        available_lights = self.list_lights()
+        lights = available_lights
+        mentioned = self._mentioned_targets(text, available_lights)
         if mentioned:
             lights = mentioned
             if selected_entities:
@@ -72,7 +73,14 @@ class LightingAssistant:
             return AssistantReply(intent.response or "I couldn't turn that into a safe lighting proposal.")
         if not lights:
             return AssistantReply("Select at least one available light first.")
-        proposal = self.builder.suggestion(lights) if intent.kind == IntentKind.SUGGEST else self.builder.build(intent, lights)
+        proposal_lights = self._expand_targets(lights, available_lights)
+        if not proposal_lights:
+            return AssistantReply("The selected zone has no controllable member lights available.")
+        proposal = (
+            self.builder.suggestion(proposal_lights)
+            if intent.kind == IntentKind.SUGGEST
+            else self.builder.build(intent, proposal_lights)
+        )
         self.pending = proposal
         if self.audit:
             self.audit.proposal(proposal, self.mode)
@@ -111,6 +119,33 @@ class LightingAssistant:
             if any(f" {alias} " in normalized_text for alias in aliases):
                 matches.append(light)
         return tuple(matches)
+
+    @staticmethod
+    def _expand_targets(
+        targets: tuple[LightInfo, ...],
+        available_lights: tuple[LightInfo, ...],
+    ) -> tuple[LightInfo, ...]:
+        by_id = {light.entity_id: light for light in available_lights}
+        expanded: dict[str, LightInfo] = {}
+
+        def add_target(light: LightInfo, ancestors: frozenset[str]) -> bool:
+            if light.entity_id in ancestors:
+                return False
+            if light.is_zone and light.member_entity_ids:
+                added_member = False
+                next_ancestors = ancestors | {light.entity_id}
+                for member_id in light.member_entity_ids:
+                    member = by_id.get(member_id)
+                    if member is not None:
+                        added_member = add_target(member, next_ancestors) or added_member
+                if added_member:
+                    return True
+            expanded.setdefault(light.entity_id, light)
+            return True
+
+        for target in targets:
+            add_target(target, frozenset())
+        return tuple(expanded.values())
 
     def apply(self, proposal_id: str) -> ExecutionReport:
         # A repeated local request must be idempotent. The original report is

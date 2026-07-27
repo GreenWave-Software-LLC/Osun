@@ -69,6 +69,26 @@ class ProposalAndServiceTests(unittest.TestCase):
         status = assistant.handle("light status sleepy").text
         self.assertIn("containing Desk Lamp", status)
 
+    def test_named_individual_light_overrides_selected_zone(self) -> None:
+        lights = (
+            LightInfo(
+                "light.sleepy_sleepy",
+                "Sleepy",
+                "off",
+                ("rgb",),
+                member_entity_ids=("light.desk_lamp", "light.bedside"),
+                member_names=("Desk Lamp", "Bedside"),
+                group_type="zone",
+            ),
+            LightInfo("light.desk_lamp", "Desk Lamp", "off", ("rgb",)),
+            LightInfo("light.bedside", "Bedside", "off", ("rgb",)),
+        )
+        assistant = LightingAssistant(SimulatedLightProvider(lights))
+        selected = tuple(light.entity_id for light in lights)
+        proposal = assistant.handle("make the desk lamp blue", selected).proposal
+        assert proposal is not None
+        self.assertEqual(("light.desk_lamp",), tuple(change.entity_id for change in proposal.changes))
+
     def test_pause_cancels_and_denies_execution(self) -> None:
         reply = self.assistant.handle("turn on")
         proposal = reply.proposal

@@ -5,6 +5,7 @@ from typing import Any
 
 from osun_lights.home_assistant import HomeAssistantClient
 from osun_lights.models import ExecutionItem, LightAction, LightChange, LightingProposal, ResultState, public_light_state
+from osun_lights.service import LightingAssistant
 
 
 class FakeHomeAssistant(HomeAssistantClient):
@@ -31,6 +32,26 @@ class FakeHomeAssistant(HomeAssistantClient):
                     "is_hue_group": True,
                     "hue_type": "zone",
                     "lights": ["Bathroom 1", "Bedroom 2"],
+                },
+            },
+            "light.bathroom_1": {
+                "entity_id": "light.bathroom_1",
+                "state": "off",
+                "attributes": {
+                    "friendly_name": "Bathroom 1",
+                    "supported_color_modes": ["rgb"],
+                    "brightness": 0,
+                    "rgb_color": [0, 0, 0],
+                },
+            },
+            "light.bedroom_2": {
+                "entity_id": "light.bedroom_2",
+                "state": "off",
+                "attributes": {
+                    "friendly_name": "Bedroom 2",
+                    "supported_color_modes": ["rgb"],
+                    "brightness": 0,
+                    "rgb_color": [0, 0, 0],
                 },
             },
             "light.helper_group": {
@@ -80,12 +101,13 @@ class HomeAssistantClientTests(unittest.TestCase):
         client = FakeHomeAssistant({"light.lounge"})
         self.assertTrue(client.check())
         lights = client.discover_lights()
-        self.assertEqual(3, len(lights))
+        self.assertEqual(5, len(lights))
         by_id = {light.entity_id: light for light in lights}
         self.assertTrue(by_id["light.lounge"].supports_color)
         relax = by_id["light.relax_zone"]
         self.assertTrue(relax.is_zone)
         self.assertEqual("zone", relax.group_type)
+        self.assertEqual(("light.bathroom_1", "light.bedroom_2"), relax.member_entity_ids)
         self.assertEqual(("Bathroom 1", "Bedroom 2"), relax.member_names)
         helper = by_id["light.helper_group"]
         self.assertEqual(("light.lounge",), helper.member_entity_ids)
@@ -93,6 +115,53 @@ class HomeAssistantClientTests(unittest.TestCase):
         public = public_light_state(relax)
         self.assertEqual("zone", public["kind"])
         self.assertEqual(["Bathroom 1", "Bedroom 2"], public["member_names"])
+
+    def test_zone_theme_expands_to_coordinated_member_light_calls(self) -> None:
+        client = FakeHomeAssistant({"light.relax_zone"})
+        assistant = LightingAssistant(client, live_enabled=True)
+        visible = assistant.list_lights()
+        self.assertEqual(
+            {"light.relax_zone", "light.bathroom_1", "light.bedroom_2"},
+            {light.entity_id for light in visible},
+        )
+
+        reply = assistant.handle("I want to feel like I am in the ocean", ("light.relax_zone",))
+        proposal = reply.proposal
+        assert proposal is not None
+        self.assertEqual(
+            ("light.bathroom_1", "light.bedroom_2"),
+            tuple(change.entity_id for change in proposal.changes),
+        )
+        self.assertNotEqual(proposal.changes[0].rgb_color, proposal.changes[1].rgb_color)
+
+        report = assistant.apply(proposal.proposal_id)
+        self.assertEqual(ResultState.VERIFIED, report.state)
+        service_entities = [
+            payload["entity_id"]
+            for _method, path, payload in client.calls
+            if "/api/services/light/" in path and payload is not None
+        ]
+        self.assertEqual(["light.bathroom_1", "light.bedroom_2"], service_entities)
+
+        client.calls.clear()
+        individual_reply = assistant.handle(
+            "make Bathroom 1 blue",
+            tuple(light.entity_id for light in visible),
+        )
+        individual_proposal = individual_reply.proposal
+        assert individual_proposal is not None
+        self.assertEqual(
+            ("light.bathroom_1",),
+            tuple(change.entity_id for change in individual_proposal.changes),
+        )
+        individual_report = assistant.apply(individual_proposal.proposal_id)
+        self.assertEqual(ResultState.VERIFIED, individual_report.state)
+        individual_service_entities = [
+            payload["entity_id"]
+            for _method, path, payload in client.calls
+            if "/api/services/light/" in path and payload is not None
+        ]
+        self.assertEqual(["light.bathroom_1"], individual_service_entities)
 
     def test_live_call_uses_only_light_service_and_reads_back(self) -> None:
         client = FakeHomeAssistant({"light.lounge"})

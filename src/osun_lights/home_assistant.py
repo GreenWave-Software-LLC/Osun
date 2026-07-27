@@ -98,6 +98,9 @@ class HomeAssistantClient:
             names_by_entity[entity_id] = str(
                 attributes.get("friendly_name") or entity_id.removeprefix("light.").replace("_", " ").title()
             )
+        entities_by_name: dict[str, list[str]] = {}
+        for entity_id, friendly_name in names_by_entity.items():
+            entities_by_name.setdefault(friendly_name.strip().casefold(), []).append(entity_id)
 
         lights: list[LightInfo] = []
         for item in states:
@@ -124,11 +127,24 @@ class HomeAssistantClient:
             explicit_member_names = tuple(
                 str(member) for member in member_names_raw if isinstance(member, str)
             ) if isinstance(member_names_raw, (list, tuple, set)) else ()
+            hue_type = attributes.get("hue_type")
+            hue_group = attributes.get("is_hue_group") is True or (
+                isinstance(hue_type, str) and hue_type.casefold() in {"room", "zone"}
+            )
+            resolved_member_ids = list(member_entity_ids)
+            for member_name in (explicit_member_names if hue_group else ()):
+                candidates = [
+                    candidate
+                    for candidate in entities_by_name.get(member_name.strip().casefold(), [])
+                    if candidate != entity_id
+                ]
+                if len(candidates) == 1 and candidates[0] not in resolved_member_ids:
+                    resolved_member_ids.append(candidates[0])
+            member_entity_ids = tuple(resolved_member_ids)
             member_names = explicit_member_names or tuple(
                 names_by_entity.get(member, member.removeprefix("light.").replace("_", " ").title())
                 for member in member_entity_ids
             )
-            hue_type = attributes.get("hue_type")
             if isinstance(hue_type, str) and hue_type.casefold() in {"room", "zone"}:
                 group_type = hue_type.casefold()
             elif attributes.get("is_hue_group") is True:
@@ -150,15 +166,42 @@ class HomeAssistantClient:
                     group_type=group_type,
                 )
             )
-        return tuple(sorted(lights, key=lambda light: (light.friendly_name.casefold(), light.entity_id)))
+        discovered = tuple(sorted(lights, key=lambda light: (light.friendly_name.casefold(), light.entity_id)))
+        return discovered
 
     def list_lights(self) -> tuple[LightInfo, ...]:
-        return tuple(light for light in self.discover_lights() if light.entity_id in self.allowed_entities)
+        lights = self.discover_lights()
+        visible_entities = self._expanded_allowed_entities(lights)
+        return tuple(light for light in lights if light.entity_id in visible_entities)
+
+    def _expanded_allowed_entities(self, lights: tuple[LightInfo, ...]) -> set[str]:
+        by_id = {light.entity_id: light for light in lights}
+        expanded = set(self.allowed_entities)
+        pending = list(self.allowed_entities)
+        while pending:
+            entity_id = pending.pop()
+            light = by_id.get(entity_id)
+            if light is None:
+                continue
+            for member_id in light.member_entity_ids:
+                if member_id not in expanded:
+                    expanded.add(member_id)
+                    pending.append(member_id)
+        return expanded
 
     def apply(self, proposal: LightingProposal) -> ExecutionReport:
+        try:
+            execution_allowed = self._expanded_allowed_entities(self.discover_lights())
+        except HomeAssistantError as exc:
+            items = tuple(
+                ExecutionItem(change.entity_id, ResultState.FAILED, str(exc))
+                for change in proposal.changes
+            )
+            return ExecutionReport(proposal.proposal_id, ResultState.FAILED, items, self.mode)
+
         items: list[ExecutionItem] = []
         for change in proposal.changes:
-            if change.entity_id not in self.allowed_entities or not change.entity_id.startswith("light."):
+            if change.entity_id not in execution_allowed or not change.entity_id.startswith("light."):
                 items.append(ExecutionItem(change.entity_id, ResultState.DENIED, "Entity is not in the live light allowlist"))
                 continue
             try:
