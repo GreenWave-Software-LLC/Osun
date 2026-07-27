@@ -111,6 +111,14 @@ function paletteFromProposal(proposal) {
   return colors.map(color => `<span style="background:rgb(${color.map(Number).join(",")})"></span>`).join("");
 }
 
+function lightingExecutionGate(widget) {
+  const reasons = [];
+  if (widget.mode === "home_assistant" && !widget.live_enabled) reasons.push("live light execution is disabled");
+  if (widget.paused) reasons.push("execution is paused");
+  if (!reasons.length) return null;
+  return `${reasons.join(" and ")}. Open Connection, review the allowlist, enable live execution, clear Pause, and save.`;
+}
+
 function renderLightingWidget(widget = state.activeWidget) {
   if (!widget) return;
   state.activeWidget = widget;
@@ -128,6 +136,7 @@ function renderLightingWidget(widget = state.activeWidget) {
       <span class="light-state">${escapeHtml(light.state)}</span>
     </label>`).join("");
   const proposal = widget.proposal;
+  const executionGate = lightingExecutionGate(widget);
   const changes = (proposal?.changes || []).map(change => `
     <div class="change"><strong>${escapeHtml(change.friendly_name)}</strong><span>${escapeHtml(change.preview)}</span></div>`).join("");
   const proposalHtml = proposal ? `
@@ -138,7 +147,7 @@ function renderLightingWidget(widget = state.activeWidget) {
       <div class="change-list">${changes}</div>
       <div class="widget-actions">
         <button class="secondary-button" id="cancelLighting" type="button">Cancel</button>
-        <button class="primary-button" id="applyLighting" type="button">Apply exact proposal</button>
+        <button class="primary-button" id="applyLighting" type="button" ${executionGate ? "disabled" : ""}>${executionGate ? "Execution locked" : "Apply exact proposal"}</button>
       </div>
     </div>` : '<p class="muted small">Ask Osun for a lighting change to create an exact preview.</p>';
   ui.activeWidget.innerHTML = `
@@ -155,6 +164,7 @@ function renderLightingWidget(widget = state.activeWidget) {
         </div>
       </div>
       <div class="widget-body">
+        ${executionGate ? `<p class="execution-gate widget-gate">${escapeHtml(executionGate)}</p>` : ""}
         <section class="widget-section"><p class="section-kicker">Targets</p><div class="light-list">${lightRows || '<p class="muted small">No allowlisted lights are available.</p>'}</div></section>
         <section class="widget-section"><p class="section-kicker">Exact proposal</p>${proposalHtml}</section>
         <section class="widget-section">
@@ -227,6 +237,7 @@ async function applyLighting() {
     state.activeWidget.proposal = null;
     state.activeWidget.lights = state.status.lighting.lights;
     state.activeWidget.paused = state.status.lighting.paused;
+    state.activeWidget.live_enabled = state.status.lighting.live_enabled;
     renderLightingWidget();
   } catch (error) { showToast(error.message); }
 }
@@ -248,6 +259,7 @@ async function pauseLighting() {
     await refreshStatus(false);
     state.activeWidget.proposal = null;
     state.activeWidget.paused = true;
+    state.activeWidget.live_enabled = state.status.lighting.live_enabled;
     renderLightingWidget();
   } catch (error) { showToast(error.message); }
 }
@@ -265,6 +277,7 @@ async function refreshStatus(renderWidget = true) {
     state.activeWidget.lights = state.status.lighting.lights;
     state.activeWidget.paused = state.status.lighting.paused;
     state.activeWidget.mode = state.status.lighting.effective_mode;
+    state.activeWidget.live_enabled = state.status.lighting.live_enabled;
     renderLightingWidget();
   }
 }
@@ -341,7 +354,15 @@ async function saveSettings() {
     ui.settings.close();
     showToast(`Lighting saved in ${lighting.effective_mode === "home_assistant" ? "Home Assistant" : "simulator"} mode.`);
     if (state.activeWidget) {
-      state.activeWidget = { ...state.activeWidget, ...lighting, proposal: lighting.pending };
+      state.activeWidget = {
+        ...state.activeWidget,
+        proposal: lighting.pending,
+        mode: lighting.effective_mode,
+        paused: lighting.paused,
+        live_enabled: lighting.live_enabled,
+        lights: lighting.lights,
+        warning: lighting.warning,
+      };
       renderLightingWidget();
     }
   } catch (error) { showToast(error.message); }

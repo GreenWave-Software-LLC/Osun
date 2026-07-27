@@ -64,14 +64,14 @@ Qwen cannot execute the proposal. Select **Apply exact proposal** only after rev
 
 ## 4. Connect the real Home Assistant Pi
 
-As of 2026-07-27, `homeassistant.local` resolves to `10.21.190.62`, but port `8123` is not accepting connections. Before setup:
+On 2026-07-27, `homeassistant.local` resolved to `10.21.190.62` and Home Assistant API reachability was verified. If it becomes unavailable later:
 
 1. Confirm the Home Assistant Pi is powered and its Ethernet link lights are active.
 2. Open `http://homeassistant.local:8123` directly in a browser.
 3. If it does not open, inspect the Pi/HA boot state or confirm its new IP in the router.
 4. Confirm each real light can already be controlled from the Home Assistant dashboard.
 
-Once Home Assistant opens:
+To configure or reconnect Home Assistant:
 
 1. Open your Home Assistant owner profile.
 2. Create a Long-Lived Access Token for this prototype.
@@ -101,6 +101,8 @@ After successful discovery:
 8. Test Cancel, off, brightness, Ocean, and Emergency pause.
 
 If Osun reports partial or failed, do not repeatedly Apply. Pause the Lighting agent and use Home Assistant directly.
+
+If Osun reports **denied**, the request was stopped locally before Home Assistant. Open Connection and verify all three canary gates: only the intended lamp is selected in the allowlist, **Enable live light execution** is checked, and **Pause execution** is cleared. Save, create a fresh proposal, and review it again before Apply.
 
 ---
 

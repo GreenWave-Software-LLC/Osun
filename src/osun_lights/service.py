@@ -73,15 +73,19 @@ class LightingAssistant:
         return AssistantReply(text_reply, proposal)
 
     def apply(self, proposal_id: str) -> ExecutionReport:
+        # Report active execution gates before proposal state. Pausing clears the
+        # pending proposal, so checking the proposal first hides the real reason
+        # the user's action was denied.
+        if self.paused:
+            return self._denied(proposal_id, "global_pause")
+        if self.mode == "home_assistant" and not self.live_enabled:
+            return self._denied(proposal_id, "live_control_disabled")
+
         proposal = self.pending
         if proposal is None or proposal.proposal_id != proposal_id:
             return self._denied(proposal_id, "proposal_missing_or_replaced")
         if proposal_id in self._executed:
             return self._denied(proposal_id, "proposal_already_executed")
-        if self.paused:
-            return self._denied(proposal_id, "global_pause")
-        if self.mode == "home_assistant" and not self.live_enabled:
-            return self._denied(proposal_id, "live_control_disabled")
 
         self._executed.add(proposal_id)
         report = self.provider.apply(proposal)

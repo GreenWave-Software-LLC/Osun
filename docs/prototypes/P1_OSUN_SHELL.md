@@ -150,7 +150,7 @@ The shell is responsive down to a single-column layout. It uses no cloud assets,
 | SHELL-T10 | Quit | Shell stops and Qwen model unload is requested |
 | SHELL-T11 | Real light canary | One or two allowlisted lamps change and read back under direct observation |
 
-SHELL-T11 is pending because `homeassistant.local` resolved to `10.21.190.62` on 2026-07-27 but TCP port `8123` was closed during implementation.
+SHELL-T11 remains pending. Later on 2026-07-27, `homeassistant.local:8123` became reachable, local authentication/entity discovery succeeded, and Home Assistant mode was saved. The first Apply attempts were correctly denied because live execution remained disabled and global pause remained active; no Home Assistant service call was sent.
 
 ---
 
@@ -168,8 +168,8 @@ SHELL-T11 is pending because `homeassistant.local` resolved to `10.21.190.62` on
 
 - Author/agent: Primary AI coordinator acting as product engineer and security reviewer
 - Owner decision: Main Osun chat shell, pluggable widgets, Lighting as first agent, local Qwen Agent Box
-- Status: Shell and Qwen implemented; simulator verified; real Home Assistant canary blocked by closed endpoint
-- Automated evidence: 36 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
+- Status: Shell and Qwen implemented; simulator verified; Home Assistant connected; real-light canary waiting for a narrow allowlist plus deliberate live-enable/unpause
+- Automated evidence: 37 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
 - Runtime evidence: official Qwen model downloaded, 100% GPU placement observed, warm chat and tool-call smoke tests passed
 - Visual evidence: neutral shell, agent dock, real-Qwen Lighting widget, exact Deep Ocean preview; visual QA found and corrected simultaneous empty/widget rendering
 - Sensitive-data status: No token, real entity inventory, raw chat, or baseline data committed

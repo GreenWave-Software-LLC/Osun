@@ -288,7 +288,7 @@ After the response, the coordinator will:
 | 2026-07-26 | Owner authorized P0-LIGHT-01 as a narrow parallel implementation exception while M0-16 continues | `../prototypes/P0_LIGHTING_ASSISTANT.md` |
 | 2026-07-26 | P0-LIGHT-01 simulator and restricted Home Assistant code paths completed; real-device setup/canary remains pending | `../prototypes/P0_LIGHTING_ASSISTANT.md`, `../prototypes/P0_LIGHTING_ASSISTANT_USER_GUIDE.md` |
 | 2026-07-27 | P1-SHELL-01 implemented with local Qwen, extensible widget dock, and Lighting promoted to the first agent widget | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
-| 2026-07-27 | Home Assistant hostname resolved to `10.21.190.62`, but port `8123` was closed; real-light canary remains pending | `../prototypes/P1_OSUN_USER_GUIDE.md` |
+| 2026-07-27 | Home Assistant later became reachable and discovery/configuration succeeded; first Apply attempts were locally denied because live execution was disabled and global pause remained active | `../prototypes/P1_OSUN_USER_GUIDE.md` |
 
 ---
 

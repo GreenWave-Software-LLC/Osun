@@ -153,8 +153,11 @@ button { color: inherit; }
 .change strong { overflow-wrap: anywhere; color: #91adb2; font-weight: 600; }
 .change span { overflow-wrap: anywhere; color: #607e84; }
 .widget-actions { margin-top: 13px; }
+.execution-gate { margin: 11px 0 0; padding: 9px 10px; border: 1px solid rgba(255, 190, 103, .18); border-radius: 9px; background: rgba(104, 69, 28, .14); color: #d8b47c; font-size: 9px; line-height: 1.5; }
+.widget-gate { margin: 0 0 15px; }
 .primary-button, .secondary-button, .danger-button { min-height: 36px; padding: 0 13px; border-radius: 10px; cursor: pointer; }
 .primary-button { border: 0; background: linear-gradient(135deg, var(--teal), #59bad3); color: #071518; font-weight: 700; }
+.primary-button:disabled { opacity: .45; cursor: not-allowed; }
 .secondary-button { border: 1px solid var(--line-strong); background: rgba(21, 46, 55, .6); color: #adc3c7; }
 .danger-button { border: 1px solid rgba(255, 133, 125, .28); background: rgba(102, 39, 39, .17); color: #d98a85; }
 .widget-warning { margin: 10px 0 0; color: #d6ad79; font-size: 9px; line-height: 1.45; }

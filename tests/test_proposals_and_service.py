@@ -10,6 +10,10 @@ from osun_lights.service import LightingAssistant
 from osun_lights.simulator import SimulatedLightProvider
 
 
+class FakeHomeAssistantProvider(SimulatedLightProvider):
+    mode = "home_assistant"
+
+
 class ProposalAndServiceTests(unittest.TestCase):
     def setUp(self) -> None:
         self.lights = (
@@ -50,6 +54,7 @@ class ProposalAndServiceTests(unittest.TestCase):
         self.assistant.set_paused(True)
         report = self.assistant.apply(proposal.proposal_id)
         self.assertEqual(ResultState.DENIED, report.state)
+        self.assertEqual("Lighting change denied: execution is paused.", report.summary)
         self.assertTrue(all(light.state == "off" for light in self.provider.list_lights()))
 
     def test_same_proposal_does_not_execute_twice(self) -> None:
@@ -60,6 +65,14 @@ class ProposalAndServiceTests(unittest.TestCase):
         second = self.assistant.apply(proposal.proposal_id)
         self.assertEqual(ResultState.VERIFIED, first.state)
         self.assertEqual(ResultState.DENIED, second.state)
+
+    def test_live_disabled_denial_is_plain_language(self) -> None:
+        assistant = LightingAssistant(FakeHomeAssistantProvider(self.lights), live_enabled=False)
+        proposal = assistant.handle("turn on", ("light.color_one",)).proposal
+        assert proposal is not None
+        report = assistant.apply(proposal.proposal_id)
+        self.assertEqual(ResultState.DENIED, report.state)
+        self.assertEqual("Lighting change denied: live light execution is disabled.", report.summary)
 
     def test_normal_off_proposal_contains_only_off_actions(self) -> None:
         proposal = self.assistant.handle("off").proposal

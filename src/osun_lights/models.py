@@ -158,6 +158,15 @@ class ExecutionReport:
 
     @property
     def summary(self) -> str:
+        if self.state == ResultState.DENIED and self.items:
+            messages = {
+                "global_pause": "execution is paused",
+                "live_control_disabled": "live light execution is disabled",
+                "proposal_missing_or_replaced": "the proposal is no longer current",
+                "proposal_already_executed": "the proposal was already applied",
+            }
+            reason = messages.get(self.items[0].detail, self.items[0].detail.replace("_", " "))
+            return f"Lighting change denied: {reason}."
         verified = sum(item.state == ResultState.VERIFIED for item in self.items)
         return f"{verified}/{len(self.items)} light changes verified ({self.state})."
 
