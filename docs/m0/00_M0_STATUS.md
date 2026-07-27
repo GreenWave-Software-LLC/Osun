@@ -294,6 +294,7 @@ After the response, the coordinator will:
 | 2026-07-27 | Owner authorized a default-off autonomous-execution switch per agent widget; Lighting implementation preserves exact proposals, allowlists, local audit, verification, and Emergency Pause precedence | `03_DATA_AND_AUTONOMY_BOUNDARIES.md` Section 10.6, `../prototypes/P1_OSUN_SHELL.md` |
 | 2026-07-27 | All-partial Hue zone results were found to be misclassified as failed; aggregation corrected and Bright Morning promoted to a deterministic built-in theme | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
 | 2026-07-27 | Zone authority refined: themes expand to unique physical members with coordinated colors and per-bulb verification; an explicitly named selected light overrides broader selected zones | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
+| 2026-07-27 | Secure merge gate added for pull requests and merge queue candidates: compatibility tests, repository security invariants, Bandit, dependency audit, immutable action pins, and a stable required-check contract | `../SECURE_MERGE_PIPELINE.md` |
 
 ---
 

@@ -11,3 +11,5 @@ The active execution document is the [M0 Agent Execution Checklist](docs/M0_AGEN
 The first product slice began as the [P0 Windows Lighting Assistant](docs/prototypes/P0_LIGHTING_ASSISTANT.md) and is now an agent inside the general [P1 Osun Shell](docs/prototypes/P1_OSUN_SHELL.md). Osun runs Qwen locally on the Agent Box, brings up focused widgets when agents are called, and gives each consequential widget its own default-off autonomous-execution policy.
 
 To run it now, double-click `Launch Osun.cmd`, or run `.\run_osun.ps1` from PowerShell. Follow the [Osun shell user guide](docs/prototypes/P1_OSUN_USER_GUIDE.md) before connecting Home Assistant or enabling live lights.
+
+Changes targeting `main` are governed by the [secure merge pipeline](docs/SECURE_MERGE_PIPELINE.md), which combines compatibility tests, local security invariants, static analysis, and dependency auditing behind one stable required check.
