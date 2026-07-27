@@ -1,11 +1,13 @@
 # P0 Windows Lighting Assistant
 
-**State:** P0-A and P0-B code complete; owner Home Assistant setup and P0-C canary pending \
+**State:** P0-A and P0-B code complete; promoted into the P1 Osun shell; owner Home Assistant setup and P0-C canary pending \
 **Owner authorization:** 2026-07-26 \
 **Prototype:** P0-LIGHT-01 \
 **Initial host:** Windows Agent Box \
 **Device authority:** Home Assistant \
 **Last updated:** 2026-07-26
+
+> **Interface update (2026-07-27):** Lighting is no longer the primary application brand. This bounded implementation is preserved as the first agent and widget inside the general [P1 Osun Shell](P1_OSUN_SHELL.md). Its light-only authority, proposal, Apply, pause, credential, and read-back constraints remain in force.
 
 ---
 

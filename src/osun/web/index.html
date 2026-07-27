@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Osun</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Osun navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><strong>Osun</strong><small>Personal intelligence</small></div>
+      </div>
+
+      <button id="newChatButton" class="new-chat" type="button">
+        <span aria-hidden="true">＋</span> New conversation
+      </button>
+
+      <nav class="agent-nav" aria-label="Agents">
+        <p class="nav-label">Workspace</p>
+        <button class="nav-item active" type="button"><span class="nav-icon">⌂</span><span>Home</span></button>
+        <p class="nav-label agents-label">Agents</p>
+        <button id="lightingNav" class="nav-item" type="button">
+          <span class="nav-icon">◌</span><span>Lighting</span><span class="nav-state">Ready</span>
+        </button>
+        <div class="future-agents">
+          <span class="future-dot"></span>
+          <p>New agents will appear here with their own widgets.</p>
+        </div>
+      </nav>
+
+      <div class="agent-box-card">
+        <div class="status-heading"><span id="agentBoxDot" class="status-dot"></span><span>Agent Box</span></div>
+        <strong id="agentBoxModel">Qwen</strong>
+        <small id="agentBoxStatus">Checking local model…</small>
+      </div>
+    </aside>
+
+    <main class="main-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Your local assistant</p>
+          <h1>Osun</h1>
+        </div>
+        <div class="top-actions">
+          <span id="privacyBadge" class="privacy-badge">Local · ephemeral chat</span>
+          <button id="settingsButton" class="icon-button" type="button" aria-label="Open settings" title="Settings">⚙</button>
+        </div>
+      </header>
+
+      <div id="workspace" class="workspace">
+        <section class="conversation" aria-label="Conversation">
+          <div id="messages" class="messages" aria-live="polite">
+            <div id="welcome" class="welcome">
+              <div class="welcome-orbit" aria-hidden="true"><span></span></div>
+              <p class="eyebrow">Agent Box online</p>
+              <h2>What would make today better?</h2>
+              <p>Talk naturally. Osun will bring in a focused agent and a reviewable widget whenever a task needs one.</p>
+              <div class="suggestions" aria-label="Suggested prompts">
+                <button type="button" data-prompt="I want to feel like I am in the ocean">Create an ocean atmosphere</button>
+                <button type="button" data-prompt="Suggest a lighting theme for right now">Suggest a lighting theme</button>
+                <button type="button" data-prompt="Help me think through my priorities for today">Think through today</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="composer-wrap">
+            <form id="composer" class="composer">
+              <textarea id="messageInput" rows="1" maxlength="2000" aria-label="Message Osun" placeholder="Message Osun…"></textarea>
+              <div class="composer-actions">
+                <button class="voice-button" type="button" disabled title="Voice input is the next interface milestone" aria-label="Voice input planned">●</button>
+                <button id="sendButton" class="send-button" type="submit" aria-label="Send message">↑</button>
+              </div>
+            </form>
+            <p id="composerHint" class="composer-hint">Qwen runs locally. Device changes always require a visible Apply.</p>
+          </div>
+        </section>
+
+        <aside id="widgetDock" class="widget-dock" aria-label="Active agent widget">
+          <div id="widgetEmpty" class="widget-empty">
+            <div class="empty-icon">◇</div>
+            <h2>Agent widgets</h2>
+            <p>A focused control surface will appear here when Osun calls an agent.</p>
+          </div>
+          <div id="activeWidget" class="active-widget" hidden></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog" class="settings-panel">
+      <header>
+        <div><p class="eyebrow">Local system</p><h2>Connection & safety</h2></div>
+        <button class="icon-button" value="cancel" aria-label="Close settings">×</button>
+      </header>
+
+      <section class="settings-section">
+        <div class="section-title"><span>Agent Box</span><span id="settingsModelBadge" class="mode-pill">Checking</span></div>
+        <div class="readonly-grid">
+          <label><span>Runtime</span><input id="qwenProvider" readonly></label>
+          <label><span>Model</span><input id="qwenModel" readonly></label>
+          <label class="wide"><span>Local endpoint</span><input id="qwenEndpoint" readonly></label>
+        </div>
+        <p id="qwenHelp" class="muted small">Osun only permits a loopback model endpoint.</p>
+      </section>
+
+      <section class="settings-section">
+        <div class="section-title"><span>Lighting agent</span><span id="lightingModeBadge" class="mode-pill">Simulator</span></div>
+        <div class="segmented" role="radiogroup" aria-label="Lighting provider">
+          <label><input type="radio" name="lightingMode" value="simulator" checked><span>Simulator</span></label>
+          <label><input type="radio" name="lightingMode" value="home_assistant"><span>Home Assistant</span></label>
+        </div>
+        <label class="field"><span>Home Assistant URL</span><input id="haUrl" type="url" value="http://homeassistant.local:8123"></label>
+        <label class="field"><span>Access token · write only</span><input id="haToken" type="password" autocomplete="new-password" placeholder="Leave blank to keep the saved token"></label>
+        <div class="inline-actions">
+          <button id="discoverButton" class="secondary-button" type="button">Test & discover lights</button>
+          <span id="connectionResult" class="muted small">No live connection tested in this session.</span>
+        </div>
+        <div id="discoveredLights" class="discovered-lights"></div>
+        <label class="switch-row"><span><strong>Enable live light execution</strong><small>Still requires an exact proposal and Apply</small></span><input id="liveEnabled" type="checkbox"></label>
+        <label class="switch-row"><span><strong>Pause execution</strong><small>Blocks Apply outside the model layer</small></span><input id="globalPause" type="checkbox" checked></label>
+      </section>
+
+      <footer class="settings-footer">
+        <div>
+          <button id="deleteTokenButton" class="danger-link" type="button">Delete light token</button>
+          <button id="quitButton" class="danger-link" type="button">Quit Osun</button>
+        </div>
+        <button id="saveSettingsButton" class="primary-button" type="button">Save settings</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

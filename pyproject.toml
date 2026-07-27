@@ -3,14 +3,14 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "osun-lights"
-version = "0.1.0"
-description = "Simulator-first Windows chat assistant for allowlisted Home Assistant lights"
+name = "osun"
+version = "0.2.0"
+description = "Local-first Windows personal assistant shell with pluggable agent widgets"
 requires-python = ">=3.11"
 dependencies = []
 
 [project.scripts]
-osun-lights = "osun_lights.app:main"
+osun = "osun.app:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -19,4 +19,5 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
+osun = ["web/*.html", "web/*.css", "web/*.js"]
 osun_lights = ["web/*.html", "web/*.css", "web/*.js"]

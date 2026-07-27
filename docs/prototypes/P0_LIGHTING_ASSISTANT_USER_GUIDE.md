@@ -1,5 +1,7 @@
 # Osun Lighting Assistant - Prototype User Guide
 
+> **Superseded interface:** Lighting now runs as an agent widget inside the main Osun shell. Use the [P1 Osun Shell User Guide](P1_OSUN_USER_GUIDE.md). The Home Assistant safety and canary instructions below remain applicable.
+
 **Version:** 0.1.0 \
 **Runs on:** Windows Agent Box \
 **Default mode:** Simulator \
@@ -9,12 +11,12 @@
 
 ## 1. Start the app
 
-Double-click `Launch Osun Lights.cmd` in the repository root.
+Double-click `Launch Osun.cmd` in the repository root.
 
 For a visible diagnostic console, open PowerShell in the repository and run:
 
 ```powershell
-.\run_osun_lights.ps1
+.\run_osun.ps1
 ```
 
 The launcher starts a Python service bound only to a random `127.0.0.1` port and opens Microsoft Edge in app mode. Select **Quit app** in Connection & safety to stop the local service cleanly.

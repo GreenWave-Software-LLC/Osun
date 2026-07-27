@@ -1,8 +1,8 @@
 # Osun: Living Master Plan
 
 **Document status:** Living specification  
-**Version:** 0.1.13 \
-**Last updated:** 2026-07-26
+**Version:** 0.1.14 \
+**Last updated:** 2026-07-27
 **Planning horizon:** 2026-2036+  
 **Initial operator:** One person with AI development assistance  
 **Human capacity assumption:** 10 focused hours per week (about 43 hours per month, 520 hours per year, and 5,200 hours over ten years if sustained)  
@@ -1250,6 +1250,6 @@ These references should be reviewed for newer revisions during annual planning. 
 ## 18. Current status
 
 **Active milestone:** M0 — Charter, requirements, and evidence plan  
-**Current gate status:** In progress; M0-16 baseline active, M0-25 owner accepted, and M0-30/M0-32 agent complete; P0-LIGHT-01 runs as a separate owner-authorized prototype \
-**Next action:** Continue the private baseline while implementing and testing the simulator-first [Windows Lighting Assistant](prototypes/P0_LIGHTING_ASSISTANT.md). \
-**Build authorization:** Limited to P0-LIGHT-01 under its recorded light-only, local, allowlisted, exact-Apply boundary; the general Osun runtime remains unauthorized.
+**Current gate status:** In progress; M0-16 baseline active, M0-25 owner accepted, and M0-30/M0-32 agent complete; P0-LIGHT-01 and P1-SHELL-01 run as separate owner-authorized prototypes \
+**Next action:** Continue the private baseline while restoring Home Assistant reachability and completing the supervised real-light canary through the [P1 Osun Shell](prototypes/P1_OSUN_SHELL.md). \
+**Build authorization:** Local Qwen conversation and registered review-only widgets are authorized under P1-SHELL-01; real-world authority remains limited to P0-LIGHT-01's light-only, local, allowlisted, exact-Apply boundary.

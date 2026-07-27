@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from osun.server import run
+from .server import run
 
 
 def main() -> None:
