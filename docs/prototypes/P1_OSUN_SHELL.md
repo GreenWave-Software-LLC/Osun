@@ -112,7 +112,7 @@ The main UI contains:
 - visible local/ephemeral privacy status;
 - Agent Box model readiness, warming, and missing-runtime states;
 - an agent navigation area designed to grow without redesigning the conversation;
-- a widget dock that remains quiet until an agent is called;
+- no widget column until an agent is called, followed by a compact widget that expands on demand and visibly animates while its operation runs;
 - Lighting targets, palette, exact values, manual/autonomous mode, Apply when manual, Connection, and Emergency pause inside the Lighting widget;
 - a unified Connection & safety dialog for Agent Box status and Home Assistant setup;
 - a visible but disabled voice affordance reserved for the next interface milestone.
@@ -147,7 +147,7 @@ The shell is responsive down to a single-column layout. It uses no cloud assets,
 
 | ID | Scenario | P1 success condition |
 |---|---|---|
-| SHELL-T01 | Open Osun | Neutral shell, Qwen state, empty widget dock, no Lighting application branding |
+| SHELL-T01 | Open Osun | Neutral shell, Qwen state, no widget column, no Lighting application branding |
 | SHELL-T02 | General planning question | Local Qwen response; no widget or fabricated tool access |
 | SHELL-T03 | Ocean atmosphere request | Qwen calls only `open_lighting_widget`; Lighting produces Deep Ocean from original owner text |
 | SHELL-T04 | Unknown model tool call | Unknown name ignored; no execution path |
@@ -159,6 +159,7 @@ The shell is responsive down to a single-column layout. It uses no cloud assets,
 | SHELL-T10 | Quit | Shell stops and Qwen model unload is requested |
 | SHELL-T11 | Real light canary | One or two allowlisted lamps change and read back under direct observation |
 | SHELL-T12 | Per-widget autonomy | Lighting switch on causes a new exact proposal to execute immediately and exposes its result without an Apply button |
+| SHELL-T14 | Widget lifecycle | Agent widget is absent before a call, arrives compact, expands or collapses on click, and animates during a live widget operation |
 | SHELL-T13 | Autonomous pause override | Emergency Pause denies autonomous dispatch and leaves real/simulated light state unchanged |
 
 SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:8123` became reachable, local authentication/entity discovery succeeded, and real Hue grouped lights changed under owner observation. The grouped entities returned partial item verification, but the result aggregator incorrectly labeled an all-partial set as failed; an earlier duplicate Apply also replaced a useful result with a denial. Correct partial aggregation, proposal-level idempotency, and clearer grouped-light read-back reporting now prevent both misleading sequences, but a final supervised confirmation remains.
