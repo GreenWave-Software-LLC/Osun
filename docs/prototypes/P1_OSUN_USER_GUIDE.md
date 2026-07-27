@@ -56,7 +56,7 @@ Talk naturally:
 - `Make them purple over four seconds.`
 - `Suggest a lighting theme for right now.`
 
-Qwen calls the Lighting agent, and its widget appears in the right dock. The widget separates Home Assistant grouped-light targets under **Zones** from physical entities under **Lights**. A zone shows the member-light names Home Assistant provides. The widget also contains an exact proposal, color swatches, individual target values, its manual/autonomous mode, Connection, and Emergency pause.
+Qwen calls the Lighting agent, and only then does a compact widget appear in the right dock. Select the compact card to expand it; select its minus control to collapse it again. While a widget operation is in progress, its icon and top edge animate and its status reads **Running**. The expanded widget separates Home Assistant grouped-light targets under **Zones** from physical entities under **Lights**. A zone shows the member-light names Home Assistant provides. The widget also contains an exact proposal, color swatches, individual target values, its manual/autonomous mode, Connection, and Emergency pause.
 
 For a theme, a selected zone expands into its physical member lights. Osun assigns a coordinated palette across those members and the exact proposal shows one row per physical light. Selecting both a zone and one of its members does not duplicate the member. If you name one selected light—for example, **“make the desk lamp blue”**—only that individual light enters the proposal, even while its zone is also selected.
 

@@ -6,6 +6,8 @@ const apiRoot = `/api/${sessionToken}`;
 const state = {
   status: null,
   activeWidget: null,
+  widgetExpanded: false,
+  runningWidgetId: null,
   selectedEntities: new Set(),
   discoveredLights: [],
   busy: false,
@@ -20,7 +22,8 @@ const ui = {
   input: document.getElementById("messageInput"),
   send: document.getElementById("sendButton"),
   hint: document.getElementById("composerHint"),
-  widgetEmpty: document.getElementById("widgetEmpty"),
+  workspace: document.getElementById("workspace"),
+  widgetDock: document.getElementById("widgetDock"),
   activeWidget: document.getElementById("activeWidget"),
   newChat: document.getElementById("newChatButton"),
   lightingNav: document.getElementById("lightingNav"),
@@ -154,11 +157,35 @@ function lightingTargetRow(light) {
     </label>`;
 }
 
+function showAgentWidget(widget) {
+  state.activeWidget = widget;
+  state.widgetExpanded = false;
+  state.runningWidgetId = null;
+  state.resultText = widget.execution?.summary || "";
+  renderLightingWidget();
+}
+
+function setWidgetRunning(running) {
+  if (!state.activeWidget) return;
+  state.runningWidgetId = running ? state.activeWidget.id : null;
+  renderLightingWidget();
+}
+
+function toggleWidget() {
+  if (!state.activeWidget) return;
+  state.widgetExpanded = !state.widgetExpanded;
+  renderLightingWidget();
+}
+
 function renderLightingWidget(widget = state.activeWidget) {
   if (!widget) return;
   state.activeWidget = widget;
-  ui.widgetEmpty.hidden = true;
+  const expanded = state.widgetExpanded;
+  const running = state.runningWidgetId === widget.id;
+  ui.widgetDock.hidden = false;
   ui.activeWidget.hidden = false;
+  ui.workspace.classList.add("has-widget");
+  ui.workspace.classList.toggle("widget-expanded", expanded);
   const lights = widget.lights || [];
   if (!state.selectedEntities.size) lights.forEach(light => state.selectedEntities.add(light.entity_id));
   const zones = lights.filter(light => light.kind === "zone");
@@ -175,6 +202,13 @@ function renderLightingWidget(widget = state.activeWidget) {
   const autonomousLabel = autonomousExecution?.state === "failed"
     ? "Autonomous attempt"
     : "Executed autonomously";
+  const proposalName = proposal?.theme_name || "Lighting controls";
+  const proposalChangeCount = proposal?.changes?.length || 0;
+  const compactStatus = running
+    ? "Running lighting agent…"
+    : proposal
+      ? `${proposalName} · ${proposalChangeCount} change${proposalChangeCount === 1 ? "" : "s"}`
+      : state.resultText || "Ready for another request";
   const changes = (proposal?.changes || []).map(change => `
     <div class="change"><strong>${escapeHtml(change.friendly_name)}</strong><span>${escapeHtml(change.preview)}</span></div>`).join("");
   const proposalHtml = proposal ? `
@@ -184,31 +218,37 @@ function renderLightingWidget(widget = state.activeWidget) {
       ${paletteFromProposal(proposal) ? `<div class="palette">${paletteFromProposal(proposal)}</div>` : ""}
       <div class="change-list">${changes}</div>
       ${proposalConsumed ? `<div class="autonomous-result">${escapeHtml(autonomousExecution.summary)}</div>` : `<div class="widget-actions">
-        <button class="secondary-button" id="cancelLighting" type="button">Cancel</button>
+        <button class="secondary-button" id="cancelLighting" type="button" ${running ? "disabled" : ""}>Cancel</button>
         <button class="primary-button" id="applyLighting" type="button" ${executionGate || proposalApplying ? "disabled" : ""}>${executionGate ? "Execution locked" : proposalApplying ? "Applying…" : "Apply exact proposal"}</button>
       </div>`}
     </div>` : '<p class="muted small">Ask Osun for a lighting change to create an exact preview.</p>';
   ui.activeWidget.innerHTML = `
-    <div class="widget-card">
+    <div class="widget-card ${expanded ? "expanded" : "compact"} ${running ? "running" : ""}" aria-busy="${running}">
       <div class="widget-hero">
         <div class="widget-title-row">
-          <div class="widget-agent"><div class="widget-glyph">◌</div><div><h2>Lighting</h2><p>Focused agent widget</p></div></div>
+          <button id="toggleWidget" class="widget-toggle" type="button" aria-expanded="${expanded}" aria-controls="lightingWidgetBody">
+            <span class="widget-agent">
+              <span class="widget-glyph" aria-hidden="true"><span class="widget-orbit"></span><span class="widget-glyph-mark">◌</span></span>
+              <span class="widget-agent-copy"><span class="widget-title">Lighting</span><span class="widget-subtitle" aria-live="polite">${escapeHtml(compactStatus)}</span></span>
+            </span>
+            <span class="widget-expand-icon" aria-hidden="true">${expanded ? "−" : "+"}</span>
+          </button>
           <button id="closeWidget" class="widget-close" type="button" aria-label="Close lighting widget">×</button>
         </div>
-        <div class="widget-mode">
+        <div class="widget-mode" ${expanded ? "" : "hidden"}>
           <span class="${widget.mode === "home_assistant" ? "live" : ""}">${escapeHtml(widget.mode === "home_assistant" ? "Home Assistant" : "Simulator")}</span>
           <span class="${widget.autonomous_execution ? "autonomous" : ""}">${widget.autonomous_execution ? "Autonomous" : "Manual Apply"}</span>
           <span>${widget.paused ? "Paused" : "Execution ready"}</span>
           <span>${zones.length} zone${zones.length === 1 ? "" : "s"} · ${individualLights.length} light${individualLights.length === 1 ? "" : "s"}</span>
         </div>
       </div>
-      <div class="widget-body">
+      <div id="lightingWidgetBody" class="widget-body" ${expanded ? "" : "hidden"}>
         ${executionGate ? `<p class="execution-gate widget-gate">${escapeHtml(executionGate)}</p>` : ""}
         <section class="widget-section"><p class="section-kicker">Zones</p><div class="light-list">${zoneRows || '<p class="muted small">No zones are allowlisted.</p>'}</div></section>
         <section class="widget-section"><p class="section-kicker">Lights</p><div class="light-list">${lightRows || '<p class="muted small">No individual lights are allowlisted.</p>'}</div></section>
         <section class="widget-section"><p class="section-kicker">Exact proposal</p>${proposalHtml}</section>
         <section class="widget-section">
-          <div class="widget-actions"><button id="lightingSettings" class="secondary-button" type="button">Connection</button><button id="pauseLighting" class="danger-button" type="button">Emergency pause</button></div>
+          <div class="widget-actions"><button id="lightingSettings" class="secondary-button" type="button" ${running ? "disabled" : ""}>Connection</button><button id="pauseLighting" class="danger-button" type="button" ${running ? "disabled" : ""}>Emergency pause</button></div>
           ${widget.warning ? `<p class="widget-warning">${escapeHtml(widget.warning)}</p>` : ""}
           ${state.resultText ? `<div class="widget-result">${escapeHtml(state.resultText)}</div>` : ""}
         </section>
@@ -221,6 +261,7 @@ function bindWidgetEvents() {
   document.querySelectorAll(".widget-light-select").forEach(input => input.addEventListener("change", () => {
     input.checked ? state.selectedEntities.add(input.value) : state.selectedEntities.delete(input.value);
   }));
+  document.getElementById("toggleWidget")?.addEventListener("click", toggleWidget);
   document.getElementById("closeWidget")?.addEventListener("click", closeWidget);
   document.getElementById("lightingSettings")?.addEventListener("click", openSettings);
   document.getElementById("pauseLighting")?.addEventListener("click", pauseLighting);
@@ -230,8 +271,12 @@ function bindWidgetEvents() {
 
 function closeWidget() {
   state.activeWidget = null;
+  state.widgetExpanded = false;
+  state.runningWidgetId = null;
   ui.activeWidget.hidden = true;
-  ui.widgetEmpty.hidden = false;
+  ui.activeWidget.innerHTML = "";
+  ui.widgetDock.hidden = true;
+  ui.workspace.classList.remove("has-widget", "widget-expanded");
 }
 
 async function sendMessage(text) {
@@ -252,8 +297,7 @@ async function sendMessage(text) {
     thinking.remove();
     appendMessage("assistant", response.text, response.agent);
     if (response.widgets?.length) {
-      state.resultText = response.execution?.summary || "";
-      renderLightingWidget(response.widgets[0]);
+      showAgentWidget(response.widgets[0]);
     }
   } catch (error) {
     thinking.remove();
@@ -270,7 +314,7 @@ async function applyLighting() {
   const proposal = state.activeWidget?.proposal;
   if (!proposal || state.applyingProposalId === proposal.proposal_id) return;
   state.applyingProposalId = proposal.proposal_id;
-  renderLightingWidget();
+  setWidgetRunning(true);
   try {
     const report = await request("/agents/lighting/apply", "POST", { proposal_id: proposal.proposal_id });
     state.resultText = report.summary;
@@ -286,20 +330,22 @@ async function applyLighting() {
     showToast(error.message);
   } finally {
     state.applyingProposalId = null;
-    if (state.activeWidget) renderLightingWidget();
+    if (state.activeWidget) setWidgetRunning(false);
   }
 }
 
 async function cancelLighting() {
+  setWidgetRunning(true);
   try {
     await request("/agents/lighting/cancel", "POST", {});
     state.activeWidget.proposal = null;
     state.resultText = "Proposal canceled. No light change was sent.";
-    renderLightingWidget();
   } catch (error) { showToast(error.message); }
+  finally { if (state.activeWidget) setWidgetRunning(false); }
 }
 
 async function pauseLighting() {
+  setWidgetRunning(true);
   try {
     await request("/agents/lighting/pause", "POST", {});
     state.resultText = "Lighting execution is paused. Pending changes were canceled.";
@@ -309,8 +355,8 @@ async function pauseLighting() {
     state.activeWidget.paused = true;
     state.activeWidget.live_enabled = state.status.lighting.live_enabled;
     state.activeWidget.autonomous_execution = state.status.lighting.autonomous_execution;
-    renderLightingWidget();
   } catch (error) { showToast(error.message); }
+  finally { if (state.activeWidget) setWidgetRunning(false); }
 }
 
 async function refreshStatus(renderWidget = true) {
@@ -462,9 +508,9 @@ ui.input.addEventListener("keydown", event => {
 document.querySelectorAll("[data-prompt]").forEach(button => button.addEventListener("click", () => sendMessage(button.dataset.prompt)));
 ui.newChat.addEventListener("click", newChat);
 ui.lightingNav.addEventListener("click", () => {
-  const lighting = state.status?.lighting;
-  if (!lighting) return;
-  renderLightingWidget({ id: "lighting", kind: "lighting", title: "Lighting", agent: "lighting", proposal: lighting.pending, mode: lighting.effective_mode, paused: lighting.paused, live_enabled: lighting.live_enabled, autonomous_execution: lighting.autonomous_execution, lights: lighting.lights, warning: lighting.warning });
+  if (state.activeWidget?.kind !== "lighting") return;
+  state.widgetExpanded = true;
+  renderLightingWidget();
 });
 ui.settingsButton.addEventListener("click", openSettings);
 ui.discover.addEventListener("click", discoverLights);
