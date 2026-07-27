@@ -10,6 +10,8 @@ from osun_lights.audit import AuditLog
 from osun_lights.config import ConfigStore
 from osun_lights.credential_store import WindowsCredentialStore
 from osun_lights.runtime import LightingController
+from osun_music.config import MusicConfigStore
+from osun_music.runtime import MusicController
 
 
 class FakeQwen:
@@ -33,7 +35,8 @@ class FakeQwen:
         self.received.append(user_text)
         if self.error:
             raise QwenError(self.error)
-        return QwenReply(self.content, ("open_lighting_widget",) if self.tool else ())
+        tool_name = self.tool if isinstance(self.tool, str) else "open_lighting_widget"
+        return QwenReply(self.content, (tool_name,) if self.tool else ())
 
 
 class OsunRuntimeTests(unittest.TestCase):
@@ -45,12 +48,16 @@ class OsunRuntimeTests(unittest.TestCase):
             AuditLog(root / "audit.jsonl"),
             WindowsCredentialStore(root / "credential.bin"),
         )
+        self.music = MusicController(
+            MusicConfigStore(root / "music.json"),
+            WindowsCredentialStore(root / "music-credential.bin"),
+        )
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
 
     def test_general_chat_uses_qwen_without_widget(self) -> None:
-        controller = OsunController(self.lighting, FakeQwen(content="Let's choose one priority."))
+        controller = OsunController(self.lighting, FakeQwen(content="Let's choose one priority."), self.music)
         reply = controller.message("Help me plan today")
         self.assertEqual("osun", reply["agent"])
         self.assertEqual([], reply["widgets"])
@@ -58,7 +65,7 @@ class OsunRuntimeTests(unittest.TestCase):
 
     def test_qwen_tool_call_opens_lighting_widget_with_raw_owner_request(self) -> None:
         qwen = FakeQwen(tool=True)
-        controller = OsunController(self.lighting, qwen)
+        controller = OsunController(self.lighting, qwen, self.music)
         reply = controller.message("I want to feel like I am in the ocean")
         self.assertEqual("lighting", reply["agent"])
         self.assertEqual("Deep Ocean", reply["widgets"][0]["proposal"]["theme_name"])
@@ -76,7 +83,7 @@ class OsunRuntimeTests(unittest.TestCase):
                 "autonomous_execution": True,
             }
         )
-        controller = OsunController(self.lighting, FakeQwen(tool=True))
+        controller = OsunController(self.lighting, FakeQwen(tool=True), self.music)
         reply = controller.message("I want to feel like I am in the ocean")
 
         self.assertEqual("verified", reply["execution"]["state"])
@@ -98,7 +105,7 @@ class OsunRuntimeTests(unittest.TestCase):
                 "autonomous_execution": True,
             }
         )
-        controller = OsunController(self.lighting, FakeQwen(tool=True))
+        controller = OsunController(self.lighting, FakeQwen(tool=True), self.music)
         reply = controller.message("turn the lights on")
 
         self.assertEqual("denied", reply["execution"]["state"])
@@ -107,24 +114,39 @@ class OsunRuntimeTests(unittest.TestCase):
         self.assertTrue(all(light["state"] == "off" for light in self.lighting.status()["lights"]))
 
     def test_model_failure_keeps_explicit_lighting_fallback(self) -> None:
-        controller = OsunController(self.lighting, FakeQwen(error="offline"))
+        controller = OsunController(self.lighting, FakeQwen(error="offline"), self.music)
         reply = controller.message("Set the lights to 30 percent")
         self.assertEqual("lighting", reply["agent"])
         self.assertEqual(30, reply["widgets"][0]["proposal"]["changes"][0]["brightness_pct"])
 
     def test_model_failure_does_not_invent_general_answer(self) -> None:
-        controller = OsunController(self.lighting, FakeQwen(error="offline"))
+        controller = OsunController(self.lighting, FakeQwen(error="offline"), self.music)
         reply = controller.message("What meetings do I have today?")
         self.assertEqual("osun", reply["agent"])
         self.assertFalse(reply["model"]["used"])
         self.assertIn("unavailable", reply["text"])
 
     def test_new_chat_clears_pending_lighting_proposal(self) -> None:
-        controller = OsunController(self.lighting, FakeQwen(tool=True))
+        controller = OsunController(self.lighting, FakeQwen(tool=True), self.music)
         controller.message("turn the lights on")
         self.assertIsNotNone(self.lighting.assistant.pending)
         controller.new_chat()
         self.assertIsNone(self.lighting.assistant.pending)
+
+    def test_music_tool_call_asks_for_device_then_recent_device_is_reused(self) -> None:
+        controller = OsunController(self.lighting, FakeQwen(tool="open_music_widget"), self.music)
+        first = controller.message("play Kind of Blue")
+        self.assertEqual("music", first["agent"])
+        self.assertEqual("needs_device", first["widgets"][0]["request"]["state"])
+        selected = controller.music_select_device(
+            first["widgets"][0]["request"]["request_id"],
+            "agent-box-browser",
+        )
+        controller.music_execute(selected["request"]["request_id"])
+
+        second = controller.message("play Blue in Green")
+        self.assertEqual("ready", second["widgets"][0]["request"]["state"])
+        self.assertEqual("recent_playback", second["widgets"][0]["request"]["selection_reason"])
 
 
 if __name__ == "__main__":

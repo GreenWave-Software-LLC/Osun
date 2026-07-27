@@ -90,6 +90,20 @@ class OsunRequestHandler(BaseHTTPRequestHandler):
                 result = self.server.controller.lighting_save(payload)
             elif route == "/agents/lighting/settings/delete-token":
                 result = self.server.controller.lighting_delete_credential()
+            elif route == "/agents/music/select-device":
+                result = self.server.controller.music_select_device(
+                    str(payload.get("request_id", "")), str(payload.get("device_id", ""))
+                )
+            elif route == "/agents/music/execute":
+                result = self.server.controller.music_execute(str(payload.get("request_id", "")))
+            elif route == "/agents/music/client-config":
+                result = self.server.controller.music_client_config()
+            elif route == "/agents/music/result":
+                result = self.server.controller.music_result(payload)
+            elif route == "/agents/music/settings/save":
+                result = self.server.controller.music_save(payload)
+            elif route == "/agents/music/settings/delete-token":
+                result = self.server.controller.music_delete_credential()
             elif route == "/shutdown":
                 result = {"shutting_down": True}
                 threading.Thread(target=self._shutdown, daemon=True).start()
@@ -150,11 +164,15 @@ class OsunRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
         self.send_header(
             "Content-Security-Policy",
-            "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
-            "connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+            "default-src 'self'; script-src 'self' https://js-cdn.music.apple.com; style-src 'self'; "
+            "img-src 'self' data: https://*.mzstatic.com; connect-src 'self' https://api.music.apple.com "
+            "https://amp-api.music.apple.com https://play.itunes.apple.com https://buy.itunes.apple.com "
+            "https://music.apple.com; media-src blob: https://*.mzstatic.com https://*.music.apple.com; "
+            "frame-src https://music.apple.com https://*.music.apple.com; object-src 'none'; base-uri 'none'; "
+            "frame-ancestors 'none'; form-action 'self'",
         )
 
     def log_message(self, _format: str, *_args: object) -> None:

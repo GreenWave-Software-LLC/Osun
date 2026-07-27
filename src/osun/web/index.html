@@ -25,6 +25,9 @@
         <button id="lightingNav" class="nav-item" type="button">
           <span class="nav-icon">◌</span><span>Lighting</span><span class="nav-state">Ready</span>
         </button>
+        <button id="musicNav" class="nav-item" type="button">
+          <span class="nav-icon">♫</span><span>Music</span><span class="nav-state">Ready</span>
+        </button>
         <div class="future-agents">
           <span class="future-dot"></span>
           <p>New agents will appear here with their own widgets.</p>
@@ -120,9 +123,23 @@
         <label class="switch-row"><span><strong>Pause execution</strong><small>Blocks Apply outside the model layer</small></span><input id="globalPause" type="checkbox" checked></label>
       </section>
 
+      <section class="settings-section">
+        <div class="section-title"><span>Music agent</span><span id="musicModeBadge" class="mode-pill">Simulator</span></div>
+        <div class="segmented" role="radiogroup" aria-label="Music provider">
+          <label><input type="radio" name="musicMode" value="simulator" checked><span>Simulator</span></label>
+          <label><input type="radio" name="musicMode" value="musickit"><span>Apple Music</span></label>
+        </div>
+        <label class="field"><span>MusicKit developer token · write only</span><input id="musicDeveloperToken" type="password" autocomplete="new-password" placeholder="Leave blank to keep the saved token"></label>
+        <p class="muted small">Apple Music playback on This PC requires a MusicKit-enabled Apple Developer token and Apple account authorization. Authorization remains managed by Apple in the browser.</p>
+        <div class="registered-device"><span class="device-icon">♫</span><span><strong>This PC</strong><small>MusicKit web player · first registered Osun music device</small></span></div>
+        <label class="switch-row"><span><strong>Enable Music agent</strong><small>Allows explicit owner playback requests on registered devices</small></span><input id="musicEnabled" type="checkbox" checked></label>
+        <label class="switch-row authority-switch"><span><strong>Autonomous execution</strong><small>Reserved for future proactive music actions; explicit play commands remain owner-authorized</small></span><input id="musicAutonomousExecution" type="checkbox"></label>
+      </section>
+
       <footer class="settings-footer">
         <div>
           <button id="deleteTokenButton" class="danger-link" type="button">Delete light token</button>
+          <button id="deleteMusicTokenButton" class="danger-link" type="button">Delete music token</button>
           <button id="quitButton" class="danger-link" type="button">Quit Osun</button>
         </div>
         <button id="saveSettingsButton" class="primary-button" type="button">Save settings</button>

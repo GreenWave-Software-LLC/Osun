@@ -26,15 +26,23 @@ class WindowsCredentialStore:
     _ENTROPY = b"osun-lights:home-assistant:v1"
     _UI_FORBIDDEN = 0x01
 
-    def __init__(self, path: Path) -> None:
+    def __init__(
+        self,
+        path: Path,
+        *,
+        entropy: bytes | None = None,
+        description: str = "Osun protected credential",
+    ) -> None:
         self.path = path
+        self._entropy = entropy or self._ENTROPY
+        self._description = description
 
     def save(self, token: str) -> None:
         if os.name != "nt":
             raise CredentialStoreError("Windows DPAPI is available only on Windows")
         if not token.strip():
             raise CredentialStoreError("Cannot store an empty credential")
-        encrypted = self._protect(token.strip().encode("utf-8"))
+        encrypted = self._protect(token.strip().encode("utf-8"), self._entropy, self._description)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_suffix(".tmp")
         temporary.write_bytes(encrypted)
@@ -46,16 +54,16 @@ class WindowsCredentialStore:
         if os.name != "nt":
             raise CredentialStoreError("Windows DPAPI is available only on Windows")
         try:
-            return self._unprotect(self.path.read_bytes()).decode("utf-8")
+            return self._unprotect(self.path.read_bytes(), self._entropy).decode("utf-8")
         except (OSError, UnicodeDecodeError) as exc:
-            raise CredentialStoreError("The protected Home Assistant credential could not be read") from exc
+            raise CredentialStoreError("The protected credential could not be read") from exc
 
     def delete(self) -> None:
         if self.path.exists():
             self.path.unlink()
 
     @classmethod
-    def _protect(cls, plaintext: bytes) -> bytes:
+    def _protect(cls, plaintext: bytes, entropy_value: bytes, description: str) -> bytes:
         crypt32 = ctypes.windll.crypt32
         kernel32 = ctypes.windll.kernel32
         crypt32.CryptProtectData.argtypes = [
@@ -71,11 +79,11 @@ class WindowsCredentialStore:
         kernel32.LocalFree.argtypes = [ctypes.c_void_p]
         kernel32.LocalFree.restype = ctypes.c_void_p
         source, source_buffer = _blob_from_bytes(plaintext)
-        entropy, entropy_buffer = _blob_from_bytes(cls._ENTROPY)
+        entropy, entropy_buffer = _blob_from_bytes(entropy_value)
         output = _DataBlob()
         result = crypt32.CryptProtectData(
             ctypes.byref(source),
-            "Osun Home Assistant token",
+            description,
             ctypes.byref(entropy),
             None,
             None,
@@ -84,14 +92,14 @@ class WindowsCredentialStore:
         )
         del source_buffer, entropy_buffer
         if not result:
-            raise CredentialStoreError("Windows could not protect the Home Assistant credential")
+            raise CredentialStoreError("Windows could not protect the credential")
         try:
             return ctypes.string_at(output.pbData, output.cbData)
         finally:
             kernel32.LocalFree(ctypes.cast(output.pbData, ctypes.c_void_p))
 
     @classmethod
-    def _unprotect(cls, ciphertext: bytes) -> bytes:
+    def _unprotect(cls, ciphertext: bytes, entropy_value: bytes) -> bytes:
         crypt32 = ctypes.windll.crypt32
         kernel32 = ctypes.windll.kernel32
         crypt32.CryptUnprotectData.argtypes = [
@@ -107,7 +115,7 @@ class WindowsCredentialStore:
         kernel32.LocalFree.argtypes = [ctypes.c_void_p]
         kernel32.LocalFree.restype = ctypes.c_void_p
         source, source_buffer = _blob_from_bytes(ciphertext)
-        entropy, entropy_buffer = _blob_from_bytes(cls._ENTROPY)
+        entropy, entropy_buffer = _blob_from_bytes(entropy_value)
         output = _DataBlob()
         result = crypt32.CryptUnprotectData(
             ctypes.byref(source),
@@ -120,7 +128,7 @@ class WindowsCredentialStore:
         )
         del source_buffer, entropy_buffer
         if not result:
-            raise CredentialStoreError("Windows could not decrypt the Home Assistant credential")
+            raise CredentialStoreError("Windows could not decrypt the credential")
         try:
             return ctypes.string_at(output.pbData, output.cbData)
         finally:

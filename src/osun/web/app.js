@@ -13,6 +13,9 @@ const state = {
   busy: false,
   applyingProposalId: null,
   resultText: "",
+  musicResultText: "",
+  musicKit: null,
+  musicKitScript: null,
 };
 
 const ui = {
@@ -27,6 +30,7 @@ const ui = {
   activeWidget: document.getElementById("activeWidget"),
   newChat: document.getElementById("newChatButton"),
   lightingNav: document.getElementById("lightingNav"),
+  musicNav: document.getElementById("musicNav"),
   agentBoxDot: document.getElementById("agentBoxDot"),
   agentBoxModel: document.getElementById("agentBoxModel"),
   agentBoxStatus: document.getElementById("agentBoxStatus"),
@@ -46,7 +50,12 @@ const ui = {
   liveEnabled: document.getElementById("liveEnabled"),
   autonomousExecution: document.getElementById("autonomousExecution"),
   globalPause: document.getElementById("globalPause"),
+  musicModeBadge: document.getElementById("musicModeBadge"),
+  musicDeveloperToken: document.getElementById("musicDeveloperToken"),
+  musicEnabled: document.getElementById("musicEnabled"),
+  musicAutonomousExecution: document.getElementById("musicAutonomousExecution"),
   deleteToken: document.getElementById("deleteTokenButton"),
+  deleteMusicToken: document.getElementById("deleteMusicTokenButton"),
   quit: document.getElementById("quitButton"),
   saveSettings: document.getElementById("saveSettingsButton"),
   toast: document.getElementById("toast"),
@@ -94,8 +103,8 @@ function appendMessage(role, text, agent = "osun") {
   if (ui.welcome) ui.welcome.hidden = true;
   const item = document.createElement("article");
   item.className = `message ${role}`;
-  const name = role === "user" ? "You" : agent === "lighting" ? "Lighting agent" : "Osun";
-  const avatar = role === "user" ? "Y" : agent === "lighting" ? "L" : "O";
+  const name = role === "user" ? "You" : agent === "lighting" ? "Lighting agent" : agent === "music" ? "Music agent" : "Osun";
+  const avatar = role === "user" ? "Y" : agent === "lighting" ? "L" : agent === "music" ? "M" : "O";
   item.innerHTML = `
     <div class="message-avatar">${avatar}</div>
     <div>
@@ -161,20 +170,29 @@ function showAgentWidget(widget) {
   state.activeWidget = widget;
   state.widgetExpanded = false;
   state.runningWidgetId = null;
-  state.resultText = widget.execution?.summary || "";
-  renderLightingWidget();
+  if (widget.kind === "lighting") state.resultText = widget.execution?.summary || "";
+  if (widget.kind === "music") state.musicResultText = widget.execution?.summary || "";
+  renderActiveWidget();
+  if (widget.kind === "music" && widget.request?.state === "ready") {
+    setTimeout(() => executeMusic(widget.request.request_id), 0);
+  }
 }
 
 function setWidgetRunning(running) {
   if (!state.activeWidget) return;
   state.runningWidgetId = running ? state.activeWidget.id : null;
-  renderLightingWidget();
+  renderActiveWidget();
 }
 
 function toggleWidget() {
   if (!state.activeWidget) return;
   state.widgetExpanded = !state.widgetExpanded;
-  renderLightingWidget();
+  renderActiveWidget();
+}
+
+function renderActiveWidget() {
+  if (state.activeWidget?.kind === "lighting") renderLightingWidget();
+  if (state.activeWidget?.kind === "music") renderMusicWidget();
 }
 
 function renderLightingWidget(widget = state.activeWidget) {
@@ -269,6 +287,108 @@ function bindWidgetEvents() {
   document.getElementById("applyLighting")?.addEventListener("click", applyLighting);
 }
 
+function musicActionDescription(musicRequest) {
+  if (!musicRequest) return "Ready for a music request";
+  if (musicRequest.action === "play") return `Play ${musicRequest.query || "music"}`;
+  return {
+    pause: "Pause music",
+    resume: "Resume music",
+    next: "Skip to the next song",
+    previous: "Go to the previous song",
+  }[musicRequest.action] || "Control Apple Music";
+}
+
+function musicDeviceDetail(device) {
+  if (device.recent && Number.isFinite(device.seconds_since_playback)) {
+    const seconds = Math.max(0, Number(device.seconds_since_playback));
+    return seconds < 60 ? "Played here just now" : `Played here ${Math.floor(seconds / 60)} min ago`;
+  }
+  return device.kind === "browser" ? "Apple Music in this Osun window" : "Registered playback device";
+}
+
+function musicRequestStateLabel(musicRequest) {
+  return {
+    needs_device: "Device needed",
+    ready: "Ready",
+    running: "Running",
+    playing: "Now playing",
+    complete: "Complete",
+    failed: "Failed",
+  }[musicRequest?.state] || "Ready";
+}
+
+function renderMusicWidget(widget = state.activeWidget) {
+  if (!widget) return;
+  state.activeWidget = widget;
+  const expanded = state.widgetExpanded;
+  const running = state.runningWidgetId === widget.id;
+  const musicRequest = widget.request;
+  const devices = (widget.devices || []).filter(device => device.enabled);
+  const needsDevice = musicRequest?.state === "needs_device";
+  const action = musicActionDescription(musicRequest);
+  const selectedDevice = devices.find(device => device.device_id === musicRequest?.device_id);
+  const compactStatus = running
+    ? "Running Music agent…"
+    : needsDevice
+      ? `${action} · choose a device`
+      : state.musicResultText || `${action}${selectedDevice ? ` · ${selectedDevice.name}` : ""}`;
+  const deviceChoices = devices.map(device => `
+    <button class="device-choice" type="button" data-music-device="${escapeHtml(device.device_id)}" ${running ? "disabled" : ""}>
+      <span class="device-icon" aria-hidden="true">♫</span>
+      <span><strong>${escapeHtml(device.name)}</strong><small>${escapeHtml(musicDeviceDetail(device))}</small></span>
+      <span class="device-choice-arrow" aria-hidden="true">→</span>
+    </button>`).join("");
+  const requestCard = musicRequest ? `
+    <div class="music-request-card">
+      <div class="proposal-heading"><h3>${escapeHtml(action)}</h3><span>${escapeHtml(musicRequestStateLabel(musicRequest))}</span></div>
+      ${needsDevice ? `<p class="proposal-summary">Nothing has played on a registered device in the last five minutes. Choose where to play.</p>
+        <div class="device-choice-list">${deviceChoices || '<p class="muted small">No music devices are enabled.</p>'}</div>` : `
+        <div class="music-device-line"><span class="device-icon" aria-hidden="true">♫</span><span><strong>${escapeHtml(selectedDevice?.name || musicRequest.device_name || "Selected device")}</strong><small>${escapeHtml(musicRequest.selection_reason === "recent_playback" ? "Automatically selected from playback in the last five minutes" : "Selected for this request")}</small></span></div>
+        <div class="widget-actions">
+          ${widget.mode === "musickit" ? '<button id="connectAppleMusic" class="secondary-button" type="button">Connect Apple Music</button>' : ""}
+        </div>`}
+    </div>` : '<p class="muted small">Ask Osun to play, pause, resume, skip, or go back.</p>';
+
+  ui.widgetDock.hidden = false;
+  ui.activeWidget.hidden = false;
+  ui.workspace.classList.add("has-widget");
+  ui.workspace.classList.toggle("widget-expanded", expanded);
+  ui.activeWidget.innerHTML = `
+    <div class="widget-card music-card ${expanded ? "expanded" : "compact"} ${running ? "running" : ""}" aria-busy="${running}">
+      <div class="widget-hero">
+        <div class="widget-title-row">
+          <button id="toggleWidget" class="widget-toggle" type="button" aria-expanded="${expanded}" aria-controls="musicWidgetBody">
+            <span class="widget-agent">
+              <span class="widget-glyph" aria-hidden="true"><span class="widget-orbit"></span><span class="widget-glyph-mark">♫</span></span>
+              <span class="widget-agent-copy"><span class="widget-title">Music</span><span class="widget-subtitle" aria-live="polite">${escapeHtml(compactStatus)}</span></span>
+            </span>
+            <span class="widget-expand-icon" aria-hidden="true">${expanded ? "−" : "+"}</span>
+          </button>
+          <button id="closeWidget" class="widget-close" type="button" aria-label="Close music widget">×</button>
+        </div>
+        <div class="widget-mode" ${expanded ? "" : "hidden"}>
+          <span class="${widget.mode === "musickit" ? "live" : ""}">${widget.mode === "musickit" ? "Apple Music" : "Simulator"}</span>
+          <span>${widget.recent_window_seconds || 300}s recent-device window</span>
+          <span class="${widget.autonomous_execution ? "autonomous" : ""}">${widget.autonomous_execution ? "Autonomous" : "Owner requests only"}</span>
+        </div>
+      </div>
+      <div id="musicWidgetBody" class="widget-body" ${expanded ? "" : "hidden"}>
+        <section class="widget-section"><p class="section-kicker">Playback request</p>${requestCard}</section>
+        <section class="widget-section">
+          <div class="widget-actions"><button id="musicSettings" class="secondary-button" type="button" ${running ? "disabled" : ""}>Music settings</button></div>
+          ${state.musicResultText ? `<div class="widget-result music-result">${escapeHtml(state.musicResultText)}</div>` : ""}
+        </section>
+      </div>
+    </div>`;
+  document.getElementById("toggleWidget")?.addEventListener("click", toggleWidget);
+  document.getElementById("closeWidget")?.addEventListener("click", closeWidget);
+  document.getElementById("musicSettings")?.addEventListener("click", openSettings);
+  document.getElementById("connectAppleMusic")?.addEventListener("click", connectAppleMusic);
+  document.querySelectorAll("[data-music-device]").forEach(button => button.addEventListener("click", () => {
+    selectMusicDevice(musicRequest?.request_id, button.dataset.musicDevice);
+  }));
+}
+
 function closeWidget() {
   state.activeWidget = null;
   state.widgetExpanded = false;
@@ -277,6 +397,207 @@ function closeWidget() {
   ui.activeWidget.innerHTML = "";
   ui.widgetDock.hidden = true;
   ui.workspace.classList.remove("has-widget", "widget-expanded");
+}
+
+async function selectMusicDevice(requestId, deviceId) {
+  if (
+    !requestId ||
+    !deviceId ||
+    state.runningWidgetId ||
+    state.activeWidget?.kind !== "music" ||
+    state.activeWidget.request?.request_id !== requestId
+  ) return;
+  setWidgetRunning(true);
+  try {
+    state.activeWidget = await request("/agents/music/select-device", "POST", {
+      request_id: requestId,
+      device_id: deviceId,
+    });
+    state.musicResultText = `Selected ${state.activeWidget.request.device_name}.`;
+  } catch (error) {
+    showToast(error.message);
+    if (state.activeWidget) setWidgetRunning(false);
+    return;
+  }
+  state.runningWidgetId = null;
+  renderActiveWidget();
+  await executeMusic(requestId);
+}
+
+function loadMusicKitScript(scriptUrl) {
+  if (window.MusicKit) return Promise.resolve();
+  if (state.musicKitScript) return state.musicKitScript;
+  state.musicKitScript = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = scriptUrl;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Apple MusicKit could not be loaded"));
+    document.head.appendChild(script);
+  });
+  return state.musicKitScript;
+}
+
+async function getMusicKit() {
+  if (state.musicKit) return state.musicKit;
+  const config = await request("/agents/music/client-config", "POST", {});
+  await loadMusicKitScript(config.script_url);
+  if (!window.MusicKit) throw new Error("Apple MusicKit did not initialize");
+  state.musicKit = await window.MusicKit.configure({
+    developerToken: config.developer_token,
+    app: { name: "Osun", build: "0.3.0" },
+  });
+  return state.musicKit;
+}
+
+async function connectAppleMusic() {
+  if (state.runningWidgetId) return;
+  let pendingRequestId = null;
+  setWidgetRunning(true);
+  try {
+    const music = await getMusicKit();
+    await music.authorize();
+    if (!musicKitAuthorized(music)) throw new Error("Apple Music authorization was canceled or denied");
+    state.musicResultText = "Apple Music is connected on This PC.";
+    if (state.activeWidget?.request?.state === "ready") {
+      pendingRequestId = state.activeWidget.request.request_id;
+    }
+    showToast(state.musicResultText);
+  } catch (error) {
+    state.musicResultText = `Apple Music connection failed: ${error.message}`;
+    showToast(state.musicResultText);
+  } finally {
+    if (state.activeWidget) setWidgetRunning(false);
+  }
+  if (pendingRequestId) await executeMusic(pendingRequestId);
+}
+
+function musicKitAuthorized(music) {
+  return music.isAuthorized === true || Boolean(music.musicUserToken);
+}
+
+async function waitForMusicKit(predicate, failureMessage, timeoutMs = 8_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (predicate()) return;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  throw new Error(failureMessage);
+}
+
+function musicKitItemId(music) {
+  return music.nowPlayingItem?.id || music.nowPlayingItem?.playParams?.id || null;
+}
+
+function musicKitNowPlaying(music, fallback = "") {
+  const item = music.nowPlayingItem;
+  const title = item?.title || item?.attributes?.name || fallback;
+  const artist = item?.artistName || item?.attributes?.artistName;
+  return artist && title ? `${title} by ${artist}` : title;
+}
+
+async function performMusicKitCommand(command) {
+  const music = await getMusicKit();
+  if (!musicKitAuthorized(music)) {
+    const error = new Error("Connect Apple Music in the expanded widget, then try the request again.");
+    error.authorizationRequired = true;
+    throw error;
+  }
+  if (command.action === "play") {
+    const storefront = music.storefrontCountryCode || "us";
+    const response = await music.api.music(`/v1/catalog/${storefront}/search`, {
+      term: command.query || "music",
+      types: "songs",
+      limit: 1,
+    });
+    const songs = response?.data?.results?.songs?.data || response?.results?.songs?.data || [];
+    const song = songs[0];
+    if (!song?.id) throw new Error(`Apple Music could not find ${command.query || "that music"}.`);
+    await music.setQueue({ song: song.id });
+    await music.play();
+    await waitForMusicKit(() => music.isPlaying === true, "Apple Music did not report that playback started.");
+    const fallbackTitle = song.attributes?.name || command.query || "music";
+    const fallbackArtist = song.attributes?.artistName;
+    const fallback = fallbackArtist ? `${fallbackTitle} by ${fallbackArtist}` : fallbackTitle;
+    return musicKitNowPlaying(music, fallback);
+  }
+  if (command.action === "pause") {
+    await music.pause();
+    await waitForMusicKit(() => music.isPlaying === false, "Apple Music did not report that playback paused.");
+  }
+  if (command.action === "resume") {
+    await music.play();
+    await waitForMusicKit(() => music.isPlaying === true, "Apple Music did not report that playback resumed.");
+  }
+  if (command.action === "next" || command.action === "previous") {
+    const previousItemId = musicKitItemId(music);
+    if (command.action === "next") await music.skipToNextItem();
+    if (command.action === "previous") await music.skipToPreviousItem();
+    await waitForMusicKit(
+      () => music.isPlaying === true && (!previousItemId || musicKitItemId(music) !== previousItemId),
+      `Apple Music did not report a ${command.action === "next" ? "next" : "previous"} track transition.`,
+    );
+  }
+  return musicKitNowPlaying(music);
+}
+
+async function executeMusic(requestId) {
+  if (
+    !requestId ||
+    state.runningWidgetId ||
+    state.activeWidget?.kind !== "music" ||
+    state.activeWidget.request?.request_id !== requestId
+  ) return;
+  setWidgetRunning(true);
+  try {
+    const execution = await request("/agents/music/execute", "POST", { request_id: requestId });
+    if (execution.state === "simulated") {
+      state.activeWidget.request = execution.request;
+      state.activeWidget.execution = execution;
+      state.musicResultText = execution.summary;
+      appendMessage("assistant", execution.summary, "music");
+    } else if (execution.state === "client_required") {
+      let nowPlaying = "";
+      try {
+        nowPlaying = await performMusicKitCommand(execution.command);
+      } catch (error) {
+        if (error.authorizationRequired) {
+          state.activeWidget.request = { ...execution.request, state: "ready" };
+          state.musicResultText = error.message;
+          state.widgetExpanded = true;
+          return;
+        }
+        const failed = await request("/agents/music/result", "POST", {
+          request_id: execution.request_id,
+          device_id: execution.device_id,
+          success: false,
+          error: error.message,
+        });
+        state.activeWidget.request = failed.request;
+        state.activeWidget.execution = failed;
+        state.musicResultText = failed.summary;
+        appendMessage("assistant", failed.summary, "music");
+        return;
+      }
+      const verified = await request("/agents/music/result", "POST", {
+        request_id: execution.request_id,
+        device_id: execution.device_id,
+        success: true,
+        now_playing: nowPlaying,
+      });
+      state.activeWidget.request = verified.request;
+      state.activeWidget.execution = verified;
+      state.musicResultText = verified.summary;
+      appendMessage("assistant", verified.summary, "music");
+    }
+    await refreshStatus(false);
+    state.activeWidget.devices = state.status.music.devices;
+  } catch (error) {
+    state.musicResultText = error.message;
+    showToast(error.message);
+  } finally {
+    if (state.activeWidget) setWidgetRunning(false);
+  }
 }
 
 async function sendMessage(text) {
@@ -370,12 +691,21 @@ async function refreshStatus(renderWidget = true) {
     : "Local model unavailable";
   if (!state.selectedEntities.size) state.status.lighting.lights.forEach(light => state.selectedEntities.add(light.entity_id));
   if (renderWidget && state.activeWidget) {
-    state.activeWidget.lights = state.status.lighting.lights;
-    state.activeWidget.paused = state.status.lighting.paused;
-    state.activeWidget.mode = state.status.lighting.effective_mode;
-    state.activeWidget.live_enabled = state.status.lighting.live_enabled;
-    state.activeWidget.autonomous_execution = state.status.lighting.autonomous_execution;
-    renderLightingWidget();
+    if (state.activeWidget.kind === "lighting") {
+      state.activeWidget.lights = state.status.lighting.lights;
+      state.activeWidget.paused = state.status.lighting.paused;
+      state.activeWidget.mode = state.status.lighting.effective_mode;
+      state.activeWidget.live_enabled = state.status.lighting.live_enabled;
+      state.activeWidget.autonomous_execution = state.status.lighting.autonomous_execution;
+    }
+    if (state.activeWidget.kind === "music") {
+      state.activeWidget.mode = state.status.music.effective_mode;
+      state.activeWidget.developer_token_configured = state.status.music.developer_token_configured;
+      state.activeWidget.autonomous_execution = state.status.music.autonomous_execution;
+      state.activeWidget.recent_window_seconds = state.status.music.recent_window_seconds;
+      state.activeWidget.devices = state.status.music.devices;
+    }
+    renderActiveWidget();
   }
 }
 
@@ -403,6 +733,12 @@ function renderSettings() {
   ui.lightingModeBadge.textContent = lighting.effective_mode === "home_assistant" ? "Home Assistant" : "Simulator";
   state.discoveredLights = lighting.lights;
   renderDiscoveredLights(settings.allowed_entities);
+  const music = state.status.music;
+  document.querySelector(`input[name="musicMode"][value="${music.mode}"]`).checked = true;
+  ui.musicDeveloperToken.value = "";
+  ui.musicEnabled.checked = music.enabled;
+  ui.musicAutonomousExecution.checked = music.autonomous_execution;
+  ui.musicModeBadge.textContent = music.effective_mode === "musickit" ? "Apple Music" : "Simulator";
 }
 
 function renderDiscoveredLights(allowed = []) {
@@ -444,6 +780,7 @@ async function discoverLights() {
 
 async function saveSettings() {
   const mode = document.querySelector('input[name="lightingMode"]:checked').value;
+  const musicMode = document.querySelector('input[name="musicMode"]:checked').value;
   const allowed = [...document.querySelectorAll(".allowed-light:checked")].map(input => input.value);
   try {
     const lighting = await request("/agents/lighting/settings/save", "POST", {
@@ -455,11 +792,19 @@ async function saveSettings() {
       autonomous_execution: ui.autonomousExecution.checked,
       global_pause: ui.globalPause.checked,
     });
+    const music = await request("/agents/music/settings/save", "POST", {
+      mode: musicMode,
+      developer_token: ui.musicDeveloperToken.value,
+      enabled: ui.musicEnabled.checked,
+      autonomous_execution: ui.musicAutonomousExecution.checked,
+    });
     ui.haToken.value = "";
+    ui.musicDeveloperToken.value = "";
+    if (music.effective_mode === "simulator") state.musicKit = null;
     await refreshStatus(false);
     ui.settings.close();
-    showToast(`Lighting saved in ${lighting.effective_mode === "home_assistant" ? "Home Assistant" : "simulator"} mode.`);
-    if (state.activeWidget) {
+    showToast(`Lighting and Music settings saved. Music is in ${music.effective_mode === "musickit" ? "Apple Music" : "simulator"} mode.`);
+    if (state.activeWidget?.kind === "lighting") {
       state.activeWidget = {
         ...state.activeWidget,
         proposal: lighting.pending,
@@ -470,7 +815,17 @@ async function saveSettings() {
         lights: lighting.lights,
         warning: lighting.warning,
       };
-      renderLightingWidget();
+      renderActiveWidget();
+    }
+    if (state.activeWidget?.kind === "music") {
+      state.activeWidget = {
+        ...state.activeWidget,
+        mode: music.effective_mode,
+        developer_token_configured: music.developer_token_configured,
+        autonomous_execution: music.autonomous_execution,
+        devices: music.devices,
+      };
+      renderActiveWidget();
     }
   } catch (error) { showToast(error.message); }
 }
@@ -485,12 +840,24 @@ async function deleteToken() {
   } catch (error) { showToast(error.message); }
 }
 
+async function deleteMusicToken() {
+  if (!window.confirm("Delete the protected Apple Music developer token and return Music to simulation?")) return;
+  try {
+    await request("/agents/music/settings/delete-token", "POST", {});
+    state.musicKit = null;
+    await refreshStatus(false);
+    renderSettings();
+    showToast("The protected Apple Music developer token was deleted.");
+  } catch (error) { showToast(error.message); }
+}
+
 async function newChat() {
   try { await request("/new-chat", "POST", {}); } catch (error) { showToast(error.message); return; }
   [...ui.messages.querySelectorAll(".message")].forEach(item => item.remove());
   ui.welcome.hidden = false;
   state.activeWidget = null;
   state.resultText = "";
+  state.musicResultText = "";
   closeWidget();
   ui.input.focus();
 }
@@ -510,12 +877,18 @@ ui.newChat.addEventListener("click", newChat);
 ui.lightingNav.addEventListener("click", () => {
   if (state.activeWidget?.kind !== "lighting") return;
   state.widgetExpanded = true;
-  renderLightingWidget();
+  renderActiveWidget();
+});
+ui.musicNav.addEventListener("click", () => {
+  if (state.activeWidget?.kind !== "music") return;
+  state.widgetExpanded = true;
+  renderActiveWidget();
 });
 ui.settingsButton.addEventListener("click", openSettings);
 ui.discover.addEventListener("click", discoverLights);
 ui.saveSettings.addEventListener("click", saveSettings);
 ui.deleteToken.addEventListener("click", deleteToken);
+ui.deleteMusicToken.addEventListener("click", deleteMusicToken);
 ui.quit.addEventListener("click", async () => {
   try { await request("/shutdown", "POST", {}); } catch (_) { /* service is intentionally stopping */ }
   window.close();

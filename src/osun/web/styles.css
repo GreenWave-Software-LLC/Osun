@@ -145,6 +145,23 @@ button { color: inherit; }
 .widget-card.compact .widget-title { font-size: 13px; }
 .widget-card.compact .widget-subtitle { max-width: 160px; }
 .widget-card.compact .widget-close { font-size: 17px; }
+.music-card .widget-glyph { border-color: rgba(167, 139, 250, .35); color: #c6b3ff; background: rgba(93, 66, 154, .18); }
+.music-card.running { border-color: rgba(167, 139, 250, .58); box-shadow: 0 20px 65px rgba(0, 0, 0, .38), 0 0 28px rgba(167, 139, 250, .12); }
+.music-card.running::after { background: linear-gradient(90deg, transparent, #c6b3ff, transparent); }
+.music-request-card { padding: 14px; border: 1px solid rgba(167, 139, 250, .2); border-radius: 13px; background: rgba(24, 18, 43, .4); }
+.music-request-card h3 { margin: 0; color: #ded5fb; font-size: 14px; }
+.music-request-card p { margin: 6px 0 0; color: #8f85aa; font-size: 10px; line-height: 1.5; }
+.device-choice-list { display: grid; gap: 8px; margin-top: 12px; }
+.device-choice { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 9px; width: 100%; min-height: 50px; padding: 8px 10px; border: 1px solid rgba(159, 197, 210, .14); border-radius: 11px; background: rgba(7, 18, 24, .55); cursor: pointer; text-align: left; }
+.device-choice:hover { border-color: rgba(167, 139, 250, .4); background: rgba(52, 38, 85, .25); }
+.device-choice strong, .device-choice small { display: block; }
+.device-choice strong { color: #c8c0dc; font-size: 11px; }
+.device-choice small { margin-top: 3px; color: #716985; font-size: 9px; }
+.device-choice-arrow { color: #8b7baa; font-size: 16px; }
+.device-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; color: #c6b3ff; background: rgba(103, 78, 160, .2); }
+.music-device-line { display: flex; align-items: center; gap: 8px; margin: 11px 0 0; color: #807796; font-size: 10px; }
+.music-device-line .recent-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px rgba(102, 229, 214, .5); }
+.music-result { margin-top: 12px; padding: 10px 11px; border: 1px solid rgba(167, 139, 250, .16); border-radius: 10px; background: rgba(68, 50, 108, .16); color: #b7a9d8; font-size: 10px; line-height: 1.5; }
 .widget-mode { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
 .widget-mode span { padding: 5px 7px; border-radius: 7px; background: rgba(7, 18, 24, .52); color: #78959b; font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
 .widget-mode .live { color: var(--teal); }
@@ -222,6 +239,10 @@ input[readonly] { color: #779198; }
 .switch-row input { width: 34px; height: 18px; accent-color: var(--teal); }
 .authority-switch { margin-top: 15px; padding: 11px; border: 1px solid rgba(255, 190, 103, .16); border-radius: 10px; background: rgba(104, 69, 28, .1); }
 .authority-switch strong { color: #e1bd88; }
+.registered-device { display: flex; align-items: center; gap: 10px; margin-top: 13px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: rgba(8, 21, 28, .48); }
+.registered-device strong, .registered-device small { display: block; }
+.registered-device strong { color: #b9cdd0; font-size: 11px; }
+.registered-device small { margin-top: 2px; color: #647f86; font-size: 9px; }
 .settings-footer { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 15px 21px; background: rgba(11, 27, 36, .97); }
 .settings-footer > div { display: flex; gap: 13px; }
 .danger-link { padding: 0; border: 0; background: none; color: #aa7472; cursor: pointer; font-size: 9px; }
