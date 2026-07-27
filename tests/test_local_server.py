@@ -80,6 +80,8 @@ class LocalServerTests(unittest.TestCase):
 
         report = self.post("/apply", {"proposal_id": reply["proposal"]["proposal_id"]})
         self.assertEqual("verified", report["state"])
+        duplicate = self.post("/apply", {"proposal_id": reply["proposal"]["proposal_id"]})
+        self.assertEqual(report, duplicate)
         changed = json.loads(self.get("/api/synthetic-session/status")[2].decode("utf-8"))
         self.assertTrue(all(light["state"] == "on" for light in changed["lights"]))
 

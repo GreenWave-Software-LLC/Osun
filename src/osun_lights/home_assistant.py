@@ -87,6 +87,18 @@ class HomeAssistantClient:
         states = self._request("GET", "/api/states")
         if not isinstance(states, list):
             raise HomeAssistantError("Home Assistant returned an invalid state list")
+        names_by_entity: dict[str, str] = {}
+        for item in states:
+            if not isinstance(item, dict):
+                continue
+            entity_id = item.get("entity_id")
+            if not isinstance(entity_id, str) or not entity_id.startswith("light."):
+                continue
+            attributes = item.get("attributes") if isinstance(item.get("attributes"), dict) else {}
+            names_by_entity[entity_id] = str(
+                attributes.get("friendly_name") or entity_id.removeprefix("light.").replace("_", " ").title()
+            )
+
         lights: list[LightInfo] = []
         for item in states:
             if not isinstance(item, dict):
@@ -102,6 +114,29 @@ class HomeAssistantClient:
             rgb_value = None
             if isinstance(rgb, list) and len(rgb) >= 3 and all(isinstance(value, (int, float)) for value in rgb[:3]):
                 rgb_value = tuple(int(value) for value in rgb[:3])
+            member_ids_raw = attributes.get("entity_id")
+            member_entity_ids = tuple(
+                member
+                for member in member_ids_raw
+                if isinstance(member, str) and member.startswith("light.") and member != entity_id
+            ) if isinstance(member_ids_raw, list) else ()
+            member_names_raw = attributes.get("lights")
+            explicit_member_names = tuple(
+                str(member) for member in member_names_raw if isinstance(member, str)
+            ) if isinstance(member_names_raw, (list, tuple, set)) else ()
+            member_names = explicit_member_names or tuple(
+                names_by_entity.get(member, member.removeprefix("light.").replace("_", " ").title())
+                for member in member_entity_ids
+            )
+            hue_type = attributes.get("hue_type")
+            if isinstance(hue_type, str) and hue_type.casefold() in {"room", "zone"}:
+                group_type = hue_type.casefold()
+            elif attributes.get("is_hue_group") is True:
+                group_type = "hue_group"
+            elif member_entity_ids or member_names:
+                group_type = "group"
+            else:
+                group_type = None
             lights.append(
                 LightInfo(
                     entity_id=entity_id,
@@ -110,6 +145,9 @@ class HomeAssistantClient:
                     supported_color_modes=tuple(modes),
                     brightness=attributes.get("brightness") if isinstance(attributes.get("brightness"), int) else None,
                     rgb_color=rgb_value,
+                    member_entity_ids=member_entity_ids,
+                    member_names=member_names,
+                    group_type=group_type,
                 )
             )
         return tuple(sorted(lights, key=lambda light: (light.friendly_name.casefold(), light.entity_id)))

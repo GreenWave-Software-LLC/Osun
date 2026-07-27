@@ -40,6 +40,9 @@ class LightInfo:
     supported_color_modes: tuple[str, ...] = ("rgb",)
     brightness: int | None = None
     rgb_color: tuple[int, int, int] | None = None
+    member_entity_ids: tuple[str, ...] = ()
+    member_names: tuple[str, ...] = ()
+    group_type: str | None = None
 
     def __post_init__(self) -> None:
         if not self.entity_id.startswith("light."):
@@ -56,6 +59,10 @@ class LightInfo:
     @property
     def supports_brightness(self) -> bool:
         return self.supported_color_modes != ("onoff",)
+
+    @property
+    def is_zone(self) -> bool:
+        return self.group_type is not None or bool(self.member_entity_ids or self.member_names)
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,6 +174,11 @@ class ExecutionReport:
             }
             reason = messages.get(self.items[0].detail, self.items[0].detail.replace("_", " "))
             return f"Lighting change denied: {reason}."
+        changed = sum(item.state in {ResultState.VERIFIED, ResultState.PARTIAL} for item in self.items)
+        partial = sum(item.state == ResultState.PARTIAL for item in self.items)
+        if self.state == ResultState.PARTIAL and changed:
+            review = f"; {partial} need attribute read-back review" if partial else ""
+            return f"{changed}/{len(self.items)} light targets changed{review}."
         verified = sum(item.state == ResultState.VERIFIED for item in self.items)
         return f"{verified}/{len(self.items)} light changes verified ({self.state})."
 
@@ -181,4 +193,8 @@ def public_light_state(light: LightInfo) -> dict[str, Any]:
         "supported_color_modes": list(light.supported_color_modes),
         "brightness": light.brightness,
         "rgb_color": list(light.rgb_color) if light.rgb_color else None,
+        "kind": "zone" if light.is_zone else "light",
+        "group_type": light.group_type,
+        "member_entity_ids": list(light.member_entity_ids),
+        "member_names": list(light.member_names),
     }

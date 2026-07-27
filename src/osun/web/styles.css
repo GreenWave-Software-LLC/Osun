@@ -138,9 +138,12 @@ button { color: inherit; }
 .light-row { min-height: 36px; padding: 7px 9px; border: 1px solid rgba(148, 185, 193, .1); border-radius: 9px; background: rgba(8, 21, 28, .48); }
 .light-identity { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .light-identity input { accent-color: var(--teal); }
+.light-label { display: grid; gap: 2px; min-width: 0; }
 .light-dot { flex: 0 0 auto; width: 11px; height: 11px; border: 1px solid rgba(255, 255, 255, .12); border-radius: 50%; background: #31454a; }
 .light-dot.on { box-shadow: 0 0 9px currentColor; }
 .light-name { overflow: hidden; color: #b6cccf; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.zone-members { overflow-wrap: anywhere; color: #607d83; font-size: 8px; line-height: 1.35; }
+.zone-row { align-items: start; }
 .light-state { color: #58747a; font-size: 9px; text-transform: uppercase; }
 .proposal-card { padding: 13px; border: 1px solid rgba(102, 229, 214, .18); border-radius: 13px; background: rgba(10, 24, 31, .68); }
 .proposal-heading h3 { margin: 0; font-size: 13px; }
@@ -187,6 +190,11 @@ input[readonly] { color: #779198; }
 .discovered-lights { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
 .discovered-lights label { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; color: #91a9ae; font-size: 10px; }
 .discovered-lights input { accent-color: var(--teal); }
+.discovered-lights label > span { display: grid; gap: 2px; min-width: 0; }
+.discovered-lights label strong { overflow-wrap: anywhere; font-weight: 500; }
+.discovered-lights label small { overflow-wrap: anywhere; color: #607d83; font-size: 8px; line-height: 1.35; }
+.discovery-group { min-width: 0; }
+.discovery-group + .discovery-group { padding-left: 7px; border-left: 1px solid var(--line); }
 .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 13px; padding: 10px 0 0; border-top: 1px solid rgba(159, 197, 210, .08); }
 .switch-row strong, .switch-row small { display: block; }
 .switch-row strong { color: #adc2c6; font-size: 11px; }

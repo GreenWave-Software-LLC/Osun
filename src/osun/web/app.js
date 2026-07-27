@@ -9,6 +9,7 @@ const state = {
   selectedEntities: new Set(),
   discoveredLights: [],
   busy: false,
+  applyingProposalId: null,
   resultText: "",
 };
 
@@ -119,6 +120,22 @@ function lightingExecutionGate(widget) {
   return `${reasons.join(" and ")}. Open Connection, review the allowlist, enable live execution, clear Pause, and save.`;
 }
 
+function lightingTargetRow(light) {
+  const members = light.member_names || [];
+  const memberText = members.length
+    ? `<span class="zone-members">Contains ${escapeHtml(members.join(", "))}</span>`
+    : light.kind === "zone" ? '<span class="zone-members">Membership unavailable from Home Assistant</span>' : "";
+  return `
+    <label class="light-row ${light.kind === "zone" ? "zone-row" : ""}">
+      <span class="light-identity">
+        <input type="checkbox" class="widget-light-select" value="${escapeHtml(light.entity_id)}" ${state.selectedEntities.has(light.entity_id) ? "checked" : ""}>
+        <span class="light-dot ${light.state === "on" ? "on" : ""}" style="color:${lightColor(light)};background:${lightColor(light)}"></span>
+        <span class="light-label"><span class="light-name">${escapeHtml(light.friendly_name)}</span>${memberText}</span>
+      </span>
+      <span class="light-state">${escapeHtml(light.state)}</span>
+    </label>`;
+}
+
 function renderLightingWidget(widget = state.activeWidget) {
   if (!widget) return;
   state.activeWidget = widget;
@@ -126,17 +143,13 @@ function renderLightingWidget(widget = state.activeWidget) {
   ui.activeWidget.hidden = false;
   const lights = widget.lights || [];
   if (!state.selectedEntities.size) lights.forEach(light => state.selectedEntities.add(light.entity_id));
-  const lightRows = lights.map(light => `
-    <label class="light-row">
-      <span class="light-identity">
-        <input type="checkbox" class="widget-light-select" value="${escapeHtml(light.entity_id)}" ${state.selectedEntities.has(light.entity_id) ? "checked" : ""}>
-        <span class="light-dot ${light.state === "on" ? "on" : ""}" style="color:${lightColor(light)};background:${lightColor(light)}"></span>
-        <span class="light-name">${escapeHtml(light.friendly_name)}</span>
-      </span>
-      <span class="light-state">${escapeHtml(light.state)}</span>
-    </label>`).join("");
+  const zones = lights.filter(light => light.kind === "zone");
+  const individualLights = lights.filter(light => light.kind !== "zone");
+  const zoneRows = zones.map(lightingTargetRow).join("");
+  const lightRows = individualLights.map(lightingTargetRow).join("");
   const proposal = widget.proposal;
   const executionGate = lightingExecutionGate(widget);
+  const proposalApplying = proposal && state.applyingProposalId === proposal.proposal_id;
   const changes = (proposal?.changes || []).map(change => `
     <div class="change"><strong>${escapeHtml(change.friendly_name)}</strong><span>${escapeHtml(change.preview)}</span></div>`).join("");
   const proposalHtml = proposal ? `
@@ -147,7 +160,7 @@ function renderLightingWidget(widget = state.activeWidget) {
       <div class="change-list">${changes}</div>
       <div class="widget-actions">
         <button class="secondary-button" id="cancelLighting" type="button">Cancel</button>
-        <button class="primary-button" id="applyLighting" type="button" ${executionGate ? "disabled" : ""}>${executionGate ? "Execution locked" : "Apply exact proposal"}</button>
+        <button class="primary-button" id="applyLighting" type="button" ${executionGate || proposalApplying ? "disabled" : ""}>${executionGate ? "Execution locked" : proposalApplying ? "Applying…" : "Apply exact proposal"}</button>
       </div>
     </div>` : '<p class="muted small">Ask Osun for a lighting change to create an exact preview.</p>';
   ui.activeWidget.innerHTML = `
@@ -160,12 +173,13 @@ function renderLightingWidget(widget = state.activeWidget) {
         <div class="widget-mode">
           <span class="${widget.mode === "home_assistant" ? "live" : ""}">${escapeHtml(widget.mode === "home_assistant" ? "Home Assistant" : "Simulator")}</span>
           <span>${widget.paused ? "Paused" : "Execution ready"}</span>
-          <span>${lights.length} lights</span>
+          <span>${zones.length} zone${zones.length === 1 ? "" : "s"} · ${individualLights.length} light${individualLights.length === 1 ? "" : "s"}</span>
         </div>
       </div>
       <div class="widget-body">
         ${executionGate ? `<p class="execution-gate widget-gate">${escapeHtml(executionGate)}</p>` : ""}
-        <section class="widget-section"><p class="section-kicker">Targets</p><div class="light-list">${lightRows || '<p class="muted small">No allowlisted lights are available.</p>'}</div></section>
+        <section class="widget-section"><p class="section-kicker">Zones</p><div class="light-list">${zoneRows || '<p class="muted small">No zones are allowlisted.</p>'}</div></section>
+        <section class="widget-section"><p class="section-kicker">Lights</p><div class="light-list">${lightRows || '<p class="muted small">No individual lights are allowlisted.</p>'}</div></section>
         <section class="widget-section"><p class="section-kicker">Exact proposal</p>${proposalHtml}</section>
         <section class="widget-section">
           <div class="widget-actions"><button id="lightingSettings" class="secondary-button" type="button">Connection</button><button id="pauseLighting" class="danger-button" type="button">Emergency pause</button></div>
@@ -228,7 +242,9 @@ async function sendMessage(text) {
 
 async function applyLighting() {
   const proposal = state.activeWidget?.proposal;
-  if (!proposal) return;
+  if (!proposal || state.applyingProposalId === proposal.proposal_id) return;
+  state.applyingProposalId = proposal.proposal_id;
+  renderLightingWidget();
   try {
     const report = await request("/agents/lighting/apply", "POST", { proposal_id: proposal.proposal_id });
     state.resultText = report.summary;
@@ -239,7 +255,12 @@ async function applyLighting() {
     state.activeWidget.paused = state.status.lighting.paused;
     state.activeWidget.live_enabled = state.status.lighting.live_enabled;
     renderLightingWidget();
-  } catch (error) { showToast(error.message); }
+  } catch (error) {
+    showToast(error.message);
+  } finally {
+    state.applyingProposalId = null;
+    if (state.activeWidget) renderLightingWidget();
+  }
 }
 
 async function cancelLighting() {
@@ -309,8 +330,15 @@ function renderSettings() {
 
 function renderDiscoveredLights(allowed = []) {
   const allowedSet = new Set(allowed);
-  ui.discoveredLights.innerHTML = state.discoveredLights.map(light => `
-    <label><input class="allowed-light" type="checkbox" value="${escapeHtml(light.entity_id)}" ${allowedSet.has(light.entity_id) ? "checked" : ""}><span>${escapeHtml(light.friendly_name)}</span></label>`).join("");
+  const renderChoice = light => {
+    const members = (light.member_names || []).join(", ");
+    return `<label><input class="allowed-light" type="checkbox" value="${escapeHtml(light.entity_id)}" ${allowedSet.has(light.entity_id) ? "checked" : ""}><span><strong>${escapeHtml(light.friendly_name)}</strong>${members ? `<small>Contains ${escapeHtml(members)}</small>` : ""}</span></label>`;
+  };
+  const zones = state.discoveredLights.filter(light => light.kind === "zone").map(renderChoice).join("");
+  const lights = state.discoveredLights.filter(light => light.kind !== "zone").map(renderChoice).join("");
+  ui.discoveredLights.innerHTML = `
+    <div class="discovery-group"><p class="section-kicker">Zones</p>${zones || '<p class="muted small">No zones discovered.</p>'}</div>
+    <div class="discovery-group"><p class="section-kicker">Lights</p>${lights || '<p class="muted small">No individual lights discovered.</p>'}</div>`;
 }
 
 async function openSettings() {

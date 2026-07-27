@@ -56,7 +56,7 @@ Talk naturally:
 - `Make them purple over four seconds.`
 - `Suggest a lighting theme for right now.`
 
-Qwen calls the Lighting agent, and its widget appears in the right dock. The widget contains selected targets, an exact proposal, color swatches, individual light values, Apply, Cancel, Connection, and Emergency pause.
+Qwen calls the Lighting agent, and its widget appears in the right dock. The widget separates Home Assistant grouped-light targets under **Zones** from physical entities under **Lights**. A zone shows the member-light names Home Assistant provides. The widget also contains an exact proposal, color swatches, individual target values, Apply, Cancel, Connection, and Emergency pause.
 
 Qwen cannot execute the proposal. Select **Apply exact proposal** only after reviewing it.
 
@@ -103,6 +103,8 @@ After successful discovery:
 If Osun reports partial or failed, do not repeatedly Apply. Pause the Lighting agent and use Home Assistant directly.
 
 If Osun reports **denied**, the request was stopped locally before Home Assistant. Open Connection and verify all three canary gates: only the intended lamp is selected in the allowlist, **Enable live light execution** is checked, and **Pause execution** is cleared. Save, create a fresh proposal, and review it again before Apply.
+
+If a Hue room or zone changes but Osun requests attribute review, the on/off read-back succeeded while the grouped entity reported aggregate brightness or color values that differed from the exact proposal. Osun does not repeat the Home Assistant service call when the same Apply request is received twice; it returns the original report.
 
 ---
 

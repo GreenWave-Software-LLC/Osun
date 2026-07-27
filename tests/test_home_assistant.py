@@ -4,7 +4,7 @@ import unittest
 from typing import Any
 
 from osun_lights.home_assistant import HomeAssistantClient
-from osun_lights.models import LightAction, LightChange, LightingProposal, ResultState
+from osun_lights.models import LightAction, LightChange, LightingProposal, ResultState, public_light_state
 
 
 class FakeHomeAssistant(HomeAssistantClient):
@@ -20,6 +20,26 @@ class FakeHomeAssistant(HomeAssistantClient):
                     "supported_color_modes": ["rgb"],
                     "brightness": 0,
                     "rgb_color": [0, 0, 0],
+                },
+            },
+            "light.relax_zone": {
+                "entity_id": "light.relax_zone",
+                "state": "on",
+                "attributes": {
+                    "friendly_name": "Relax",
+                    "supported_color_modes": ["rgb"],
+                    "is_hue_group": True,
+                    "hue_type": "zone",
+                    "lights": ["Bathroom 1", "Bedroom 2"],
+                },
+            },
+            "light.helper_group": {
+                "entity_id": "light.helper_group",
+                "state": "off",
+                "attributes": {
+                    "friendly_name": "Helper Group",
+                    "supported_color_modes": ["brightness"],
+                    "entity_id": ["light.lounge"],
                 },
             },
             "sensor.private": {
@@ -60,9 +80,19 @@ class HomeAssistantClientTests(unittest.TestCase):
         client = FakeHomeAssistant({"light.lounge"})
         self.assertTrue(client.check())
         lights = client.discover_lights()
-        self.assertEqual(1, len(lights))
-        self.assertEqual("light.lounge", lights[0].entity_id)
-        self.assertTrue(lights[0].supports_color)
+        self.assertEqual(3, len(lights))
+        by_id = {light.entity_id: light for light in lights}
+        self.assertTrue(by_id["light.lounge"].supports_color)
+        relax = by_id["light.relax_zone"]
+        self.assertTrue(relax.is_zone)
+        self.assertEqual("zone", relax.group_type)
+        self.assertEqual(("Bathroom 1", "Bedroom 2"), relax.member_names)
+        helper = by_id["light.helper_group"]
+        self.assertEqual(("light.lounge",), helper.member_entity_ids)
+        self.assertEqual(("Lounge",), helper.member_names)
+        public = public_light_state(relax)
+        self.assertEqual("zone", public["kind"])
+        self.assertEqual(["Bathroom 1", "Bedroom 2"], public["member_names"])
 
     def test_live_call_uses_only_light_service_and_reads_back(self) -> None:
         client = FakeHomeAssistant({"light.lounge"})

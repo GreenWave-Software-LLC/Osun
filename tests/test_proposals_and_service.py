@@ -5,13 +5,23 @@ import unittest
 from pathlib import Path
 
 from osun_lights.audit import AuditLog
-from osun_lights.models import LightAction, LightInfo, ResultState
+from osun_lights.models import ExecutionItem, ExecutionReport, LightAction, LightInfo, ResultState
 from osun_lights.service import LightingAssistant
 from osun_lights.simulator import SimulatedLightProvider
 
 
 class FakeHomeAssistantProvider(SimulatedLightProvider):
     mode = "home_assistant"
+
+
+class CountingProvider(SimulatedLightProvider):
+    def __init__(self, lights: tuple[LightInfo, ...]) -> None:
+        super().__init__(lights)
+        self.apply_calls = 0
+
+    def apply(self, proposal):
+        self.apply_calls += 1
+        return super().apply(proposal)
 
 
 class ProposalAndServiceTests(unittest.TestCase):
@@ -47,6 +57,18 @@ class ProposalAndServiceTests(unittest.TestCase):
         assert proposal is not None
         self.assertEqual(("light.color_two",), tuple(change.entity_id for change in proposal.changes))
 
+    def test_named_zone_narrows_selected_targets_and_knows_members(self) -> None:
+        lights = (
+            LightInfo("light.sleepy_sleepy", "Sleepy", "off", ("rgb",), member_names=("Desk Lamp",), group_type="zone"),
+            LightInfo("light.relax_relax", "Relax", "off", ("rgb",), member_names=("Bathroom 1", "Bedroom 2"), group_type="zone"),
+        )
+        assistant = LightingAssistant(SimulatedLightProvider(lights))
+        proposal = assistant.handle("turn on sleepy", tuple(light.entity_id for light in lights)).proposal
+        assert proposal is not None
+        self.assertEqual(("light.sleepy_sleepy",), tuple(change.entity_id for change in proposal.changes))
+        status = assistant.handle("light status sleepy").text
+        self.assertIn("containing Desk Lamp", status)
+
     def test_pause_cancels_and_denies_execution(self) -> None:
         reply = self.assistant.handle("turn on")
         proposal = reply.proposal
@@ -58,13 +80,25 @@ class ProposalAndServiceTests(unittest.TestCase):
         self.assertTrue(all(light.state == "off" for light in self.provider.list_lights()))
 
     def test_same_proposal_does_not_execute_twice(self) -> None:
-        reply = self.assistant.handle("turn on")
+        provider = CountingProvider(self.lights)
+        assistant = LightingAssistant(provider)
+        reply = assistant.handle("turn on")
         proposal = reply.proposal
         assert proposal is not None
-        first = self.assistant.apply(proposal.proposal_id)
-        second = self.assistant.apply(proposal.proposal_id)
+        first = assistant.apply(proposal.proposal_id)
+        second = assistant.apply(proposal.proposal_id)
         self.assertEqual(ResultState.VERIFIED, first.state)
-        self.assertEqual(ResultState.DENIED, second.state)
+        self.assertIs(first, second)
+        self.assertEqual(1, provider.apply_calls)
+
+    def test_partial_summary_reports_changed_targets(self) -> None:
+        report = ExecutionReport(
+            "proposal",
+            ResultState.PARTIAL,
+            (ExecutionItem("light.relax", ResultState.PARTIAL, "State changed but color differs", "on"),),
+            "home_assistant",
+        )
+        self.assertEqual("1/1 light targets changed; 1 need attribute read-back review.", report.summary)
 
     def test_live_disabled_denial_is_plain_language(self) -> None:
         assistant = LightingAssistant(FakeHomeAssistantProvider(self.lights), live_enabled=False)
