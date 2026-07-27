@@ -4,7 +4,7 @@ import unittest
 from typing import Any
 
 from osun_lights.home_assistant import HomeAssistantClient
-from osun_lights.models import LightAction, LightChange, LightingProposal, ResultState, public_light_state
+from osun_lights.models import ExecutionItem, LightAction, LightChange, LightingProposal, ResultState, public_light_state
 
 
 class FakeHomeAssistant(HomeAssistantClient):
@@ -129,6 +129,22 @@ class HomeAssistantClientTests(unittest.TestCase):
         report = client.apply(proposal)
         self.assertEqual(ResultState.DENIED, report.state)
         self.assertFalse(any("/api/services/" in call[1] for call in client.calls))
+
+    def test_all_partial_items_produce_partial_overall_report(self) -> None:
+        client = FakeHomeAssistant({"light.lounge"})
+        client._verify = lambda change, _before, _after: ExecutionItem(
+            change.entity_id,
+            ResultState.PARTIAL,
+            "State changed but grouped color differs",
+            "on",
+        )
+        proposal = LightingProposal(
+            "Grouped theme",
+            (LightChange("light.lounge", "Lounge", LightAction.TURN_ON, rgb_color=(0, 42, 130)),),
+        )
+        report = client.apply(proposal)
+        self.assertEqual(ResultState.PARTIAL, report.state)
+        self.assertEqual("1/1 light targets changed; 1 needs attribute read-back review.", report.summary)
 
     def test_constructor_rejects_non_light_allowlist(self) -> None:
         with self.assertRaises(ValueError):

@@ -98,7 +98,7 @@ class ProposalAndServiceTests(unittest.TestCase):
             (ExecutionItem("light.relax", ResultState.PARTIAL, "State changed but color differs", "on"),),
             "home_assistant",
         )
-        self.assertEqual("1/1 light targets changed; 1 need attribute read-back review.", report.summary)
+        self.assertEqual("1/1 light targets changed; 1 needs attribute read-back review.", report.summary)
 
     def test_live_disabled_denial_is_plain_language(self) -> None:
         assistant = LightingAssistant(FakeHomeAssistantProvider(self.lights), live_enabled=False)

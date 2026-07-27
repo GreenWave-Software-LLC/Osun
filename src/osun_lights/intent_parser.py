@@ -61,7 +61,7 @@ class IntentParser:
         theme = self.themes.find(normalized)
         if theme and (theme.key == "ocean" or any(marker in normalized for marker in MOOD_MARKERS)):
             return ParsedIntent(IntentKind.THEME, theme_key=theme.key, transition_seconds=theme.transition_seconds)
-        if theme and any(alias in normalized for alias in ("cozy", "focus", "energ", "relax", "calm", "sunset", "forest", "aurora", "moon")):
+        if theme and any(alias in normalized for alias in ("cozy", "focus", "energ", "morning", "relax", "calm", "sunset", "forest", "aurora", "moon")):
             return ParsedIntent(IntentKind.THEME, theme_key=theme.key, transition_seconds=theme.transition_seconds)
 
         if "warm white" in normalized or "warmer" in normalized:

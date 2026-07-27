@@ -177,7 +177,7 @@ class ExecutionReport:
         changed = sum(item.state in {ResultState.VERIFIED, ResultState.PARTIAL} for item in self.items)
         partial = sum(item.state == ResultState.PARTIAL for item in self.items)
         if self.state == ResultState.PARTIAL and changed:
-            review = f"; {partial} need attribute read-back review" if partial else ""
+            review = f"; {partial} {'needs' if partial == 1 else 'need'} attribute read-back review" if partial else ""
             return f"{changed}/{len(self.items)} light targets changed{review}."
         verified = sum(item.state == ResultState.VERIFIED for item in self.items)
         return f"{verified}/{len(self.items)} light changes verified ({self.state})."

@@ -174,7 +174,7 @@ class HomeAssistantClient:
         states = {item.state for item in items}
         if states == {ResultState.VERIFIED}:
             overall = ResultState.VERIFIED
-        elif ResultState.VERIFIED in states:
+        elif states.intersection({ResultState.VERIFIED, ResultState.PARTIAL}):
             overall = ResultState.PARTIAL
         elif ResultState.DENIED in states and len(states) == 1:
             overall = ResultState.DENIED

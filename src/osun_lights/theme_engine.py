@@ -67,6 +67,15 @@ THEMES: dict[str, Theme] = {
         1.5,
         5200,
     ),
+    "morning": Theme(
+        "morning",
+        "Bright Morning",
+        "Clear daylight, soft sky blue, and warm sunlight for an alert, optimistic start.",
+        ((255, 244, 214), (255, 210, 118), (170, 218, 255), (235, 248, 255)),
+        90,
+        2.0,
+        5000,
+    ),
     "sunset": Theme(
         "sunset",
         "Desert Sunset",
@@ -121,6 +130,7 @@ ALIASES: dict[str, tuple[str, ...]] = {
     "cozy": ("cozy", "cosy", "comfortable", "snug", "warm evening"),
     "focus": ("focus", "focused", "concentrate", "study", "productive"),
     "energize": ("energize", "energized", "energy", "wake me up", "vibrant"),
+    "morning": ("bright morning", "morning light", "morning", "start the day"),
     "sunset": ("sunset", "golden hour", "desert sky"),
     "forest": ("forest", "woods", "jungle", "canopy", "nature"),
     "aurora": ("aurora", "northern lights"),

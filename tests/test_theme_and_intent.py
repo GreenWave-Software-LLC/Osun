@@ -21,6 +21,16 @@ class ThemeEngineTests(unittest.TestCase):
         self.assertEqual("Deep Ocean", theme.name)
         self.assertTrue(all(blue > red for red, _green, blue in theme.palette))
 
+    def test_bright_morning_phrases_resolve_directly(self) -> None:
+        for phrase in ("Change the lights to a bright morning", "yes a bright morning theme"):
+            with self.subTest(phrase=phrase):
+                intent = self.parser.parse(phrase)
+                self.assertEqual(IntentKind.THEME, intent.kind)
+                self.assertEqual("morning", intent.theme_key)
+        theme = self.engine.get("morning")
+        self.assertEqual("Bright Morning", theme.name)
+        self.assertGreaterEqual(theme.brightness_pct, 85)
+
     def test_unknown_atmosphere_generates_stable_bounded_palette(self) -> None:
         first = self.engine.generate("bioluminescent cave")
         second = self.engine.generate("bioluminescent cave")

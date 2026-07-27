@@ -290,6 +290,7 @@ After the response, the coordinator will:
 | 2026-07-27 | P1-SHELL-01 implemented with local Qwen, extensible widget dock, and Lighting promoted to the first agent widget | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
 | 2026-07-27 | Home Assistant later became reachable and discovery/configuration succeeded; first Apply attempts were locally denied because live execution was disabled and global pause remained active | `../prototypes/P1_OSUN_USER_GUIDE.md` |
 | 2026-07-27 | Real Hue grouped lights actuated; misleading follow-up denial traced to duplicate Apply after a partial group read-back; proposal idempotency and first-class Zones/Lights metadata implemented | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
+| 2026-07-27 | All-partial Hue zone results were found to be misclassified as failed; aggregation corrected and Bright Morning promoted to a deterministic built-in theme | `../prototypes/P1_OSUN_SHELL.md`, `../prototypes/P1_OSUN_USER_GUIDE.md` |
 
 ---
 

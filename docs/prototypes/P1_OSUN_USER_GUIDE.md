@@ -100,11 +100,13 @@ After successful discovery:
 7. Require a verified Home Assistant read-back result.
 8. Test Cancel, off, brightness, Ocean, and Emergency pause.
 
-If Osun reports partial or failed, do not repeatedly Apply. Pause the Lighting agent and use Home Assistant directly.
+If Osun reports **targets changed; attribute read-back review needed** for a zone, confirm the visible result and Home Assistant state without applying again. This means on/off actuation was observed but the zone's aggregate color or brightness did not exactly match. If Osun reports **failed**, pause the Lighting agent and use Home Assistant directly.
 
 If Osun reports **denied**, the request was stopped locally before Home Assistant. Open Connection and verify all three canary gates: only the intended lamp is selected in the allowlist, **Enable live light execution** is checked, and **Pause execution** is cleared. Save, create a fresh proposal, and review it again before Apply.
 
 If a Hue room or zone changes but Osun requests attribute review, the on/off read-back succeeded while the grouped entity reported aggregate brightness or color values that differed from the exact proposal. Osun does not repeat the Home Assistant service call when the same Apply request is received twice; it returns the original report.
+
+Natural wording such as **“Change the lights to a bright morning”** resolves directly to the built-in **Bright Morning** theme; a follow-up “yes” is not required.
 
 ---
 
