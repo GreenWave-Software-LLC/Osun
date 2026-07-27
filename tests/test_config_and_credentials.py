@@ -21,6 +21,7 @@ class ConfigAndCredentialTests(unittest.TestCase):
                     allowed_entities=["light.desk"],
                     live_enabled=True,
                     global_pause=True,
+                    autonomous_execution=True,
                 )
             )
             text = path.read_text(encoding="utf-8")
@@ -28,6 +29,15 @@ class ConfigAndCredentialTests(unittest.TestCase):
             loaded = store.load()
             self.assertEqual(["light.desk"], loaded.allowed_entities)
             self.assertTrue(loaded.global_pause)
+            self.assertTrue(loaded.autonomous_execution)
+
+    def test_autonomous_home_assistant_requires_live_execution(self) -> None:
+        config = AppConfig(mode="home_assistant", autonomous_execution=True, live_enabled=False)
+        with self.assertRaisesRegex(ValueError, "Enable live light execution"):
+            config.validate()
+
+    def test_autonomous_execution_defaults_off(self) -> None:
+        self.assertFalse(AppConfig().autonomous_execution)
 
     @unittest.skipUnless(os.name == "nt", "DPAPI test requires Windows")
     def test_windows_dpapi_round_trip_and_ciphertext(self) -> None:

@@ -227,6 +227,7 @@ Cloud providers are interchangeable processors, not memory authorities. Provider
 | Share or publish health/calorie data | WF-02/WF-03 | R4 | Prohibited initially | Not applicable |
 | Promote inferred preference to long-term memory | All | R2 Sensitive | Owner confirmation initially | Dispute/supersede/delete |
 | Change owner goal or policy | All | R4 for agent | Agent may propose only; owner edits explicitly | Version history and rollback |
+| Change allowlisted Home Assistant lights | P1-SHELL-01 Lighting | R3 | Exact Apply by default; a default-off Lighting-widget switch may establish request-triggered standing approval | Home Assistant read-back, local audit, Emergency pause, token revocation |
 
 ### 10.3 Personality envelope
 
@@ -276,6 +277,19 @@ Every R3 approval records:
 
 An approval for one action does not authorize future similar actions unless a later explicit standing policy says so.
 
+### 10.6 Limited Lighting standing policy
+
+On 2026-07-27, the owner authorized a per-widget **Autonomous execution** switch, beginning with Lighting. Turning on the Lighting switch is a standing approval for the deterministic Lighting agent to execute each new exact proposal created from an owner request without a separate Apply. This policy is:
+
+- off by default and configured independently for each widget;
+- limited to the widget's existing tool, target, allowlist, value, credential, and verification contract;
+- subordinate to global/per-widget Pause and provider-side revocation;
+- request-triggered only, with no authorization for unsolicited or background light changes;
+- locally recorded when the policy changes and whenever it dispatches a proposal;
+- not transferable to another agent or action domain.
+
+For Home Assistant, live light execution must already be enabled before Lighting autonomy can be saved. Turning autonomy off restores exact Apply for later proposals. This standing policy does not change the explicit-approval rules for calendar writes, purchases, health actions, goal/policy changes, or any future widget.
+
 ---
 
 ## 11. Owner decisions required
@@ -298,7 +312,7 @@ An approval for one action does not authorize future similar actions unless a la
 5. Approve the personality envelope in Section 10.3.
 6. Confirm WF-01 as the provisional M1 vertical-slice candidate.
 
-**Owner decision:** All M0-14 and M0-15 recommendations approved as written on 2026-07-26.
+**Owner decision:** All M0-14 and M0-15 recommendations approved as written on 2026-07-26. The owner approved the limited Lighting standing-policy amendment in Section 10.6 on 2026-07-27.
 
 ---
 

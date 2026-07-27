@@ -56,11 +56,11 @@ Talk naturally:
 - `Make them purple over four seconds.`
 - `Suggest a lighting theme for right now.`
 
-Qwen calls the Lighting agent, and its widget appears in the right dock. The widget separates Home Assistant grouped-light targets under **Zones** from physical entities under **Lights**. A zone shows the member-light names Home Assistant provides. The widget also contains an exact proposal, color swatches, individual target values, Apply, Cancel, Connection, and Emergency pause.
+Qwen calls the Lighting agent, and its widget appears in the right dock. The widget separates Home Assistant grouped-light targets under **Zones** from physical entities under **Lights**. A zone shows the member-light names Home Assistant provides. The widget also contains an exact proposal, color swatches, individual target values, its manual/autonomous mode, Connection, and Emergency pause.
 
 For a theme, a selected zone expands into its physical member lights. Osun assigns a coordinated palette across those members and the exact proposal shows one row per physical light. Selecting both a zone and one of its members does not duplicate the member. If you name one selected light—for example, **“make the desk lamp blue”**—only that individual light enters the proposal, even while its zone is also selected.
 
-Qwen cannot execute the proposal. Select **Apply exact proposal** only after reviewing it.
+Qwen never executes a light command directly. With the default manual policy, select **Apply exact proposal** only after reviewing it. If you explicitly enable the Lighting widget's autonomous policy, deterministic code applies each new exact proposal from your request immediately and shows the proposal and execution result afterward.
 
 ---
 
@@ -82,7 +82,7 @@ To configure or reconnect Home Assistant:
 5. Paste the token into **Access token · write only**.
 6. Select **Test & discover lights**.
 7. Select only one or two ordinary lamps for the first allowlist.
-8. Enable live light execution but keep **Pause execution** checked.
+8. Enable live light execution, leave **Autonomous execution** off, and keep **Pause execution** checked.
 9. Save settings.
 
 Never paste the token into chat, Git, documentation, screenshots, or messages. Osun encrypts it for the current Windows user with DPAPI and never displays it after save.
@@ -112,7 +112,26 @@ Natural wording such as **“Change the lights to a bright morning”** resolves
 
 ---
 
-## 6. Local runtime record
+## 6. Use autonomous Lighting execution
+
+Each consequential agent widget has its own execution policy. Lighting is the first implementation, and its switch is off by default. Enabling Lighting does not enable any future agent.
+
+To stop approving every Lighting proposal:
+
+1. Open **Settings → Lighting agent**.
+2. Confirm the Home Assistant allowlist contains only lights and zones you want Osun to control.
+3. Check **Enable live light execution**.
+4. Check **Autonomous execution**.
+5. Clear **Pause execution** and save.
+6. Make a new lighting request in chat.
+
+Osun will still construct the same exact proposal, enforce the light-only allowlist and value limits, execute it once, read the result back, and display both the settings and the result in the Lighting widget. The audit records the policy change, autonomous dispatch, targets, actions, and verification result without storing raw chat or credentials.
+
+Autonomy does not mean background control: Lighting acts only after a new owner request routes to it. **Emergency pause** always wins, even while autonomy remains enabled. Turn off **Autonomous execution** to restore Apply for future proposals. Delete the light token or revoke it in Home Assistant to remove the authority entirely.
+
+---
+
+## 7. Local runtime record
 
 | Component | Current location/state |
 |---|---|
@@ -127,7 +146,7 @@ No raw chat is stored in these files.
 
 ---
 
-## 7. Recovery
+## 8. Recovery
 
 - Qwen unavailable: Lighting requests with explicit light language still produce deterministic previews.
 - Pi unavailable: Use simulator mode or Home Assistant directly when it returns.

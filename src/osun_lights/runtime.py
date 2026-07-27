@@ -7,7 +7,7 @@ from .audit import AuditLog
 from .config import AppConfig, ConfigStore, default_data_dir
 from .credential_store import CredentialStoreError, WindowsCredentialStore
 from .home_assistant import HomeAssistantClient, HomeAssistantError
-from .models import ExecutionReport, LightingProposal, public_light_state
+from .models import ExecutionReport, LightingProposal, ResultState, public_light_state
 from .service import LightingAssistant
 from .simulator import SimulatedLightProvider
 
@@ -87,6 +87,7 @@ class LightingController:
                 "effective_mode": self.assistant.mode,
                 "paused": self.assistant.paused,
                 "live_enabled": self.assistant.live_enabled,
+                "autonomous_execution": self.config.autonomous_execution,
                 "warning": light_error or self.warning,
                 "lights": [public_light_state(light) for light in lights],
                 "pending": proposal_json(self.assistant.pending),
@@ -96,6 +97,7 @@ class LightingController:
                     "allowed_entities": list(self.config.allowed_entities),
                     "live_enabled": self.config.live_enabled,
                     "global_pause": self.config.global_pause,
+                    "autonomous_execution": self.config.autonomous_execution,
                     "credential_saved": self._credential_exists(),
                 },
             }
@@ -105,7 +107,21 @@ class LightingController:
             raise ValueError("Lighting requests are limited to 2,000 characters")
         with self._lock:
             reply = self.assistant.handle(text, selected_entities)
-            return {"text": reply.text, "proposal": proposal_json(reply.proposal)}
+            proposal = reply.proposal
+            proposal_payload = proposal_json(proposal)
+            if not self.config.autonomous_execution or proposal is None:
+                return {"text": reply.text, "proposal": proposal_payload, "execution": None}
+
+            self.audit.autonomous_requested(proposal.proposal_id, self.assistant.mode)
+            report = self.assistant.apply(proposal.proposal_id)
+            execution = report_json(report)
+            if proposal_payload is not None:
+                proposal_payload["requires_confirmation"] = False
+            if report.state == ResultState.DENIED:
+                text = f"{proposal.summary}. Autonomous execution was blocked. {report.summary}"
+            else:
+                text = f"{proposal.summary}. Applied autonomously. {report.summary}"
+            return {"text": text, "proposal": proposal_payload, "execution": execution}
 
     def apply(self, proposal_id: str) -> dict[str, Any]:
         with self._lock:
@@ -121,6 +137,12 @@ class LightingController:
             self.assistant.set_paused(True)
             self.config.global_pause = True
             self.config_store.save(self.config)
+            self.audit.policy_changed(
+                mode=self.assistant.mode,
+                live_enabled=self.assistant.live_enabled,
+                autonomous_execution=self.config.autonomous_execution,
+                paused=True,
+            )
             return {"paused": True}
 
     def test_connection(self, url: str, token: str) -> dict[str, Any]:
@@ -147,6 +169,7 @@ class LightingController:
             allowed_entities=allowed,
             live_enabled=bool(payload.get("live_enabled", False)),
             global_pause=bool(payload.get("global_pause", True)),
+            autonomous_execution=bool(payload.get("autonomous_execution", False)),
         )
         updated.validate()
 
@@ -170,6 +193,12 @@ class LightingController:
             self.config_store.save(updated)
             self.config = updated
             self.assistant, self.warning = self._build_assistant()
+            self.audit.policy_changed(
+                mode=self.assistant.mode,
+                live_enabled=self.assistant.live_enabled,
+                autonomous_execution=self.config.autonomous_execution,
+                paused=self.assistant.paused,
+            )
         return self.status()
 
     def delete_credential(self) -> dict[str, Any]:
@@ -181,9 +210,16 @@ class LightingController:
                 allowed_entities=[],
                 live_enabled=False,
                 global_pause=True,
+                autonomous_execution=False,
             )
             self.config_store.save(self.config)
             self.assistant, self.warning = self._build_assistant()
+            self.audit.policy_changed(
+                mode=self.assistant.mode,
+                live_enabled=self.assistant.live_enabled,
+                autonomous_execution=False,
+                paused=True,
+            )
             return self.status()
 
     def _build_assistant(self) -> tuple[LightingAssistant, str | None]:
@@ -208,7 +244,14 @@ class LightingController:
                 )
             except (CredentialStoreError, ValueError) as exc:
                 return LightingAssistant(SimulatedLightProvider(), audit=self.audit), str(exc)
-        return LightingAssistant(SimulatedLightProvider(), audit=self.audit), None
+        return (
+            LightingAssistant(
+                SimulatedLightProvider(),
+                paused=self.config.global_pause,
+                audit=self.audit,
+            ),
+            None,
+        )
 
     def _credential_exists(self) -> bool:
         try:
