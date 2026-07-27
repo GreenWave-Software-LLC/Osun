@@ -40,10 +40,24 @@ LIGHTING_TOOL = {
     },
 }
 
+MUSIC_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "open_music_widget",
+        "description": (
+            "Open the Apple Music agent when the owner asks to play, pause, resume, skip, or go back to music. "
+            "The typed music agent, not the model, chooses an authorized playback device and command."
+        ),
+        "parameters": {"type": "object", "properties": {}},
+    },
+}
+
 
 SYSTEM_PROMPT = """You are Osun, a warm, concise, local-first personal assistant for one owner.
 Use open_lighting_widget when the owner asks to change, control, suggest, or create an atmosphere with room lighting. Do not use it for general informational discussion about colors, oceans, or lighting.
 The lighting tool creates a visible proposal only. It never executes a device change. Never say a device changed unless a later verified result is supplied to you.
+Use open_music_widget when the owner asks to play, pause, resume, skip, or go back to music or Apple Music. Do not use it for general discussion about musicians, albums, or music theory.
+The music tool accepts no model-authored device or playback parameters. Osun reparses the original owner request and applies its five-minute playback-device policy.
 For requests that do not need an available tool, answer directly. Be useful and natural. Do not invent access to calendars, email, files, memories, sensors, the internet, or other agents."""
 
 
@@ -125,7 +139,7 @@ class OllamaQwenClient:
         payload = {
             "model": self.model,
             "messages": messages,
-            "tools": [LIGHTING_TOOL],
+            "tools": [LIGHTING_TOOL, MUSIC_TOOL],
             "stream": False,
             "think": False,
             "keep_alive": "30m",
@@ -147,7 +161,7 @@ class OllamaQwenClient:
         for call in calls:
             function = call.get("function") if isinstance(call, dict) else None
             name = function.get("name") if isinstance(function, dict) else None
-            if name == "open_lighting_widget":
+            if name in {"open_lighting_widget", "open_music_widget"}:
                 names.append(name)
         return QwenReply(
             content=content.strip()[:12_000],

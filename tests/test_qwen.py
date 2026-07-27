@@ -64,8 +64,27 @@ class QwenClientTests(unittest.TestCase):
         reply = client.chat("make it blue")
         self.assertEqual(("open_lighting_widget",), reply.tool_names)
         request_payload = client.requests[0][2]
-        self.assertEqual(["open_lighting_widget"], [tool["function"]["name"] for tool in request_payload["tools"]])
+        self.assertEqual(
+            ["open_lighting_widget", "open_music_widget"],
+            [tool["function"]["name"] for tool in request_payload["tools"]],
+        )
         self.assertFalse(request_payload["think"])
+
+    def test_chat_accepts_music_widget_and_rejects_unknown_tools(self) -> None:
+        client = FakeQwenClient(
+            {
+                ("POST", "/api/chat"): {
+                    "message": {
+                        "content": "",
+                        "tool_calls": [
+                            {"function": {"name": "open_music_widget", "arguments": {}}},
+                            {"function": {"name": "control_computer", "arguments": {}}},
+                        ],
+                    }
+                }
+            }
+        )
+        self.assertEqual(("open_music_widget",), client.chat("play some music").tool_names)
 
     def test_chat_history_is_bounded_and_content_is_clamped(self) -> None:
         client = FakeQwenClient({("POST", "/api/chat"): {"message": {"content": "hello"}}})

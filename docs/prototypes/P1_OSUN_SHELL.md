@@ -5,7 +5,7 @@
 **Owner authorization:** 2026-07-27 \
 **Host:** Windows Agent Box \
 **Primary local model:** `qwen3.5:9b` through Ollama \
-**First agent/widget:** Lighting \
+**Focused agents/widgets:** Lighting and Music \
 **Last updated:** 2026-07-27
 
 ---
@@ -21,7 +21,7 @@ The owner selected the P0 lighting interface as the visual foundation for Osun's
 5. Voice is the expected long-term primary input, but the initial desktop UI must remain a high-quality complete interface.
 6. Home Assistant on the Raspberry Pi remains the authority for real lights.
 
-This expands the P0-LIGHT-01 implementation exception to P1-SHELL-01. It includes owner-requested, per-widget autonomous execution only when that widget's default-off switch is enabled. It does not authorize ambient surveillance, unsolicited or background autonomy, arbitrary Home Assistant services, general shell/code execution, persistent conversation capture, or additional real-world agents without their own contracts.
+This expands the P0-LIGHT-01 implementation exception to P1-SHELL-01. P2-MUSIC-01 now adds Apple Music playback under its own [agent contract](P2_APPLE_MUSIC_AGENT.md). Each widget retains an independent default-off autonomy switch. Neither prototype authorizes ambient surveillance, unsolicited or background autonomy, arbitrary Home Assistant services, general shell/code execution, or persistent conversation capture.
 
 ---
 
@@ -33,16 +33,12 @@ Owner text now / owner voice later
   -> local Qwen conversation + agent selection
        -> no tool: conversational response
        -> known typed tool: open a focused agent widget
-            -> Lighting agent reparses the original owner request
-            -> immutable LightingProposal
-            -> visible targets, values, per-widget execution policy, Cancel/pause
-            -> exact Apply OR immediate deterministic execution under standing approval
-            -> simulator OR allowlisted Home Assistant light service
-            -> Home Assistant state read-back
-            -> verified / partial / failed result
+            -> Lighting: exact proposal -> policy -> Home Assistant -> read-back
+            -> Music: typed intent -> recent-device policy -> MusicKit -> result
+            -> focused compact/expandable widget exposes state and controls
 ```
 
-Qwen is a proposer and router, not an execution authority. For lighting, its only exposed tool has no command arguments: `open_lighting_widget()`. Osun passes the original owner message—not model-authored device parameters—to the deterministic lighting agent. The widget and execution policy remain independent of Qwen.
+Qwen is a proposer and router, not an execution authority. Its exposed tools, `open_lighting_widget()` and `open_music_widget()`, have no command arguments. Osun passes the original owner message—not model-authored device parameters—to the deterministic focused agent. Widget and execution policies remain independent of Qwen.
 
 ---
 
@@ -88,7 +84,7 @@ Qwen may:
 
 - converse using short in-memory history;
 - choose from the model-visible registered tools;
-- request that the Lighting widget open;
+- request that a registered Lighting or Music widget open;
 - explain a proposal after deterministic code creates it.
 
 Qwen may not:
@@ -114,6 +110,7 @@ The main UI contains:
 - an agent navigation area designed to grow without redesigning the conversation;
 - no widget column until an agent is called, followed by a compact widget that expands on demand and visibly animates while its operation runs;
 - Lighting targets, palette, exact values, manual/autonomous mode, Apply when manual, Connection, and Emergency pause inside the Lighting widget;
+- Music request, recent-device reason, registered device choices, connection state, and result inside the Music widget;
 - a unified Connection & safety dialog for Agent Box status and Home Assistant setup;
 - a visible but disabled voice affordance reserved for the next interface milestone.
 
@@ -170,7 +167,7 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 
 1. Restore or confirm the Home Assistant Pi endpoint and complete the supervised light canary.
 2. Add push-to-talk voice input with a visible transcript and the same proposal boundary.
-3. Define the second agent/widget only after its authority, credential, verification, and revocation contracts are accepted.
+3. Complete the P2 MusicKit owner credential setup and supervised real-playback canary.
 4. Add durable owner-approved memory as a separate service; do not treat raw chat history as memory by default.
 5. Package and sign the Windows application after the shell and local model lifecycle stabilize.
 
@@ -181,7 +178,7 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 - Author/agent: Primary AI coordinator acting as product engineer and security reviewer
 - Owner decision: Main Osun chat shell, pluggable widgets, Lighting as first agent, local Qwen Agent Box
 - Status: Shell and Qwen implemented; simulator verified; Home Assistant connected and actuating real lights; final supervised per-bulb zone verification remains
-- Automated evidence: 47 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
+- Automated evidence: 70 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
 - Runtime evidence: official Qwen model downloaded, 100% GPU placement observed, warm chat and tool-call smoke tests passed
 - Visual evidence: neutral shell, agent dock, real-Qwen Lighting widget, exact Deep Ocean preview, separate Zones/Lights layouts with group membership, and default-off autonomous control/result states; visual QA found and corrected simultaneous empty/widget rendering
 - Sensitive-data status: No token, real entity inventory, raw chat, or baseline data committed

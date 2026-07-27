@@ -1,9 +1,9 @@
 # Osun Shell - Local User Guide
 
-**Version:** 0.2.0 \
+**Version:** 0.3.0 \
 **Host:** Windows Agent Box \
 **Conversation model:** Local `qwen3.5:9b` \
-**Available focused agent:** Lighting \
+**Available focused agents:** Lighting and Music \
 **Chat storage:** Memory-only for the current app session
 
 ---
@@ -42,7 +42,7 @@ General prompts go to local Qwen. Examples:
 
 P1 Qwen does not yet have calendar, email, web, file, memory, or task-manager access. It should say so instead of pretending.
 
-Select **New conversation** to clear the in-memory model history, close the active widget, and cancel any pending Lighting proposal. Reloading or quitting also clears visible chat.
+Select **New conversation** to clear the in-memory model history, close the active widget, and cancel pending agent work. Reloading or quitting also clears visible chat.
 
 ---
 
@@ -131,7 +131,15 @@ Autonomy does not mean background control: Lighting acts only after a new owner 
 
 ---
 
-## 7. Local runtime record
+## 7. Use the Music agent
+
+Ask naturally: `play Kind of Blue`, `pause the music`, `resume the music`, `next song`, or `previous song`. If no registered device has successfully played music in the last five minutes, Osun asks where to play and the compact Music widget offers **This PC**. After successful playback, another request within 300 seconds routes to that device automatically. At 301 seconds, Osun asks again. You can always name a device explicitly: `play Discovery on This PC`.
+
+The default simulator proves the routing flow without contacting Apple. For real playback, open **Settings -> Music agent**, choose **Apple Music**, and save a signed MusicKit developer-token JWT. Do not paste the Apple private `.p8` signing key; Osun needs only the resulting JWT. Expand the Music widget, select **Connect Apple Music**, and complete Apple's authorization. A subscription and MusicKit-enabled Apple developer configuration are required.
+
+The initial adapter plays inside this Osun browser window. It cannot remotely take over an arbitrary iPhone or HomePod. Those require future registered companion or Home Assistant/Music Assistant adapters. Recent-device evidence is memory-only and resets when Osun restarts. See the [P2 Music contract](P2_APPLE_MUSIC_AGENT.md) for setup, limitations, and canary steps.
+
+## 8. Local runtime record
 
 | Component | Current location/state |
 |---|---|
@@ -141,16 +149,19 @@ Autonomy does not mean background control: Lighting acts only after a new owner 
 | Osun configuration | `%LOCALAPPDATA%\Osun\lighting\config.json` |
 | Protected light token | `%LOCALAPPDATA%\Osun\lighting\secrets\home_assistant_token.bin` |
 | Content-minimized light audit | `%LOCALAPPDATA%\Osun\lighting\audit.jsonl` |
+| Music configuration | `%LOCALAPPDATA%\Osun\music\config.json` |
+| Protected MusicKit developer token | `%LOCALAPPDATA%\Osun\music\developer-token.bin` |
 
 No raw chat is stored in these files.
 
 ---
 
-## 8. Recovery
+## 9. Recovery
 
 - Qwen unavailable: Lighting requests with explicit light language still produce deterministic previews.
 - Pi unavailable: Use simulator mode or Home Assistant directly when it returns.
 - Immediate action block: Select **Emergency pause** in the Lighting widget.
 - Remove local lighting authority: Settings → **Delete light token**.
+- Remove local Apple Music authority: Settings → **Delete music token**.
 - Revoke provider authority: Revoke the token in the Home Assistant profile.
 - Free GPU memory: Quit Osun from Settings; if necessary, run `ollama stop qwen3.5:9b`.

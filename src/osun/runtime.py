@@ -4,6 +4,7 @@ from threading import RLock, Thread
 from typing import Any
 
 from osun_lights.runtime import LightingController
+from osun_music.runtime import MusicController
 
 from .qwen import OllamaQwenClient, QwenError
 
@@ -26,6 +27,23 @@ ATMOSPHERE_HINTS = (
     "make it romantic",
     "give me a focus theme",
 )
+MUSIC_HINTS = (
+    "play music",
+    "play apple music",
+    "put on ",
+    "listen to ",
+    "pause the music",
+    "pause music",
+    "resume the music",
+    "resume music",
+    "continue the music",
+    "next song",
+    "next track",
+    "skip song",
+    "skip track",
+    "previous song",
+    "previous track",
+)
 
 
 def _fallback_lighting_route(text: str) -> bool:
@@ -33,13 +51,20 @@ def _fallback_lighting_route(text: str) -> bool:
     return any(hint in normalized for hint in LIGHTING_HINTS + ATMOSPHERE_HINTS)
 
 
+def _fallback_music_route(text: str) -> bool:
+    normalized = " ".join(text.casefold().split())
+    return any(hint in normalized for hint in MUSIC_HINTS)
+
+
 class OsunController:
     def __init__(
         self,
         lighting: LightingController | None = None,
         qwen: OllamaQwenClient | None = None,
+        music: MusicController | None = None,
     ) -> None:
         self.lighting = lighting or LightingController()
+        self.music = music or MusicController()
         self.qwen = qwen or OllamaQwenClient()
         self._history: list[dict[str, str]] = []
         self._lock = RLock()
@@ -54,7 +79,7 @@ class OsunController:
             box_status = self.qwen.status()
             box_status["warming"] = self._warming
             return {
-                "app": {"name": "Osun", "version": "0.2.0", "surface": "main_chat"},
+                "app": {"name": "Osun", "version": "0.3.0", "surface": "main_chat"},
                 "agent_box": box_status,
                 "agents": [
                     {
@@ -69,8 +94,15 @@ class OsunController:
                         "state": "available",
                         "description": "Themes and allowlisted Home Assistant lights",
                     },
+                    {
+                        "id": "music",
+                        "name": "Music",
+                        "state": "available",
+                        "description": "Apple Music playback and recent-device routing",
+                    },
                 ],
                 "lighting": self.lighting.status(),
+                "music": self.music.status(),
                 "last_model_error": self._last_model_error,
                 "privacy": {"chat_persisted": False, "model_endpoint": "loopback_only"},
             }
@@ -107,6 +139,9 @@ class OsunController:
             lighting_requested = "open_lighting_widget" in tool_names or (
                 not qwen_content and _fallback_lighting_route(text)
             )
+            music_requested = "open_music_widget" in tool_names or (
+                not qwen_content and _fallback_music_route(text)
+            )
             if lighting_requested:
                 lighting_reply = self.lighting.message(text, selected)
                 visible_text = lighting_reply["text"]
@@ -120,6 +155,16 @@ class OsunController:
                         )
                     ],
                     "execution": lighting_reply.get("execution"),
+                    "model": {"used": bool(tool_names), "metrics": metrics},
+                }
+            elif music_requested:
+                music_reply = self.music.message(text)
+                visible_text = music_reply["text"]
+                result = {
+                    "text": visible_text,
+                    "agent": "music",
+                    "widgets": [self._music_widget(music_reply.get("request"))],
+                    "execution": None,
                     "model": {"used": bool(tool_names), "metrics": metrics},
                 }
             elif qwen_content:
@@ -155,6 +200,7 @@ class OsunController:
         with self._lock:
             self._history.clear()
             self.lighting.cancel()
+            self.music.cancel()
             return {"cleared": True}
 
     def shutdown(self) -> None:
@@ -182,6 +228,34 @@ class OsunController:
     def lighting_delete_credential(self) -> dict[str, Any]:
         return self.lighting.delete_credential()
 
+    def music_select_device(self, request_id: str, device_id: str) -> dict[str, Any]:
+        request = self.music.select_device(request_id, device_id)
+        return self._music_widget(request)
+
+    def music_execute(self, request_id: str) -> dict[str, Any]:
+        return self.music.execute(request_id)
+
+    def music_client_config(self) -> dict[str, str]:
+        return self.music.client_config()
+
+    def music_result(self, payload: dict[str, Any]) -> dict[str, Any]:
+        success = payload.get("success", False)
+        if not isinstance(success, bool):
+            raise ValueError("Music playback success must be true or false")
+        return self.music.playback_result(
+            str(payload.get("request_id", "")),
+            str(payload.get("device_id", "")),
+            success=success,
+            now_playing=str(payload.get("now_playing", "")),
+            error=str(payload.get("error", "")),
+        )
+
+    def music_save(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return self.music.save_settings(payload)
+
+    def music_delete_credential(self) -> dict[str, Any]:
+        return self.music.delete_credential()
+
     def _lighting_widget(
         self,
         proposal: dict[str, Any] | None,
@@ -205,6 +279,26 @@ class OsunController:
             "execution": execution,
             "lights": status.get("lights", []),
             "warning": status.get("warning"),
+        }
+
+    def _music_widget(
+        self,
+        request: dict[str, Any] | None,
+        execution: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        status = self.music.status()
+        return {
+            "id": "music",
+            "kind": "music",
+            "title": "Music",
+            "agent": "music",
+            "request": request or status.get("pending"),
+            "mode": status.get("effective_mode"),
+            "developer_token_configured": status.get("developer_token_configured"),
+            "autonomous_execution": status.get("autonomous_execution"),
+            "recent_window_seconds": status.get("recent_window_seconds"),
+            "devices": status.get("devices", []),
+            "execution": execution,
         }
 
     def _preload_model(self) -> None:

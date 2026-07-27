@@ -28,7 +28,15 @@ class WidgetShellContractTests(unittest.TestCase):
         self.assertIn('id="toggleWidget"', self.javascript)
         self.assertIn('aria-expanded="${expanded}"', self.javascript)
         self.assertIn('id="lightingWidgetBody"', self.javascript)
+        self.assertIn('id="musicWidgetBody"', self.javascript)
+        self.assertIn('class="widget-card music-card ${expanded ? "expanded" : "compact"}', self.javascript)
         self.assertIn('.workspace.has-widget.widget-expanded', self.styles)
+
+    def test_music_widget_exposes_device_question_and_five_minute_reason(self) -> None:
+        self.assertIn('data-music-device="${escapeHtml(device.device_id)}"', self.javascript)
+        self.assertIn("Nothing has played on a registered device in the last five minutes", self.javascript)
+        self.assertIn("Automatically selected from playback in the last five minutes", self.javascript)
+        self.assertIn('id="musicNav"', self.html)
 
     def test_real_widget_operations_drive_the_running_animation(self) -> None:
         self.assertIn("setWidgetRunning(true);", self.javascript)
