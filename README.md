@@ -8,7 +8,7 @@ Start with the editable [Living Master Plan](docs/OSUN_MASTER_PLAN.md). It defin
 
 The active execution document is the [M0 Agent Execution Checklist](docs/M0_AGENT_CHECKLIST.md). It divides the first milestone into owner decisions, agent assignments, deliverables, dependencies, evidence requirements, and the final gate review.
 
-The first product slice began as the [P0 Windows Lighting Assistant](docs/prototypes/P0_LIGHTING_ASSISTANT.md) and is now an agent inside the general [P1 Osun Shell](docs/prototypes/P1_OSUN_SHELL.md). The [P2 Apple Music agent](docs/prototypes/P2_APPLE_MUSIC_AGENT.md) adds typed playback and a five-minute recent-device router. Osun runs Qwen locally on the Agent Box, brings up focused widgets when agents are called, and gives each consequential widget its own default-off autonomous-execution policy.
+The first product slice began as the [P0 Windows Lighting Assistant](docs/prototypes/P0_LIGHTING_ASSISTANT.md) and is now an agent inside the general [P1 Osun Shell](docs/prototypes/P1_OSUN_SHELL.md). The [P2 Apple Music agent](docs/prototypes/P2_APPLE_MUSIC_AGENT.md) controls the installed Windows Apple Music app without developer credentials, adds typed playback, verifies commands through the app's Windows media session, and applies a five-minute recent-device router. Osun runs Qwen locally on the Agent Box, brings up focused widgets when agents are called, and gives each consequential widget its own default-off autonomous-execution policy.
 
 To run it now, double-click `Launch Osun.cmd`, or run `.\run_osun.ps1` from PowerShell. Follow the [Osun shell user guide](docs/prototypes/P1_OSUN_USER_GUIDE.md) before connecting Home Assistant or enabling live lights.
 

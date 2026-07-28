@@ -79,7 +79,7 @@ class OsunController:
             box_status = self.qwen.status()
             box_status["warming"] = self._warming
             return {
-                "app": {"name": "Osun", "version": "0.3.0", "surface": "main_chat"},
+                "app": {"name": "Osun", "version": "0.4.0", "surface": "main_chat"},
                 "agent_box": box_status,
                 "agents": [
                     {
@@ -253,6 +253,9 @@ class OsunController:
     def music_save(self, payload: dict[str, Any]) -> dict[str, Any]:
         return self.music.save_settings(payload)
 
+    def music_test_windows_app(self) -> dict[str, Any]:
+        return self.music.test_windows_app()
+
     def music_delete_credential(self) -> dict[str, Any]:
         return self.music.delete_credential()
 
@@ -295,6 +298,7 @@ class OsunController:
             "request": request or status.get("pending"),
             "mode": status.get("effective_mode"),
             "developer_token_configured": status.get("developer_token_configured"),
+            "windows_app_available": status.get("windows_app_available"),
             "autonomous_execution": status.get("autonomous_execution"),
             "recent_window_seconds": status.get("recent_window_seconds"),
             "devices": status.get("devices", []),

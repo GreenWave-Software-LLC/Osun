@@ -3,7 +3,6 @@ from __future__ import annotations
 import secrets
 import time
 from copy import deepcopy
-from pathlib import Path
 from threading import RLock
 from typing import Any, Callable
 
@@ -12,6 +11,7 @@ from osun_lights.credential_store import WindowsCredentialStore
 from .config import MusicConfig, MusicConfigStore, default_data_dir
 from .device_router import RECENT_PLAYBACK_SECONDS, choose_playback_device
 from .intent_parser import MusicIntent, MusicIntentParser
+from .windows_app import WindowsAppleMusicAdapter
 
 
 class MusicController:
@@ -21,6 +21,7 @@ class MusicController:
         self,
         config_store: MusicConfigStore | None = None,
         credential_store: WindowsCredentialStore | None = None,
+        windows_adapter: WindowsAppleMusicAdapter | None = None,
         *,
         clock: Callable[[], float] = time.time,
     ) -> None:
@@ -32,6 +33,7 @@ class MusicController:
         )
         self.clock = clock
         self.parser = MusicIntentParser()
+        self.windows_adapter = windows_adapter or WindowsAppleMusicAdapter()
         self.config = self.config_store.load()
         self._last_played: dict[str, float] = {}
         self._requests: dict[str, dict[str, Any]] = {}
@@ -54,9 +56,14 @@ class MusicController:
                 "enabled": self.config.enabled,
                 "mode": self.config.mode,
                 "effective_mode": (
-                    "musickit" if self.config.mode == "musickit" and token_configured else "simulator"
+                    "musickit"
+                    if self.config.mode == "musickit" and token_configured
+                    else "simulator"
+                    if self.config.mode == "musickit"
+                    else self.config.mode
                 ),
                 "developer_token_configured": token_configured,
+                "windows_app_available": self.windows_adapter.available(),
                 "autonomous_execution": self.config.autonomous_execution,
                 "recent_window_seconds": RECENT_PLAYBACK_SECONDS,
                 "devices": self._devices(now),
@@ -117,6 +124,8 @@ class MusicController:
             device = self._device(str(request["device_id"]), self.clock())
             if not self.config.enabled:
                 raise ValueError("The Music agent is disabled in Settings")
+            if request["state"] == "running":
+                raise ValueError("This music request is already running")
             if self.config.mode == "simulator":
                 now = self.clock()
                 if request["action"] != "pause":
@@ -132,9 +141,33 @@ class MusicController:
                 }
                 self._results[request_id] = result
                 return deepcopy(result)
+            if self.config.mode == "windows_app":
+                if device["kind"] != "windows_app":
+                    raise ValueError("This music device does not have the Windows Apple Music adapter")
+                request["state"] = "running"
+                action = str(request["action"])
+                query = str(request.get("query") or "")
+            else:
+                action = ""
+                query = ""
+        if action:
+            outcome = self.windows_adapter.execute(action, query)
+            return self.playback_result(
+                request_id,
+                str(device["device_id"]),
+                success=outcome.success,
+                verified=outcome.verified,
+                playback_active=outcome.playback_active,
+                now_playing=outcome.now_playing,
+                evidence=outcome.evidence,
+                error=outcome.error,
+            )
+        with self._lock:
+            request = self._request(request_id)
+            device = self._device(str(request["device_id"]), self.clock())
             if self.credential_store.load() is None:
                 raise ValueError("Connect Apple Music in Settings before playback")
-            if device["kind"] != "browser":
+            if device["kind"] not in {"browser", "windows_app"}:
                 raise ValueError("This music device does not have an installed playback adapter")
             request["state"] = "running"
             return {
@@ -169,7 +202,10 @@ class MusicController:
         device_id: str,
         *,
         success: bool,
+        verified: bool = True,
+        playback_active: bool | None = None,
         now_playing: str = "",
+        evidence: str = "",
         error: str = "",
     ) -> dict[str, Any]:
         with self._lock:
@@ -181,16 +217,19 @@ class MusicController:
             device = self._device(device_id, self.clock())
             safe_title = " ".join(now_playing.split())[:200]
             safe_error = " ".join(error.split())[:240]
+            safe_evidence = " ".join(evidence.split())[:80]
             if success:
-                if request["action"] != "pause":
+                if request["action"] != "pause" and (verified or playback_active is True):
                     self._last_played[device_id] = self.clock()
                 request["state"] = "playing" if request["action"] in {"play", "resume"} else "complete"
                 summary = (
                     f"Playing {safe_title} on {device['name']}."
                     if safe_title and request["action"] == "play"
                     else f"Completed {self._action_description(request)} on {device['name']}."
+                    if verified
+                    else f"Sent {self._action_description(request)} to Apple Music on {device['name']}; Windows did not expose media read-back."
                 )
-                state = "verified"
+                state = "verified" if verified else "completed"
             else:
                 request["state"] = "failed"
                 summary = safe_error or "Apple Music could not complete the playback command."
@@ -202,10 +241,28 @@ class MusicController:
                 "device_name": device["name"],
                 "summary": summary,
                 "now_playing": safe_title,
+                "verified": verified if success else False,
+                "evidence": safe_evidence,
                 "request": deepcopy(request),
             }
             self._results[request_id] = result
             return deepcopy(result)
+
+    def test_windows_app(self) -> dict[str, Any]:
+        result = self.windows_adapter.probe()
+        return {
+            "success": result.get("success") is True,
+            "installed": result.get("installed") is True,
+            "running": result.get("running") is True,
+            "session_available": result.get("session_available") is True,
+            "automation_available": result.get("automation_available") is True,
+            "playback_active": (
+                result.get("playback_active") if isinstance(result.get("playback_active"), bool) else None
+            ),
+            "now_playing": " ".join(str(result.get("now_playing", "")).split())[:200],
+            "evidence": " ".join(str(result.get("evidence", "")).split())[:80],
+            "error": " ".join(str(result.get("error", "")).split())[:240],
+        }
 
     def save_settings(self, payload: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
@@ -235,7 +292,8 @@ class MusicController:
     def delete_credential(self) -> dict[str, Any]:
         with self._lock:
             self.credential_store.delete()
-            self.config.mode = "simulator"
+            if self.config.mode == "musickit":
+                self.config.mode = "windows_app" if self.windows_adapter.available() else "simulator"
             self.config_store.save(self.config)
             return self.status()
 

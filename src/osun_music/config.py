@@ -22,9 +22,9 @@ def default_data_dir() -> Path:
 
 @dataclass(slots=True)
 class MusicDeviceConfig:
-    device_id: str = "agent-box-browser"
+    device_id: str = "agent-box-windows"
     name: str = "This PC"
-    kind: str = "browser"
+    kind: str = "windows_app"
     enabled: bool = True
 
     def validate(self) -> None:
@@ -33,7 +33,7 @@ class MusicDeviceConfig:
         self.name = " ".join(self.name.split())
         if not self.name or len(self.name) > 80:
             raise ValueError("Music devices require a short display name")
-        if self.kind not in {"browser", "companion"}:
+        if self.kind not in {"windows_app", "browser", "companion"}:
             raise ValueError("Unknown music device kind")
 
 
@@ -43,13 +43,13 @@ def _default_devices() -> list[MusicDeviceConfig]:
 
 @dataclass(slots=True)
 class MusicConfig:
-    mode: str = "simulator"
+    mode: str = "windows_app"
     enabled: bool = True
     autonomous_execution: bool = False
     devices: list[MusicDeviceConfig] = field(default_factory=_default_devices)
 
     def validate(self) -> None:
-        if self.mode not in {"simulator", "musickit"}:
+        if self.mode not in {"simulator", "windows_app", "musickit"}:
             raise ValueError("Unknown music mode")
         seen: set[str] = set()
         for device in self.devices:
@@ -74,14 +74,14 @@ class MusicConfigStore:
                 MusicDeviceConfig(
                     device_id=str(item.get("device_id", "")),
                     name=str(item.get("name", "")),
-                    kind=str(item.get("kind", "browser")),
+                    kind=str(item.get("kind", "windows_app")),
                     enabled=bool(item.get("enabled", True)),
                 )
                 for item in raw.get("devices", [])
                 if isinstance(item, dict)
             ]
             config = MusicConfig(
-                mode=str(raw.get("mode", "simulator")),
+                mode=str(raw.get("mode", "windows_app")),
                 enabled=bool(raw.get("enabled", True)),
                 autonomous_execution=bool(raw.get("autonomous_execution", False)),
                 devices=devices or _default_devices(),

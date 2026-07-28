@@ -18,6 +18,7 @@ from osun_lights.credential_store import WindowsCredentialStore
 from osun_lights.runtime import LightingController
 from osun_music.config import MusicConfigStore
 from osun_music.runtime import MusicController
+from osun_music.windows_app import WindowsMusicResult
 
 
 class WidgetQwen:
@@ -36,6 +37,26 @@ class WidgetQwen:
         return QwenReply("", (tool,))
 
 
+class FakeWindowsAdapter:
+    def available(self) -> bool:
+        return True
+
+    def execute(self, _action: str, _query: str = "") -> WindowsMusicResult:
+        return WindowsMusicResult(success=True, verified=True, playback_active=True)
+
+    def probe(self) -> dict[str, object]:
+        return {
+            "success": True,
+            "installed": True,
+            "running": True,
+            "session_available": True,
+            "automation_available": True,
+            "playback_active": True,
+            "now_playing": "Blue in Green by Miles Davis",
+            "evidence": "windows_media_session",
+        }
+
+
 class OsunServerTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -48,7 +69,9 @@ class OsunServerTests(unittest.TestCase):
         music = MusicController(
             MusicConfigStore(root / "music.json"),
             WindowsCredentialStore(root / "music-credential.bin"),
+            FakeWindowsAdapter(),  # type: ignore[arg-type]
         )
+        music.save_settings({"mode": "simulator"})
         controller = OsunController(lighting, WidgetQwen(), music)
         self.server = OsunServer(("127.0.0.1", 0), controller, "osun-test-session")
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
@@ -116,7 +139,7 @@ class OsunServerTests(unittest.TestCase):
             "/agents/music/select-device",
             {
                 "request_id": widget["request"]["request_id"],
-                "device_id": "agent-box-browser",
+                "device_id": "agent-box-windows",
             },
         )
         result = self.post(
@@ -125,6 +148,13 @@ class OsunServerTests(unittest.TestCase):
         )
         self.assertEqual("simulated", result["state"])
         self.assertEqual("This PC", result["device_name"])
+
+    def test_windows_apple_music_probe_endpoint_is_bounded(self) -> None:
+        result = self.post("/agents/music/settings/test-windows-app", {})
+        self.assertTrue(result["installed"])
+        self.assertTrue(result["session_available"])
+        self.assertEqual("Blue in Green by Miles Davis", result["now_playing"])
+        self.assertNotIn("command", result)
 
 
 if __name__ == "__main__":

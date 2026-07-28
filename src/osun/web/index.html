@@ -126,12 +126,17 @@
       <section class="settings-section">
         <div class="section-title"><span>Music agent</span><span id="musicModeBadge" class="mode-pill">Simulator</span></div>
         <div class="segmented" role="radiogroup" aria-label="Music provider">
-          <label><input type="radio" name="musicMode" value="simulator" checked><span>Simulator</span></label>
-          <label><input type="radio" name="musicMode" value="musickit"><span>Apple Music</span></label>
+          <label><input type="radio" name="musicMode" value="windows_app" checked><span>Windows app</span></label>
+          <label><input type="radio" name="musicMode" value="simulator"><span>Simulator</span></label>
+          <label><input type="radio" name="musicMode" value="musickit"><span>MusicKit</span></label>
         </div>
+        <div class="inline-actions">
+          <button id="musicAppTestButton" class="secondary-button" type="button">Test Apple Music app</button>
+          <span id="musicAppTestResult" class="muted small">Uses only the Apple Music app on this PC.</span>
+        </div>
+        <div class="registered-device"><span class="device-icon">♫</span><span><strong>This PC</strong><small>Windows Apple Music app · targeted media session with playback verification</small></span></div>
         <label class="field"><span>MusicKit developer token · write only</span><input id="musicDeveloperToken" type="password" autocomplete="new-password" placeholder="Leave blank to keep the saved token"></label>
-        <p class="muted small">Apple Music playback on This PC requires a MusicKit-enabled Apple Developer token and Apple account authorization. Authorization remains managed by Apple in the browser.</p>
-        <div class="registered-device"><span class="device-icon">♫</span><span><strong>This PC</strong><small>MusicKit web player · first registered Osun music device</small></span></div>
+        <p class="muted small">No developer membership is needed for Windows app mode. The token is only for the optional future MusicKit web provider.</p>
         <label class="switch-row"><span><strong>Enable Music agent</strong><small>Allows explicit owner playback requests on registered devices</small></span><input id="musicEnabled" type="checkbox" checked></label>
         <label class="switch-row authority-switch"><span><strong>Autonomous execution</strong><small>Reserved for future proactive music actions; explicit play commands remain owner-authorized</small></span><input id="musicAutonomousExecution" type="checkbox"></label>
       </section>
