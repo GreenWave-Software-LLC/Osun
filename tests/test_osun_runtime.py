@@ -52,6 +52,7 @@ class OsunRuntimeTests(unittest.TestCase):
             MusicConfigStore(root / "music.json"),
             WindowsCredentialStore(root / "music-credential.bin"),
         )
+        self.music.save_settings({"mode": "simulator"})
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -140,7 +141,7 @@ class OsunRuntimeTests(unittest.TestCase):
         self.assertEqual("needs_device", first["widgets"][0]["request"]["state"])
         selected = controller.music_select_device(
             first["widgets"][0]["request"]["request_id"],
-            "agent-box-browser",
+            "agent-box-windows",
         )
         controller.music_execute(selected["request"]["request_id"])
 

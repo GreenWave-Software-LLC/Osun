@@ -1,11 +1,11 @@
 # P2 Apple Music Agent
 
-**State:** Implemented with simulator evidence; owner MusicKit credential and real playback canary pending \
+**State:** Windows app adapter implemented; supervised audible-playback canary pending \
 **Prototype:** P2-MUSIC-01 \
 **Owner authorization:** 2026-07-27 \
 **Host:** Windows Agent Box \
 **Initial playback device:** This PC \
-**Last updated:** 2026-07-27
+**Last updated:** 2026-07-28
 
 ---
 
@@ -13,7 +13,9 @@
 
 The Music agent handles explicit requests to play, pause, resume, skip, or go back in Apple Music. Qwen can call only `open_music_widget()` with no model-authored device or playback arguments. Deterministic Music code reparses the owner's original words, selects a registered device under the policy below, and emits a typed playback command.
 
-The first real adapter is MusicKit on the Web inside the local Osun window. Apple's official web integration plays directly in that browser. It does not remotely control an arbitrary iPhone, HomePod, or separate Apple Music application. Those devices can join later only through an installed Osun companion or a separately reviewed Home Assistant/Music Assistant adapter that can report playback activity and verify commands.
+The default real adapter controls the installed Windows Apple Music application on the Agent Box. It uses Apple's public iTunes Search API to resolve an owner query to an Apple-owned catalog link, hands that exact link to `AppleMusic.exe`, then controls and reads back only the Apple Music Windows media session. Pause, resume, next, and previous use targeted Windows media-session commands. No Apple developer membership or MusicKit token is required.
+
+MusicKit on the Web remains an optional future-compatible provider. Neither local provider remotely controls an arbitrary iPhone or HomePod. Those devices can join later only through an installed Osun companion or a separately reviewed Home Assistant/Music Assistant adapter that reports playback activity and verifies commands.
 
 ## 2. Device-routing policy
 
@@ -36,44 +38,49 @@ Owner chat request
   -> registered-device router
        -> no playback evidence <= 300 seconds: compact widget asks for device
        -> explicit/recent device: request becomes ready
-  -> simulator OR typed MusicKit browser command
-  -> Apple account authorization remains in Apple's MusicKit UI
+  -> simulator OR Windows Apple Music adapter
+       -> bounded public-catalog lookup for play requests
+       -> exact Apple-owned link or typed transport command
+       -> Apple Music media-session read-back
+       -> targeted UI Automation fallback only when needed
   -> command result returns to deterministic Music controller
   -> device activity refreshed only after successful playback evidence
   -> compact/expandable widget and chat show the result
 ```
 
-The Music widget is absent until called, starts compact, expands when selected, and animates while selecting, connecting, or executing. The per-widget autonomous switch defaults off. Explicit owner chat commands are already direct authorization for the requested playback; the switch is reserved for future proactive music actions and does not silently grant them today.
+The Music widget is absent until called, starts compact, expands when selected, and animates while selecting or executing. Settings includes a live adapter test that reports whether the app, media session, or bounded UI fallback is available. The per-widget autonomous switch defaults off. Explicit owner chat commands are already direct authorization for the requested playback; the switch is reserved for future proactive music actions and does not silently grant them today.
 
 ## 4. Credentials and trust boundaries
 
-- Real browser playback requires an Apple Music subscription, a MusicKit-enabled Apple developer configuration, a signed developer-token JWT, and Apple account authorization. The current random loopback origin may require authorization again after an Osun restart.
-- Store only the signed developer token in Osun. Never place the Apple `.p8` private signing key in Osun, chat, Git, screenshots, or the Pi.
-- Osun encrypts the JWT with Windows DPAPI for the current Windows user. The config file contains no token field.
-- The developer token is returned only to the session-protected local browser endpoint, over loopback, with `Cache-Control: no-store`.
-- MusicKit manages the Music User Token and Apple sign-in state in the browser. Osun does not persist that token itself.
-- Delete music token removes the protected JWT and returns the adapter to simulator mode. Provider-side revocation remains the final revocation path.
-
-Apple developer tokens expire and must be renewed. Apple documents a maximum six-month token lifetime and recommends an origin claim for web applications. Because Osun currently uses a random loopback port, the token's origin policy must match the actual local origin or omit that optional claim during this prototype; a stable signed local origin is a packaging milestone.
+- Windows app mode requires only the installed Apple Music application, an Apple Music subscription, and a one-time interactive sign-in within Apple's app. Osun never receives or stores the Apple Account password, passkey, cookies, or subscription credential.
+- Play searches call only `https://itunes.apple.com/search`, request at most ten song results, cap the response at 1 MB, and accept playback links only from `https://music.apple.com` or `https://itunes.apple.com`.
+- The PowerShell bridge exposes a closed action set: probe, play an already validated Apple URL, pause, resume, next, and previous. No model-authored shell, process name, URL host, or script is accepted.
+- Transport control selects a Windows media session whose source identity matches Apple Music. It never broadcasts global media keys that could control a browser, video call, or unrelated player.
+- The bounded UI Automation fallback is limited to the `AppleMusic.exe` process. It verifies Apple Music owns the foreground window before sending its fixed search shortcut, sets query text through the accessibility Value pattern, and activates an accessibility element instead of using hard-coded screen coordinates.
+- A play request is recorded as recent only after media-session playback evidence. A targeted UI command without read-back is shown honestly and does not fabricate playback history.
+- The optional MusicKit provider retains the existing DPAPI-protected developer-token design. Never place an Apple `.p8` private key in Osun, chat, Git, screenshots, or the Pi.
 
 ## 5. Real setup and supervised canary
 
-1. In the Apple Developer portal, create the required Media ID and MusicKit key, then generate a signed developer-token JWT following Apple's instructions.
-2. Open **Osun -> Settings -> Music agent**.
-3. Select **Apple Music**, paste the signed JWT into **MusicKit developer token**, keep **Enable Music agent** checked, and save.
+1. Install or update **Apple Music** from Microsoft Store, open it once, sign in, and confirm a song plays normally.
+2. Open **Osun -> Settings -> Music agent**, select **Windows app**, keep **Enable Music agent** checked, and save.
+3. Select **Test Apple Music app**. With a song active, require `Connected` and the current title; without a song, installation-only or UI-fallback status is acceptable.
 4. Ask `play Kind of Blue`.
 5. Since no registered device is recent, expand the Music widget and choose **This PC**.
-6. Select **Connect Apple Music** and complete Apple's authorization. Osun resumes the pending request; if the browser blocks playback, issue the request again as a fresh user gesture.
-7. Confirm audible playback and the verified result.
-8. Within five minutes, ask `play Blue in Green`; require automatic routing to **This PC**.
+6. Confirm Apple Music starts an audible catalog result and Osun reports media-session verification rather than assuming success.
+7. Within five minutes, ask `play Blue in Green`; require automatic routing to **This PC**.
+8. Test pause, resume, next, and previous; each must target Apple Music even if another media app is open.
 9. After more than five minutes without successful playback evidence, make another request and require a new device question.
-10. Test pause, resume, next, previous, token deletion, disabled-agent denial, and simulator recovery.
+10. Sign out or close Apple Music and confirm Osun fails with a recovery instruction rather than controlling another player.
 
 Official references:
 
 - Apple MusicKit overview: <https://developer.apple.com/musickit/>
 - MusicKit on the Web documentation: <https://js-cdn.music.apple.com/musickit/v3/docs/index.html>
 - MusicKit JavaScript instance reference: <https://js-cdn.music.apple.com/musickit/v3/docs/iframe.html?path=%2Fstory%2Freference-javascript-musickit-instance--page>
+- Apple iTunes Search API: <https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/Searching.html>
+- Microsoft global media-session API: <https://learn.microsoft.com/en-us/uwp/api/windows.media.control.globalsystemmediatransportcontrolssessionmanager>
+- Microsoft UI Automation fundamentals: <https://learn.microsoft.com/windows/win32/winauto/entry-uiautocore-overview>
 
 ## 6. Acceptance evidence
 
@@ -86,19 +93,19 @@ Official references:
 | MUSIC-T05 | Follow-up at 301 seconds | Agent asks for a device again |
 | MUSIC-T06 | Multiple recent devices | Most recently active enabled device wins |
 | MUSIC-T07 | Explicit device | Named available device wins regardless of recency |
-| MUSIC-T08 | Token storage | Config contains no JWT; protected store is DPAPI-bound |
+| MUSIC-T08 | Closed adapter boundary | Only allowed Apple hosts and typed bridge actions can reach the Windows adapter |
 | MUSIC-T09 | Unknown model tool | No music execution path opens |
-| MUSIC-T10 | Real MusicKit canary | Audible playback and typed result agree on This PC |
+| MUSIC-T10 | Real Windows app canary | Audible playback, Apple Music media-session title, and Osun result agree on This PC |
 | MUSIC-T11 | Restart | Recent-device activity is cleared and device is requested again |
 | MUSIC-T12 | Widget lifecycle | Widget arrives compact, expands on click, and animates during work |
 
-Automated evidence covers MUSIC-T01 through MUSIC-T09, MUSIC-T11, and the UI contract of MUSIC-T12. MUSIC-T10 needs the owner's Apple developer token, Apple Music authorization, and direct listening observation.
+Automated evidence covers MUSIC-T01 through MUSIC-T09, MUSIC-T11, and the UI contract of MUSIC-T12. MUSIC-T10 needs the owner's Apple Music sign-in and direct listening observation; it does not need developer credentials.
 
 ## 7. Next device adapters
 
 Each new adapter must add a stable device identity, authenticated command channel, playback-activity heartbeat, result verification, timeout behavior, and revocation path. Recommended order:
 
-1. This PC via MusicKit web (current).
+1. This PC via the Windows Apple Music app (current).
 2. iPhone companion using native MusicKit, when an iOS client exists.
 3. HomePod or room speakers through a separately accepted Home Assistant/Music Assistant integration.
 4. Household devices only after multi-user identity, preference separation, and guest/privacy rules exist.

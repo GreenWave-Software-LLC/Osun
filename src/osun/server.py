@@ -102,6 +102,8 @@ class OsunRequestHandler(BaseHTTPRequestHandler):
                 result = self.server.controller.music_result(payload)
             elif route == "/agents/music/settings/save":
                 result = self.server.controller.music_save(payload)
+            elif route == "/agents/music/settings/test-windows-app":
+                result = self.server.controller.music_test_windows_app()
             elif route == "/agents/music/settings/delete-token":
                 result = self.server.controller.music_delete_credential()
             elif route == "/shutdown":

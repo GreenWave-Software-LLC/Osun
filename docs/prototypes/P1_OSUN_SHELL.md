@@ -34,7 +34,7 @@ Owner text now / owner voice later
        -> no tool: conversational response
        -> known typed tool: open a focused agent widget
             -> Lighting: exact proposal -> policy -> Home Assistant -> read-back
-            -> Music: typed intent -> recent-device policy -> MusicKit -> result
+            -> Music: typed intent -> recent-device policy -> Windows Apple Music app -> media-session read-back
             -> focused compact/expandable widget exposes state and controls
 ```
 
@@ -167,7 +167,7 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 
 1. Restore or confirm the Home Assistant Pi endpoint and complete the supervised light canary.
 2. Add push-to-talk voice input with a visible transcript and the same proposal boundary.
-3. Complete the P2 MusicKit owner credential setup and supervised real-playback canary.
+3. Complete the P2 Windows Apple Music supervised real-playback canary; keep MusicKit optional.
 4. Add durable owner-approved memory as a separate service; do not treat raw chat history as memory by default.
 5. Package and sign the Windows application after the shell and local model lifecycle stabilize.
 

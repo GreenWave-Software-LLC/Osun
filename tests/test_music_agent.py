@@ -43,6 +43,7 @@ class MusicAgentTests(unittest.TestCase):
             self.credentials,  # type: ignore[arg-type]
             clock=self.clock,
         )
+        self.controller.save_settings({"mode": "simulator"})
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -53,7 +54,7 @@ class MusicAgentTests(unittest.TestCase):
 
         self.assertEqual("needs_device", music_request["state"])
         self.assertIn("Which device", reply["text"])
-        selected = self.controller.select_device(music_request["request_id"], "agent-box-browser")
+        selected = self.controller.select_device(music_request["request_id"], "agent-box-windows")
         self.assertEqual("ready", selected["state"])
         result = self.controller.execute(music_request["request_id"])
         self.assertEqual("simulated", result["state"])
@@ -62,18 +63,18 @@ class MusicAgentTests(unittest.TestCase):
 
     def test_recent_device_is_reused_through_300_seconds(self) -> None:
         first = self.controller.message("play Kind of Blue")["request"]
-        self.controller.select_device(first["request_id"], "agent-box-browser")
+        self.controller.select_device(first["request_id"], "agent-box-windows")
         self.controller.execute(first["request_id"])
 
         self.clock.now += 300
         follow_up = self.controller.message("play Blue in Green")
         self.assertEqual("ready", follow_up["request"]["state"])
-        self.assertEqual("agent-box-browser", follow_up["request"]["device_id"])
+        self.assertEqual("agent-box-windows", follow_up["request"]["device_id"])
         self.assertEqual("recent_playback", follow_up["request"]["selection_reason"])
 
     def test_device_is_asked_again_after_300_seconds(self) -> None:
         first = self.controller.message("play Kind of Blue")["request"]
-        self.controller.select_device(first["request_id"], "agent-box-browser")
+        self.controller.select_device(first["request_id"], "agent-box-windows")
         self.controller.execute(first["request_id"])
 
         self.clock.now += 301
@@ -100,7 +101,7 @@ class MusicAgentTests(unittest.TestCase):
                 self.assertIsNotNone(parsed)
                 self.assertEqual(action, parsed.action)
         explicit = self.controller.parser.parse("go back on This PC", self.controller.status()["devices"])
-        self.assertEqual("agent-box-browser", explicit.requested_device_id)
+        self.assertEqual("agent-box-windows", explicit.requested_device_id)
 
     def test_router_chooses_most_recent_available_device(self) -> None:
         decision = choose_playback_device(
@@ -131,7 +132,7 @@ class MusicAgentTests(unittest.TestCase):
         )
         result = self.controller.playback_result(
             music_request["request_id"],
-            "agent-box-browser",
+            "agent-box-windows",
             success=True,
             now_playing="Time to Pretend by MGMT",
         )

@@ -51,6 +51,8 @@ const ui = {
   autonomousExecution: document.getElementById("autonomousExecution"),
   globalPause: document.getElementById("globalPause"),
   musicModeBadge: document.getElementById("musicModeBadge"),
+  musicAppTest: document.getElementById("musicAppTestButton"),
+  musicAppTestResult: document.getElementById("musicAppTestResult"),
   musicDeveloperToken: document.getElementById("musicDeveloperToken"),
   musicEnabled: document.getElementById("musicEnabled"),
   musicAutonomousExecution: document.getElementById("musicAutonomousExecution"),
@@ -303,7 +305,12 @@ function musicDeviceDetail(device) {
     const seconds = Math.max(0, Number(device.seconds_since_playback));
     return seconds < 60 ? "Played here just now" : `Played here ${Math.floor(seconds / 60)} min ago`;
   }
+  if (device.kind === "windows_app") return "Windows Apple Music app on this PC";
   return device.kind === "browser" ? "Apple Music in this Osun window" : "Registered playback device";
+}
+
+function musicModeLabel(mode) {
+  return { windows_app: "Windows app", musickit: "MusicKit", simulator: "Simulator" }[mode] || "Music";
 }
 
 function musicRequestStateLabel(musicRequest) {
@@ -313,6 +320,7 @@ function musicRequestStateLabel(musicRequest) {
     running: "Running",
     playing: "Now playing",
     complete: "Complete",
+    completed: "Sent",
     failed: "Failed",
   }[musicRequest?.state] || "Ready";
 }
@@ -367,7 +375,7 @@ function renderMusicWidget(widget = state.activeWidget) {
           <button id="closeWidget" class="widget-close" type="button" aria-label="Close music widget">×</button>
         </div>
         <div class="widget-mode" ${expanded ? "" : "hidden"}>
-          <span class="${widget.mode === "musickit" ? "live" : ""}">${widget.mode === "musickit" ? "Apple Music" : "Simulator"}</span>
+          <span class="${widget.mode !== "simulator" ? "live" : ""}">${escapeHtml(musicModeLabel(widget.mode))}</span>
           <span>${widget.recent_window_seconds || 300}s recent-device window</span>
           <span class="${widget.autonomous_execution ? "autonomous" : ""}">${widget.autonomous_execution ? "Autonomous" : "Owner requests only"}</span>
         </div>
@@ -445,7 +453,7 @@ async function getMusicKit() {
   if (!window.MusicKit) throw new Error("Apple MusicKit did not initialize");
   state.musicKit = await window.MusicKit.configure({
     developerToken: config.developer_token,
-    app: { name: "Osun", build: "0.3.0" },
+    app: { name: "Osun", build: "0.4.0" },
   });
   return state.musicKit;
 }
@@ -551,7 +559,7 @@ async function executeMusic(requestId) {
   setWidgetRunning(true);
   try {
     const execution = await request("/agents/music/execute", "POST", { request_id: requestId });
-    if (execution.state === "simulated") {
+    if (["simulated", "verified", "completed", "failed"].includes(execution.state)) {
       state.activeWidget.request = execution.request;
       state.activeWidget.execution = execution;
       state.musicResultText = execution.summary;
@@ -701,6 +709,7 @@ async function refreshStatus(renderWidget = true) {
     if (state.activeWidget.kind === "music") {
       state.activeWidget.mode = state.status.music.effective_mode;
       state.activeWidget.developer_token_configured = state.status.music.developer_token_configured;
+      state.activeWidget.windows_app_available = state.status.music.windows_app_available;
       state.activeWidget.autonomous_execution = state.status.music.autonomous_execution;
       state.activeWidget.recent_window_seconds = state.status.music.recent_window_seconds;
       state.activeWidget.devices = state.status.music.devices;
@@ -738,7 +747,10 @@ function renderSettings() {
   ui.musicDeveloperToken.value = "";
   ui.musicEnabled.checked = music.enabled;
   ui.musicAutonomousExecution.checked = music.autonomous_execution;
-  ui.musicModeBadge.textContent = music.effective_mode === "musickit" ? "Apple Music" : "Simulator";
+  ui.musicModeBadge.textContent = musicModeLabel(music.effective_mode);
+  ui.musicAppTestResult.textContent = music.windows_app_available
+    ? "Windows app control is supported; test to inspect the Apple Music installation and live session."
+    : "Windows app control is unavailable on this operating system.";
 }
 
 function renderDiscoveredLights(allowed = []) {
@@ -778,6 +790,27 @@ async function discoverLights() {
   } finally { ui.discover.disabled = false; }
 }
 
+async function testAppleMusicApp() {
+  ui.musicAppTest.disabled = true;
+  ui.musicAppTestResult.textContent = "Checking the targeted Apple Music session…";
+  try {
+    const result = await request("/agents/music/settings/test-windows-app", "POST", {});
+    if (!result.success) {
+      ui.musicAppTestResult.textContent = result.error || "Apple Music is unavailable.";
+    } else if (result.session_available) {
+      ui.musicAppTestResult.textContent = result.now_playing
+        ? `Connected · ${result.now_playing}`
+        : "Connected · Apple Music media controls are available";
+    } else if (result.automation_available) {
+      ui.musicAppTestResult.textContent = "Apple Music is open; UI fallback is available. Start a song once to expose media verification.";
+    } else {
+      ui.musicAppTestResult.textContent = "Apple Music is installed. Open it and sign in once, then test again.";
+    }
+  } catch (error) {
+    ui.musicAppTestResult.textContent = error.message;
+  } finally { ui.musicAppTest.disabled = false; }
+}
+
 async function saveSettings() {
   const mode = document.querySelector('input[name="lightingMode"]:checked').value;
   const musicMode = document.querySelector('input[name="musicMode"]:checked').value;
@@ -803,7 +836,7 @@ async function saveSettings() {
     if (music.effective_mode === "simulator") state.musicKit = null;
     await refreshStatus(false);
     ui.settings.close();
-    showToast(`Lighting and Music settings saved. Music is in ${music.effective_mode === "musickit" ? "Apple Music" : "simulator"} mode.`);
+    showToast(`Lighting and Music settings saved. Music is in ${musicModeLabel(music.effective_mode)} mode.`);
     if (state.activeWidget?.kind === "lighting") {
       state.activeWidget = {
         ...state.activeWidget,
@@ -822,6 +855,7 @@ async function saveSettings() {
         ...state.activeWidget,
         mode: music.effective_mode,
         developer_token_configured: music.developer_token_configured,
+        windows_app_available: music.windows_app_available,
         autonomous_execution: music.autonomous_execution,
         devices: music.devices,
       };
@@ -841,13 +875,13 @@ async function deleteToken() {
 }
 
 async function deleteMusicToken() {
-  if (!window.confirm("Delete the protected Apple Music developer token and return Music to simulation?")) return;
+  if (!window.confirm("Delete the optional protected MusicKit developer token? Windows app mode will keep working.")) return;
   try {
     await request("/agents/music/settings/delete-token", "POST", {});
     state.musicKit = null;
     await refreshStatus(false);
     renderSettings();
-    showToast("The protected Apple Music developer token was deleted.");
+    showToast("The protected MusicKit developer token was deleted.");
   } catch (error) { showToast(error.message); }
 }
 
@@ -886,6 +920,7 @@ ui.musicNav.addEventListener("click", () => {
 });
 ui.settingsButton.addEventListener("click", openSettings);
 ui.discover.addEventListener("click", discoverLights);
+ui.musicAppTest.addEventListener("click", testAppleMusicApp);
 ui.saveSettings.addEventListener("click", saveSettings);
 ui.deleteToken.addEventListener("click", deleteToken);
 ui.deleteMusicToken.addEventListener("click", deleteMusicToken);

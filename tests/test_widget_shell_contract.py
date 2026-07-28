@@ -13,6 +13,7 @@ class WidgetShellContractTests(unittest.TestCase):
         cls.html = (ROOT / "src/osun/web/index.html").read_text(encoding="utf-8")
         cls.javascript = (ROOT / "src/osun/web/app.js").read_text(encoding="utf-8")
         cls.styles = (ROOT / "src/osun/web/styles.css").read_text(encoding="utf-8")
+        cls.windows_music_bridge = (ROOT / "src/osun_music/windows_apple_music.ps1").read_text(encoding="utf-8")
 
     def test_widget_dock_is_absent_until_an_agent_returns_a_widget(self) -> None:
         self.assertIn(
@@ -46,6 +47,17 @@ class WidgetShellContractTests(unittest.TestCase):
         self.assertIn(".widget-card.running::after", self.styles)
         self.assertIn(".running .widget-orbit", self.styles)
         self.assertIn("@media (prefers-reduced-motion: reduce)", self.styles)
+
+    def test_windows_music_settings_and_bridge_are_targeted(self) -> None:
+        self.assertIn('value="windows_app" checked', self.html)
+        self.assertIn('id="musicAppTestButton"', self.html)
+        self.assertIn('/agents/music/settings/test-windows-app', self.javascript)
+        self.assertIn("[ValidateSet('probe', 'play-url', 'pause', 'resume', 'next', 'previous')]", self.windows_music_bridge)
+        self.assertIn("AppleInc.AppleMusicWin_nzyj5cx40ttqa!App", self.windows_music_bridge)
+        self.assertIn("Test-AppleMusicPath", self.windows_music_bridge)
+        self.assertIn("WindowsApps\\AppleInc.AppleMusicWin_", self.windows_music_bridge)
+        self.assertIn("GetForegroundWindow", self.windows_music_bridge)
+        self.assertNotIn("VK_MEDIA", self.windows_music_bridge)
 
 
 if __name__ == "__main__":

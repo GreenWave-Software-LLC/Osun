@@ -1,6 +1,6 @@
 # Osun Shell - Local User Guide
 
-**Version:** 0.3.0 \
+**Version:** 0.4.0 \
 **Host:** Windows Agent Box \
 **Conversation model:** Local `qwen3.5:9b` \
 **Available focused agents:** Lighting and Music \
@@ -135,9 +135,9 @@ Autonomy does not mean background control: Lighting acts only after a new owner 
 
 Ask naturally: `play Kind of Blue`, `pause the music`, `resume the music`, `next song`, or `previous song`. If no registered device has successfully played music in the last five minutes, Osun asks where to play and the compact Music widget offers **This PC**. After successful playback, another request within 300 seconds routes to that device automatically. At 301 seconds, Osun asks again. You can always name a device explicitly: `play Discovery on This PC`.
 
-The default simulator proves the routing flow without contacting Apple. For real playback, open **Settings -> Music agent**, choose **Apple Music**, and save a signed MusicKit developer-token JWT. Do not paste the Apple private `.p8` signing key; Osun needs only the resulting JWT. Expand the Music widget, select **Connect Apple Music**, and complete Apple's authorization. A subscription and MusicKit-enabled Apple developer configuration are required.
+For real playback, first open the Windows **Apple Music** app, sign in, and play one song normally. Then open **Settings -> Music agent**, choose **Windows app**, save, and select **Test Apple Music app**. No Apple Developer Program membership or developer token is required. Osun searches Apple's public catalog, opens the selected result in the installed app, and verifies playback through Apple Music's Windows media session. If Apple Music has never been opened or is signed out, Osun stops with a recovery instruction.
 
-The initial adapter plays inside this Osun browser window. It cannot remotely take over an arbitrary iPhone or HomePod. Those require future registered companion or Home Assistant/Music Assistant adapters. Recent-device evidence is memory-only and resets when Osun restarts. See the [P2 Music contract](P2_APPLE_MUSIC_AGENT.md) for setup, limitations, and canary steps.
+The initial adapter controls only the Apple Music app on this PC. It does not broadcast global media keys and cannot remotely take over an arbitrary iPhone or HomePod. Those require future registered companion or Home Assistant/Music Assistant adapters. Recent-device evidence is memory-only and resets when Osun restarts. MusicKit remains an optional future provider; never paste an Apple private `.p8` signing key into Osun. See the [P2 Music contract](P2_APPLE_MUSIC_AGENT.md) for setup, limitations, and canary steps.
 
 ## 8. Local runtime record
 
@@ -150,7 +150,7 @@ The initial adapter plays inside this Osun browser window. It cannot remotely ta
 | Protected light token | `%LOCALAPPDATA%\Osun\lighting\secrets\home_assistant_token.bin` |
 | Content-minimized light audit | `%LOCALAPPDATA%\Osun\lighting\audit.jsonl` |
 | Music configuration | `%LOCALAPPDATA%\Osun\music\config.json` |
-| Protected MusicKit developer token | `%LOCALAPPDATA%\Osun\music\developer-token.bin` |
+| Optional protected MusicKit developer token | `%LOCALAPPDATA%\Osun\music\developer-token.bin` |
 
 No raw chat is stored in these files.
 
@@ -162,6 +162,6 @@ No raw chat is stored in these files.
 - Pi unavailable: Use simulator mode or Home Assistant directly when it returns.
 - Immediate action block: Select **Emergency pause** in the Lighting widget.
 - Remove local lighting authority: Settings → **Delete light token**.
-- Remove local Apple Music authority: Settings → **Delete music token**.
+- Remove optional MusicKit authority: Settings -> **Delete music token**. Windows app mode stores no Apple credential in Osun; sign out in Apple's app to revoke that session.
 - Revoke provider authority: Revoke the token in the Home Assistant profile.
 - Free GPU memory: Quit Osun from Settings; if necessary, run `ollama stop qwen3.5:9b`.
