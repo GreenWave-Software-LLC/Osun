@@ -88,12 +88,63 @@ class MusicAgentTests(unittest.TestCase):
         self.assertEqual("owner_selected", reply["request"]["selection_reason"])
         self.assertEqual("Discovery", reply["request"]["query"])
 
+    def test_windows_device_aliases_select_this_pc_and_leave_query_clean(self) -> None:
+        cases = {
+            "play Cardi B on my pc": "Cardi B",
+            "play Cardi B on my computer": "Cardi B",
+            "play Cardi B on the agent box": "Cardi B",
+        }
+        for phrase, query in cases.items():
+            with self.subTest(phrase=phrase):
+                reply = self.controller.message(phrase)
+                self.assertEqual("ready", reply["request"]["state"])
+                self.assertEqual("agent-box-windows", reply["request"]["device_id"])
+                self.assertEqual(query, reply["request"]["query"])
+
+    def test_device_only_follow_up_resolves_latest_pending_request(self) -> None:
+        first = self.controller.message("play Cardi B")["request"]
+        follow_up = self.controller.message("on my pc")
+        self.assertEqual(first["request_id"], follow_up["request"]["request_id"])
+        self.assertEqual("Cardi B", follow_up["request"]["query"])
+        self.assertEqual("ready", follow_up["request"]["state"])
+        self.assertEqual("agent-box-windows", follow_up["request"]["device_id"])
+        self.assertIn("This PC", follow_up["text"])
+
+    def test_new_music_request_supersedes_older_device_question(self) -> None:
+        first = self.controller.message("play Cardi B")["request"]
+        second = self.controller.message("play Megan Thee Stallion on my pc")["request"]
+        self.assertNotEqual(first["request_id"], second["request_id"])
+        self.assertEqual("ready", second["state"])
+        self.controller.execute(second["request_id"])
+        self.assertIsNone(self.controller.status()["pending"])
+
+    def test_scoped_bare_music_fragments_become_play_requests(self) -> None:
+        cases = {
+            "a cardi b song": "cardi b",
+            "anything": "music",
+            "some jazz music": "jazz",
+        }
+        for phrase, query in cases.items():
+            with self.subTest(phrase=phrase):
+                reply = self.controller.message(phrase, allow_bare_play=True)
+                self.assertEqual("play", reply["request"]["action"])
+                self.assertEqual(query, reply["request"]["query"])
+
+    def test_bare_fragment_requires_explicit_music_agent_scope(self) -> None:
+        self.assertIsNone(self.controller.message("a cardi b song")["request"])
+
+    def test_play_without_query_defaults_to_music(self) -> None:
+        reply = self.controller.message("play")
+        self.assertEqual("play", reply["request"]["action"])
+        self.assertEqual("music", reply["request"]["query"])
+
     def test_control_phrases_and_explicit_device_are_typed(self) -> None:
         cases = {
             "pause": "pause",
             "continue the music": "resume",
             "skip this song": "next",
             "go back on This PC": "previous",
+            "pause on my pc": "pause",
         }
         for phrase, action in cases.items():
             with self.subTest(phrase=phrase):

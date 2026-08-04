@@ -53,7 +53,11 @@ def _fallback_lighting_route(text: str) -> bool:
 
 def _fallback_music_route(text: str) -> bool:
     normalized = " ".join(text.casefold().split())
-    return any(hint in normalized for hint in MUSIC_HINTS)
+    return (
+        normalized == "play"
+        or normalized.startswith(("play ", "put on ", "listen to "))
+        or any(hint in normalized for hint in MUSIC_HINTS)
+    )
 
 
 class OsunController:
@@ -123,24 +127,30 @@ class OsunController:
             qwen_content = ""
             tool_names: tuple[str, ...] = ()
             metrics: dict[str, int] | None = None
-            try:
-                reply = self.qwen.chat(text, tuple(self._history))
-                qwen_content = reply.content
-                tool_names = reply.tool_names
-                metrics = {
-                    "prompt_tokens": reply.prompt_tokens,
-                    "output_tokens": reply.output_tokens,
-                    "duration_ms": reply.total_duration_ms,
-                }
-                self._last_model_error = None
-            except QwenError as exc:
-                self._last_model_error = str(exc)
+            music_device_follow_up = self.music.can_resolve_device_follow_up(text)
+            explicit_music_request = self.music.recognizes_command(text)
+            if not music_device_follow_up and not explicit_music_request:
+                try:
+                    reply = self.qwen.chat(text, tuple(self._history))
+                    qwen_content = reply.content
+                    tool_names = reply.tool_names
+                    metrics = {
+                        "prompt_tokens": reply.prompt_tokens,
+                        "output_tokens": reply.output_tokens,
+                        "duration_ms": reply.total_duration_ms,
+                    }
+                    self._last_model_error = None
+                except QwenError as exc:
+                    self._last_model_error = str(exc)
 
             lighting_requested = "open_lighting_widget" in tool_names or (
                 not qwen_content and _fallback_lighting_route(text)
             )
-            music_requested = "open_music_widget" in tool_names or (
-                not qwen_content and _fallback_music_route(text)
+            music_requested = (
+                music_device_follow_up
+                or explicit_music_request
+                or "open_music_widget" in tool_names
+                or (not qwen_content and _fallback_music_route(text))
             )
             if lighting_requested:
                 lighting_reply = self.lighting.message(text, selected)
@@ -158,7 +168,10 @@ class OsunController:
                     "model": {"used": bool(tool_names), "metrics": metrics},
                 }
             elif music_requested:
-                music_reply = self.music.message(text)
+                music_reply = self.music.message(
+                    text,
+                    allow_bare_play="open_music_widget" in tool_names,
+                )
                 visible_text = music_reply["text"]
                 result = {
                     "text": visible_text,

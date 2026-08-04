@@ -178,9 +178,9 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 - Author/agent: Primary AI coordinator acting as product engineer and security reviewer
 - Owner decision: Main Osun chat shell, pluggable widgets, Lighting as first agent, local Qwen Agent Box
 - Status: Shell and Qwen implemented; simulator verified; Home Assistant connected and actuating real lights; final supervised per-bulb zone verification remains
-- Automated evidence: 79 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
-- Runtime music evidence: Windows adapter changed `Blue In Green` to `So What` and verified the exact active Apple Music media-session title on 2026-08-04
+- Automated evidence: 89 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation in the merge gate
+- Runtime music evidence: Windows adapter changed `Blue In Green` to `So What`, then routed `play cardi b on my pc` to `Up by Cardi B`; both exact active Apple Music media-session titles were verified on 2026-08-04
 - Runtime evidence: official Qwen model downloaded, 100% GPU placement observed, warm chat and tool-call smoke tests passed
 - Visual evidence: neutral shell, agent dock, real-Qwen Lighting widget, exact Deep Ocean preview, separate Zones/Lights layouts with group membership, and default-off autonomous control/result states; visual QA found and corrected simultaneous empty/widget rendering
 - Sensitive-data status: No token, real entity inventory, raw chat, or baseline data committed
-- Last updated: 2026-07-27
+- Last updated: 2026-08-04

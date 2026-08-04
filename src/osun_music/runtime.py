@@ -44,14 +44,7 @@ class MusicController:
         with self._lock:
             now = self.clock()
             token_configured = self.credential_store.load() is not None
-            pending = next(
-                (
-                    request
-                    for request in reversed(self._requests.values())
-                    if request.get("state") in {"needs_device", "ready", "running"}
-                ),
-                None,
-            )
+            pending = self._latest_request({"needs_device", "ready", "running"})
             return {
                 "enabled": self.config.enabled,
                 "mode": self.config.mode,
@@ -70,11 +63,25 @@ class MusicController:
                 "pending": deepcopy(pending),
             }
 
-    def message(self, text: str) -> dict[str, Any]:
+    def message(self, text: str, *, allow_bare_play: bool = False) -> dict[str, Any]:
         with self._lock:
             now = self.clock()
             devices = self._devices(now)
+            pending_device_request = self._latest_request({"needs_device"})
+            device_choice = self.parser.device_choice(text, devices)
+            if pending_device_request and device_choice:
+                device = self._device(device_choice, now)
+                pending_device_request["device_id"] = device_choice
+                pending_device_request["device_name"] = device["name"]
+                pending_device_request["selection_reason"] = "owner_selected"
+                pending_device_request["state"] = "ready"
+                return {
+                    "text": f"Routing {self._action_description(pending_device_request)} to {device['name']} as requested.",
+                    "request": deepcopy(pending_device_request),
+                }
             intent = self.parser.parse(text, devices)
+            if intent is None and allow_bare_play:
+                intent = self.parser.parse_bare_play(text, devices)
             if intent is None:
                 return {
                     "text": "Tell me what to play, pause, resume, skip, or go back to in Apple Music.",
@@ -85,6 +92,7 @@ class MusicController:
                 now=now,
                 requested_device_id=intent.requested_device_id,
             )
+            self._supersede_pending_requests()
             request = self._new_request(intent, decision.device_id, decision.reason, now)
             self._requests[request["request_id"]] = request
             self._trim_requests()
@@ -103,6 +111,17 @@ class MusicController:
                     else f"Routing {self._action_description(request)} to {device['name']} as requested."
                 )
             return {"text": text_reply, "request": deepcopy(request)}
+
+    def can_resolve_device_follow_up(self, text: str) -> bool:
+        with self._lock:
+            return bool(
+                self._latest_request({"needs_device"})
+                and self.parser.device_choice(text, self._devices(self.clock()))
+            )
+
+    def recognizes_command(self, text: str) -> bool:
+        with self._lock:
+            return self.parser.parse(text, self._devices(self.clock())) is not None
 
     def select_device(self, request_id: str, device_id: str) -> dict[str, Any]:
         with self._lock:
@@ -364,3 +383,18 @@ class MusicController:
             oldest = next(iter(self._requests))
             self._requests.pop(oldest, None)
             self._results.pop(oldest, None)
+
+    def _latest_request(self, states: set[str]) -> dict[str, Any] | None:
+        return next(
+            (
+                request
+                for request in reversed(self._requests.values())
+                if request.get("state") in states
+            ),
+            None,
+        )
+
+    def _supersede_pending_requests(self) -> None:
+        for request in self._requests.values():
+            if request.get("state") in {"needs_device", "ready"}:
+                request["state"] = "superseded"

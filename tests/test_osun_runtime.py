@@ -149,6 +149,50 @@ class OsunRuntimeTests(unittest.TestCase):
         self.assertEqual("ready", second["widgets"][0]["request"]["state"])
         self.assertEqual("recent_playback", second["widgets"][0]["request"]["selection_reason"])
 
+    def test_music_device_follow_up_bypasses_qwen_and_resolves_pending_request(self) -> None:
+        qwen = FakeQwen(tool="open_music_widget")
+        controller = OsunController(self.lighting, qwen, self.music)
+        first = controller.message("play Cardi B")
+        request_id = first["widgets"][0]["request"]["request_id"]
+
+        follow_up = controller.message("my pc")
+
+        self.assertEqual("music", follow_up["agent"])
+        self.assertEqual(request_id, follow_up["widgets"][0]["request"]["request_id"])
+        self.assertEqual("ready", follow_up["widgets"][0]["request"]["state"])
+        self.assertEqual("agent-box-windows", follow_up["widgets"][0]["request"]["device_id"])
+        self.assertEqual([], qwen.received)
+
+    def test_model_scoped_music_fragment_fills_play_query(self) -> None:
+        controller = OsunController(
+            self.lighting,
+            FakeQwen(tool="open_music_widget"),
+            self.music,
+        )
+        reply = controller.message("a cardi b song")
+        self.assertEqual("music", reply["agent"])
+        self.assertEqual("cardi b", reply["widgets"][0]["request"]["query"])
+
+    def test_explicit_my_pc_alias_is_ready_for_immediate_execution(self) -> None:
+        controller = OsunController(
+            self.lighting,
+            FakeQwen(tool="open_music_widget"),
+            self.music,
+        )
+        reply = controller.message("play cardi b on my pc")
+        music_request = reply["widgets"][0]["request"]
+        self.assertEqual("ready", music_request["state"])
+        self.assertEqual("cardi b", music_request["query"])
+        self.assertEqual("agent-box-windows", music_request["device_id"])
+
+    def test_exact_play_command_is_deterministic_when_qwen_returns_general_text(self) -> None:
+        qwen = FakeQwen(content="Which song would you like?")
+        controller = OsunController(self.lighting, qwen, self.music)
+        reply = controller.message("play")
+        self.assertEqual("music", reply["agent"])
+        self.assertEqual("music", reply["widgets"][0]["request"]["query"])
+        self.assertEqual([], qwen.received)
+
 
 if __name__ == "__main__":
     unittest.main()

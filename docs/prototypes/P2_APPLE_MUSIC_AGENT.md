@@ -27,6 +27,10 @@ For every request, the agent evaluates only enabled, registered Osun music devic
 4. A successful play, resume, next, or previous command refreshes that device's activity time. Pause does not invent new evidence that a device was playing.
 5. At 301 seconds the evidence is expired and Osun asks again.
 
+For the Windows Agent Box, natural aliases including `my PC`, `my computer`, `this computer`, and `agent box` resolve to the registered **This PC** device. A device-only reply such as `my PC` or `on my PC` resolves the newest unanswered Music device question without asking Qwen or creating a second playback request. A new explicit music command supersedes older unanswered device questions.
+
+Exact commands such as `play`, `play Cardi B`, and `play Cardi B on my PC` are parsed deterministically before model routing. When Qwen has explicitly selected the Music agent, short query fragments such as `a Cardi B song` and `anything` may fill the play-query slot; outside that scoped agent call, arbitrary bare chat is not reinterpreted as playback.
+
 Playback activity, requests, and results are memory-only in P2. Restarting Osun intentionally clears recent-device state, so the first request after restart asks again. This minimizes listening-history collection until durable music memory has its own retention and consent contract.
 
 ## 3. End-to-end flow
@@ -102,8 +106,11 @@ Official references:
 | MUSIC-T10 | Real Windows app canary | Audible playback, Apple Music media-session title, and Osun result agree on This PC |
 | MUSIC-T11 | Restart | Recent-device activity is cleared and device is requested again |
 | MUSIC-T12 | Widget lifecycle | Widget arrives compact, expands on click, and animates during work |
+| MUSIC-T13 | Natural PC alias | `play Cardi B on my PC` resolves to This PC and removes the device phrase from the catalog query |
+| MUSIC-T14 | Device-only follow-up | `play Cardi B` followed by `my PC` reuses the pending request and executes once |
+| MUSIC-T15 | Scoped query fragment | A model-routed `a Cardi B song` becomes a play request; the same bare phrase outside Music scope does not |
 
-Automated evidence covers MUSIC-T01 through MUSIC-T09, MUSIC-T11, and the UI contract of MUSIC-T12. MUSIC-T10 passed under direct owner-session observation on 2026-08-04: the adapter changed playback from `Blue In Green` to `So What`, and the targeted Windows media session returned `So What by Miles Davis — Kind of Blue` with active, verified playback. The canary used the installed Windows app and required no developer credentials.
+Automated evidence covers MUSIC-T01 through MUSIC-T09 and MUSIC-T11 through MUSIC-T15. MUSIC-T10 passed under direct owner-session observation on 2026-08-04: the adapter changed playback from `Blue In Green` to `So What`, and the targeted Windows media session returned `So What by Miles Davis — Kind of Blue` with active, verified playback. A second exact conversational canary routed `play cardi b on my pc` to This PC, preserved `cardi b` as the catalog query, played `Up by Cardi B — Up - Single`, and verified the result through the targeted Windows media session. Both canaries used the installed Windows app and required no developer credentials.
 
 ## 7. Next device adapters
 
