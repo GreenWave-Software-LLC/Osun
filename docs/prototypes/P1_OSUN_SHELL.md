@@ -167,7 +167,7 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 
 1. Restore or confirm the Home Assistant Pi endpoint and complete the supervised light canary.
 2. Add push-to-talk voice input with a visible transcript and the same proposal boundary.
-3. Complete the P2 Windows Apple Music supervised real-playback canary; keep MusicKit optional.
+3. Keep the passed P2 Windows Apple Music real-playback canary in regression coverage; keep MusicKit optional.
 4. Add durable owner-approved memory as a separate service; do not treat raw chat history as memory by default.
 5. Package and sign the Windows application after the shell and local model lifecycle stabilize.
 
@@ -178,7 +178,8 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 - Author/agent: Primary AI coordinator acting as product engineer and security reviewer
 - Owner decision: Main Osun chat shell, pluggable widgets, Lighting as first agent, local Qwen Agent Box
 - Status: Shell and Qwen implemented; simulator verified; Home Assistant connected and actuating real lights; final supervised per-bulb zone verification remains
-- Automated evidence: 70 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
+- Automated evidence: 79 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation
+- Runtime music evidence: Windows adapter changed `Blue In Green` to `So What` and verified the exact active Apple Music media-session title on 2026-08-04
 - Runtime evidence: official Qwen model downloaded, 100% GPU placement observed, warm chat and tool-call smoke tests passed
 - Visual evidence: neutral shell, agent dock, real-Qwen Lighting widget, exact Deep Ocean preview, separate Zones/Lights layouts with group membership, and default-off autonomous control/result states; visual QA found and corrected simultaneous empty/widget rendering
 - Sensitive-data status: No token, real entity inventory, raw chat, or baseline data committed

@@ -57,7 +57,20 @@ class WidgetShellContractTests(unittest.TestCase):
         self.assertIn("Test-AppleMusicPath", self.windows_music_bridge)
         self.assertIn("WindowsApps\\AppleInc.AppleMusicWin_", self.windows_music_bridge)
         self.assertIn("GetForegroundWindow", self.windows_music_bridge)
+        self.assertIn("AttachThreadInput", self.windows_music_bridge)
+        self.assertIn("SendWait('%nf')", self.windows_music_bridge)
+        self.assertIn("Invoke-AutomationDoubleClick", self.windows_music_bridge)
+        self.assertIn("Wait-ForAppleAlbumTrack", self.windows_music_bridge)
+        self.assertIn("ClassName -eq 'ListViewItem'", self.windows_music_bridge)
+        self.assertIn("ArgumentList @('/url', $MediaUrl)", self.windows_music_bridge)
+        self.assertNotIn("ArgumentList @('/play'", self.windows_music_bridge)
+        self.assertNotIn("SendWait('^f')", self.windows_music_bridge)
+        self.assertNotIn("keybd_event", self.windows_music_bridge)
         self.assertNotIn("VK_MEDIA", self.windows_music_bridge)
+
+    def test_music_probe_explains_windows_control_isolation(self) -> None:
+        self.assertIn("Windows is hiding its controls from Osun", self.javascript)
+        self.assertIn("same privilege level", self.javascript)
 
 
 if __name__ == "__main__":
