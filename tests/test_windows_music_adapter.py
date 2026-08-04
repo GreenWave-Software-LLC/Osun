@@ -159,6 +159,7 @@ class WindowsMusicAdapterTests(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertEqual("play-url", bridge.calls[0][0])
         self.assertEqual("https://music.apple.com/us/album/kind-of-blue/3?i=4", bridge.calls[0][1]["media_url"])
+        self.assertEqual("Blue in Green Miles Davis", bridge.calls[0][1]["query"])
 
     def test_controller_returns_server_side_verified_windows_result(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

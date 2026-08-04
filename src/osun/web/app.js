@@ -803,6 +803,8 @@ async function testAppleMusicApp() {
         : "Connected · Apple Music media controls are available";
     } else if (result.automation_available) {
       ui.musicAppTestResult.textContent = "Apple Music is open; UI fallback is available. Start a song once to expose media verification.";
+    } else if (result.running) {
+      ui.musicAppTestResult.textContent = "Apple Music is running, but Windows is hiding its controls from Osun. Keep both apps at the same privilege level, reopen the full Apple Music window, and test again.";
     } else {
       ui.musicAppTestResult.textContent = "Apple Music is installed. Open it and sign in once, then test again.";
     }

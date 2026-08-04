@@ -1,11 +1,11 @@
 # P2 Apple Music Agent
 
-**State:** Windows app adapter implemented; supervised audible-playback canary pending \
+**State:** Windows app adapter implemented; supervised audible-playback canary passed \
 **Prototype:** P2-MUSIC-01 \
 **Owner authorization:** 2026-07-27 \
 **Host:** Windows Agent Box \
 **Initial playback device:** This PC \
-**Last updated:** 2026-07-28
+**Last updated:** 2026-08-04
 
 ---
 
@@ -13,7 +13,7 @@
 
 The Music agent handles explicit requests to play, pause, resume, skip, or go back in Apple Music. Qwen can call only `open_music_widget()` with no model-authored device or playback arguments. Deterministic Music code reparses the owner's original words, selects a registered device under the policy below, and emits a typed playback command.
 
-The default real adapter controls the installed Windows Apple Music application on the Agent Box. It uses Apple's public iTunes Search API to resolve an owner query to an Apple-owned catalog link, hands that exact link to `AppleMusic.exe`, then controls and reads back only the Apple Music Windows media session. Pause, resume, next, and previous use targeted Windows media-session commands. No Apple developer membership or MusicKit token is required.
+The default real adapter controls the installed Windows Apple Music application on the Agent Box. It uses Apple's public iTunes Search API to resolve an owner query to an Apple-owned catalog result, validates that result, and opens it using the Apple package's registered `/url` command. It starts the visible matching song using Apple's documented Windows interaction, falling back to catalog Search with the resolved title and artist when needed, and reads back only the Apple Music Windows media session. Pause, resume, next, and previous use targeted Windows media-session commands. No Apple developer membership or MusicKit token is required.
 
 MusicKit on the Web remains an optional future-compatible provider. Neither local provider remotely controls an arbitrary iPhone or HomePod. Those devices can join later only through an installed Osun companion or a separately reviewed Home Assistant/Music Assistant adapter that reports playback activity and verifies commands.
 
@@ -40,7 +40,7 @@ Owner chat request
        -> explicit/recent device: request becomes ready
   -> simulator OR Windows Apple Music adapter
        -> bounded public-catalog lookup for play requests
-       -> exact Apple-owned link or typed transport command
+       -> validated Apple-owned catalog result or typed transport command
        -> Apple Music media-session read-back
        -> targeted UI Automation fallback only when needed
   -> command result returns to deterministic Music controller
@@ -54,9 +54,10 @@ The Music widget is absent until called, starts compact, expands when selected, 
 
 - Windows app mode requires only the installed Apple Music application, an Apple Music subscription, and a one-time interactive sign-in within Apple's app. Osun never receives or stores the Apple Account password, passkey, cookies, or subscription credential.
 - Play searches call only `https://itunes.apple.com/search`, request at most ten song results, cap the response at 1 MB, and accept playback links only from `https://music.apple.com` or `https://itunes.apple.com`.
-- The PowerShell bridge exposes a closed action set: probe, play an already validated Apple URL, pause, resume, next, and previous. No model-authored shell, process name, URL host, or script is accepted.
+- The PowerShell bridge exposes a closed action set: probe, play an already validated Apple URL, pause, resume, next, and previous. The Apple URL is passed only to the package-declared `/url` handler; the unsupported `/play` argument is never used. No model-authored shell, process name, URL host, or script is accepted.
 - Transport control selects a Windows media session whose source identity matches Apple Music. It never broadcasts global media keys that could control a browser, video call, or unrelated player.
-- The bounded UI Automation fallback is limited to the `AppleMusic.exe` process. It verifies Apple Music owns the foreground window before sending its fixed search shortcut, sets query text through the accessibility Value pattern, and activates an accessibility element instead of using hard-coded screen coordinates.
+- The bounded UI Automation path is limited to the `AppleMusic.exe` process. It first uses the accessible Search field and only falls back to Apple's documented `Alt`, then `N`, `F` access key after verifying Apple Music owns the foreground window. It sets query text through the accessibility Value pattern, invokes the exact catalog result to reach its album, and double-clicks the exact visible `ListViewItem` track row, as documented by Apple. The click point comes from the row's live accessibility rectangle rather than a hard-coded coordinate. It does not use global media keys.
+- Windows prevents cross-privilege UI control. Osun and Apple Music must run under the same signed-in Windows user and privilege level; neither should be run as Administrator. MiniPlayer and full-screen playback should be exited for catalog-search requests.
 - A play request is recorded as recent only after media-session playback evidence. A targeted UI command without read-back is shown honestly and does not fabricate playback history.
 - The optional MusicKit provider retains the existing DPAPI-protected developer-token design. Never place an Apple `.p8` private key in Osun, chat, Git, screenshots, or the Pi.
 
@@ -64,7 +65,7 @@ The Music widget is absent until called, starts compact, expands when selected, 
 
 1. Install or update **Apple Music** from Microsoft Store, open it once, sign in, and confirm a song plays normally.
 2. Open **Osun -> Settings -> Music agent**, select **Windows app**, keep **Enable Music agent** checked, and save.
-3. Select **Test Apple Music app**. With a song active, require `Connected` and the current title; without a song, installation-only or UI-fallback status is acceptable.
+3. Select **Test Apple Music app**. With a song active, require `Connected` and the current title. Without a song, UI-fallback status is acceptable. If the test says Windows is hiding controls, reopen the full Apple Music window and make sure neither app is running as Administrator.
 4. Ask `play Kind of Blue`.
 5. Since no registered device is recent, expand the Music widget and choose **This PC**.
 6. Confirm Apple Music starts an audible catalog result and Osun reports media-session verification rather than assuming success.
@@ -79,6 +80,9 @@ Official references:
 - MusicKit on the Web documentation: <https://js-cdn.music.apple.com/musickit/v3/docs/index.html>
 - MusicKit JavaScript instance reference: <https://js-cdn.music.apple.com/musickit/v3/docs/iframe.html?path=%2Fstory%2Freference-javascript-musickit-instance--page>
 - Apple iTunes Search API: <https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/Searching.html>
+- Apple Music search on Windows: <https://support.apple.com/guide/music-windows/search-for-music-mus896f20db7/windows>
+- Apple Music keyboard shortcuts on Windows: <https://support.apple.com/guide/music-windows/keyboard-shortcuts-mus1019/windows>
+- Apple Music playback on Windows: <https://support.apple.com/guide/music-windows/play-songs-mus36265ad9/windows>
 - Microsoft global media-session API: <https://learn.microsoft.com/en-us/uwp/api/windows.media.control.globalsystemmediatransportcontrolssessionmanager>
 - Microsoft UI Automation fundamentals: <https://learn.microsoft.com/windows/win32/winauto/entry-uiautocore-overview>
 
@@ -99,7 +103,7 @@ Official references:
 | MUSIC-T11 | Restart | Recent-device activity is cleared and device is requested again |
 | MUSIC-T12 | Widget lifecycle | Widget arrives compact, expands on click, and animates during work |
 
-Automated evidence covers MUSIC-T01 through MUSIC-T09, MUSIC-T11, and the UI contract of MUSIC-T12. MUSIC-T10 needs the owner's Apple Music sign-in and direct listening observation; it does not need developer credentials.
+Automated evidence covers MUSIC-T01 through MUSIC-T09, MUSIC-T11, and the UI contract of MUSIC-T12. MUSIC-T10 passed under direct owner-session observation on 2026-08-04: the adapter changed playback from `Blue In Green` to `So What`, and the targeted Windows media session returned `So What by Miles Davis — Kind of Blue` with active, verified playback. The canary used the installed Windows app and required no developer credentials.
 
 ## 7. Next device adapters
 

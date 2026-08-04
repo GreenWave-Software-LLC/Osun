@@ -139,7 +139,7 @@ class WindowsAppleMusicAdapter:
             payload = self.bridge.run(
                 "play-url",
                 media_url=track.url,
-                query=query,
+                query=f"{track.title} {track.artist}".strip(),
                 expected_title=track.title,
                 expected_artist=track.artist,
             )
