@@ -26,7 +26,7 @@ For a visible diagnostic console, run:
 .\run_osun.ps1
 ```
 
-The first model load after a restart may take around two minutes on the current system. The Agent Box card reports **Warming model on GPU** while this happens. Warm requests were approximately one second in the initial setup test.
+The Agent Box card reports **Warming model on GPU** during a cold load. After the model store moved to the `E:` NVMe drive, a cold preload completed in 7 seconds on 2026-08-04; timing may vary with system load. Warm requests were approximately one second in the initial setup test.
 
 Use **Settings → Quit Osun** to stop the shell cleanly and request that Ollama unload Qwen from GPU memory.
 
@@ -149,7 +149,7 @@ The initial adapter controls only the Apple Music app on this PC. It does not br
 |---|---|
 | Ollama | `%LOCALAPPDATA%\Programs\Ollama` |
 | Qwen model | `qwen3.5:9b`, official Ollama build |
-| Model store | `F:\Osun\ollama-models` through the user `OLLAMA_MODELS` setting |
+| Model store | `E:\Osun\ollama-models`, selected by the ignored `.osun-local\ollama-models.path` launcher override |
 | Osun configuration | `%LOCALAPPDATA%\Osun\lighting\config.json` |
 | Protected light token | `%LOCALAPPDATA%\Osun\lighting\secrets\home_assistant_token.bin` |
 | Content-minimized light audit | `%LOCALAPPDATA%\Osun\lighting\audit.jsonl` |

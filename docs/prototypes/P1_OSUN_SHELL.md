@@ -71,7 +71,7 @@ The shell accepts widget objects with stable `id`, `kind`, `title`, `agent`, and
 - Ollama `0.32.4` installed as a native Windows runtime.
 - Official Ollama `qwen3.5:9b` model, Q4_K_M, approximately 6.6 GB.
 - API restricted by Osun to `http://127.0.0.1:11434` or an equivalent loopback hostname.
-- Model store moved to `F:\Osun\ollama-models` to preserve the constrained system drive.
+- Model store moved to `E:\Osun\ollama-models` on 2026-08-04 after persistent Disk 1 retries were found on `F:`. The launcher reads an ignored machine-local path override and restarts an empty reboot-started Ollama instance against that healthy store.
 - Current hardware: Ryzen 9 5900X, 32 GB RAM, Radeon RX 7800 XT 16 GB.
 - Observed local execution: model loaded 100% on GPU; warm tool routing approximately 1.3 seconds and warm short chat approximately 1.0 second during initial setup.
 - First cold load was approximately 129 seconds. Osun therefore preloads Qwen in a background thread, reports a warming state, keeps it resident for 30 minutes after use, and unloads it when the app exits cleanly.
@@ -178,7 +178,7 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 - Author/agent: Primary AI coordinator acting as product engineer and security reviewer
 - Owner decision: Main Osun chat shell, pluggable widgets, Lighting as first agent, local Qwen Agent Box
 - Status: Shell and Qwen implemented; simulator verified; Home Assistant connected and actuating real lights; final supervised per-bulb zone verification remains
-- Automated evidence: 92 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation in the merge gate
+- Automated evidence: 94 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation in the merge gate
 - Runtime music evidence: Windows adapter changed `Blue In Green` to `So What`, then routed `play cardi b on my pc` to `Up by Cardi B`; both exact active Apple Music media-session titles were verified on 2026-08-04
 - Runtime evidence: official Qwen model downloaded, 100% GPU placement observed, warm chat and tool-call smoke tests passed
 - Visual evidence: neutral shell, agent dock, real-Qwen Lighting widget, exact Deep Ocean preview, separate Zones/Lights layouts with group membership, and default-off autonomous control/result states; visual QA found and corrected simultaneous empty/widget rendering
