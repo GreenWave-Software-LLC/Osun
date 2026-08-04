@@ -430,27 +430,55 @@ function Select-AppleMusicSearchScope {
     return Invoke-AutomationElement $target $Automation
 }
 
-function Find-AppleTrackResult {
-    param($Automation)
+function Get-NormalizedAutomationName {
+    param([string]$Value)
+    if (-not $Value) { return '' }
+    return [Text.RegularExpressions.Regex]::Replace($Value, '\s+', ' ').Trim()
+}
+
+function Find-AppleNamedTrackContainer {
+    param($Automation, [string[]]$AllowedClasses)
     $matches = @()
-    $rowTypes = @(
-        [System.Windows.Automation.ControlType]::ListItem,
-        [System.Windows.Automation.ControlType]::DataItem
-    )
+    $expectedName = Get-NormalizedAutomationName $ExpectedTitle
+    $expectedArtistName = Get-NormalizedAutomationName $ExpectedArtist
+    $walker = [System.Windows.Automation.TreeWalker]::ControlViewWalker
     for ($index = 0; $index -lt $Automation.Elements.Count; $index++) {
         $element = $Automation.Elements.Item($index)
         $current = $element.Current
-        $name = $current.Name
-        if ($current.ControlType -ne [System.Windows.Automation.ControlType]::Edit -and -not $current.IsOffscreen -and $current.IsEnabled -and
-            $name -and $name.IndexOf($ExpectedTitle, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
-            $isTrackRow = $current.ControlType -in $rowTypes
-            $artistMatches = -not $ExpectedArtist -or $name.IndexOf($ExpectedArtist, [StringComparison]::OrdinalIgnoreCase) -ge 0
-            $typeRank = if ($isTrackRow -and $artistMatches) { 0 } elseif ($isTrackRow) { 1 } else { 2 }
-            $exactRank = [int](-not $name.Equals($ExpectedTitle, [StringComparison]::OrdinalIgnoreCase))
-            $matches += [pscustomobject]@{ Element = $element; TypeRank = $typeRank; ExactRank = $exactRank; Top = $current.BoundingRectangle.Top }
+        $name = Get-NormalizedAutomationName $current.Name
+        if ($current.ControlType -eq [System.Windows.Automation.ControlType]::Edit -or $current.IsOffscreen -or -not $current.IsEnabled -or
+            -not $name.Equals($expectedName, [StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
+
+        $ancestor = $element
+        for ($depth = 0; $depth -lt 8 -and $ancestor; $depth++) {
+            try { $ancestor = $walker.GetParent($ancestor) } catch { $ancestor = $null }
+            if (-not $ancestor -or $ancestor.Current.ProcessId -ne $Automation.Process.Id) { break }
+            $ancestorCurrent = $ancestor.Current
+            if ($ancestorCurrent.ClassName -notin $AllowedClasses -or $ancestorCurrent.IsOffscreen -or -not $ancestorCurrent.IsEnabled) {
+                continue
+            }
+            $containerName = Get-NormalizedAutomationName $ancestorCurrent.Name
+            $artistMatches = $ancestorCurrent.ClassName -eq 'ListViewItem' -or -not $expectedArtistName -or
+                $containerName.IndexOf($expectedArtistName, [StringComparison]::OrdinalIgnoreCase) -ge 0
+            if ($artistMatches) {
+                $classRank = [Array]::IndexOf($AllowedClasses, $ancestorCurrent.ClassName)
+                $matches += [pscustomobject]@{
+                    Element = $ancestor
+                    ClassRank = $classRank
+                    Top = $ancestorCurrent.BoundingRectangle.Top
+                }
+            }
+            break
         }
     }
-    return ($matches | Sort-Object TypeRank, ExactRank, Top | Select-Object -First 1).Element
+    return ($matches | Sort-Object ClassRank, Top | Select-Object -First 1).Element
+}
+
+function Find-AppleTrackResult {
+    param($Automation)
+    return Find-AppleNamedTrackContainer $Automation @('ListViewItem', 'GridViewItem')
 }
 
 function Wait-ForAppleTrackResult {
@@ -473,14 +501,8 @@ function Wait-ForAppleAlbumTrack {
     do {
         $automation = Get-AppleAutomationElements
         if ($automation) {
-            for ($index = 0; $index -lt $automation.Elements.Count; $index++) {
-                $element = $automation.Elements.Item($index)
-                $current = $element.Current
-                if (-not $current.IsOffscreen -and $current.IsEnabled -and $current.ClassName -eq 'ListViewItem' -and
-                    $current.Name -and $current.Name.IndexOf($ExpectedTitle, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
-                    return [pscustomobject]@{ Automation = $automation; Element = $element }
-                }
-            }
+            $element = Find-AppleNamedTrackContainer $automation @('ListViewItem')
+            if ($element) { return [pscustomobject]@{ Automation = $automation; Element = $element } }
         }
         Start-Sleep -Milliseconds 200
     } while ([DateTime]::UtcNow -lt $deadline)
