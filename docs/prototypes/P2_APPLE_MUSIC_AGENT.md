@@ -31,6 +31,8 @@ For the Windows Agent Box, natural aliases including `my PC`, `my computer`, `th
 
 Exact commands such as `play`, `play Cardi B`, and `play Cardi B on my PC` are parsed deterministically before model routing. When Qwen has explicitly selected the Music agent, short query fragments such as `a Cardi B song` and `anything` may fill the play-query slot; outside that scoped agent call, arbitrary bare chat is not reinterpreted as playback.
 
+Playback-device inventory questions are also deterministic and read-only. Requests such as `what devices are available to play on?`, `where can I play Apple Music?`, and `list my music devices` return enabled registered devices, adapter details, and recent-playback context in a dedicated Music widget view. Listing devices never executes playback and preserves any request that is waiting for a device choice.
+
 Playback activity, requests, and results are memory-only in P2. Restarting Osun intentionally clears recent-device state, so the first request after restart asks again. This minimizes listening-history collection until durable music memory has its own retention and consent contract.
 
 ## 3. End-to-end flow
@@ -109,8 +111,9 @@ Official references:
 | MUSIC-T13 | Natural PC alias | `play Cardi B on my PC` resolves to This PC and removes the device phrase from the catalog query |
 | MUSIC-T14 | Device-only follow-up | `play Cardi B` followed by `my PC` reuses the pending request and executes once |
 | MUSIC-T15 | Scoped query fragment | A model-routed `a Cardi B song` becomes a play request; the same bare phrase outside Music scope does not |
+| MUSIC-T16 | Device inventory | A playback-device question bypasses Qwen, lists enabled registered devices, executes nothing, and preserves pending playback |
 
-Automated evidence covers MUSIC-T01 through MUSIC-T09 and MUSIC-T11 through MUSIC-T15. MUSIC-T10 passed under direct owner-session observation on 2026-08-04: the adapter changed playback from `Blue In Green` to `So What`, and the targeted Windows media session returned `So What by Miles Davis — Kind of Blue` with active, verified playback. A second exact conversational canary routed `play cardi b on my pc` to This PC, preserved `cardi b` as the catalog query, played `Up by Cardi B — Up - Single`, and verified the result through the targeted Windows media session. Both canaries used the installed Windows app and required no developer credentials.
+Automated evidence covers MUSIC-T01 through MUSIC-T09 and MUSIC-T11 through MUSIC-T16. MUSIC-T10 passed under direct owner-session observation on 2026-08-04: the adapter changed playback from `Blue In Green` to `So What`, and the targeted Windows media session returned `So What by Miles Davis — Kind of Blue` with active, verified playback. A second exact conversational canary routed `play cardi b on my pc` to This PC, preserved `cardi b` as the catalog query, played `Up by Cardi B — Up - Single`, and verified the result through the targeted Windows media session. Both canaries used the installed Windows app and required no developer credentials.
 
 ## 7. Next device adapters
 

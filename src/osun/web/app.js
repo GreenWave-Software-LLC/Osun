@@ -332,11 +332,14 @@ function renderMusicWidget(widget = state.activeWidget) {
   const running = state.runningWidgetId === widget.id;
   const musicRequest = widget.request;
   const devices = (widget.devices || []).filter(device => device.enabled);
+  const showingDevices = widget.view === "devices";
   const needsDevice = musicRequest?.state === "needs_device";
   const action = musicActionDescription(musicRequest);
   const selectedDevice = devices.find(device => device.device_id === musicRequest?.device_id);
   const compactStatus = running
     ? "Running Music agent…"
+    : showingDevices
+      ? `${devices.length} playback device${devices.length === 1 ? "" : "s"} available`
     : needsDevice
       ? `${action} · choose a device`
       : state.musicResultText || `${action}${selectedDevice ? ` · ${selectedDevice.name}` : ""}`;
@@ -346,7 +349,18 @@ function renderMusicWidget(widget = state.activeWidget) {
       <span><strong>${escapeHtml(device.name)}</strong><small>${escapeHtml(musicDeviceDetail(device))}</small></span>
       <span class="device-choice-arrow" aria-hidden="true">→</span>
     </button>`).join("");
-  const requestCard = musicRequest ? `
+  const availableDevices = devices.map(device => `
+    <div class="device-choice static-device">
+      <span class="device-icon" aria-hidden="true">♫</span>
+      <span><strong>${escapeHtml(device.name)}</strong><small>${escapeHtml(musicDeviceDetail(device))}</small></span>
+      <span class="device-availability">${device.recent ? "Recent" : "Available"}</span>
+    </div>`).join("");
+  const requestCard = showingDevices ? `
+    <div class="music-request-card">
+      <div class="proposal-heading"><h3>Available playback devices</h3><span>${devices.length} enabled</span></div>
+      <p class="proposal-summary">Osun can route Apple Music only to enabled, registered devices shown here.</p>
+      <div class="device-choice-list">${availableDevices || '<p class="muted small">No music devices are enabled.</p>'}</div>
+    </div>` : musicRequest ? `
     <div class="music-request-card">
       <div class="proposal-heading"><h3>${escapeHtml(action)}</h3><span>${escapeHtml(musicRequestStateLabel(musicRequest))}</span></div>
       ${needsDevice ? `<p class="proposal-summary">Nothing has played on a registered device in the last five minutes. Choose where to play.</p>
@@ -381,7 +395,7 @@ function renderMusicWidget(widget = state.activeWidget) {
         </div>
       </div>
       <div id="musicWidgetBody" class="widget-body" ${expanded ? "" : "hidden"}>
-        <section class="widget-section"><p class="section-kicker">Playback request</p>${requestCard}</section>
+        <section class="widget-section"><p class="section-kicker">${showingDevices ? "Playback devices" : "Playback request"}</p>${requestCard}</section>
         <section class="widget-section">
           <div class="widget-actions"><button id="musicSettings" class="secondary-button" type="button" ${running ? "disabled" : ""}>Music settings</button></div>
           ${state.musicResultText ? `<div class="widget-result music-result">${escapeHtml(state.musicResultText)}</div>` : ""}

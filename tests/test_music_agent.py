@@ -138,6 +138,31 @@ class MusicAgentTests(unittest.TestCase):
         self.assertEqual("play", reply["request"]["action"])
         self.assertEqual("music", reply["request"]["query"])
 
+    def test_device_inventory_questions_list_devices_without_losing_pending_playback(self) -> None:
+        cases = (
+            "what devices are available to play on?",
+            "which playback devices are connected",
+            "what devices can I play music on",
+            "where can I play Apple Music?",
+            "list my music devices",
+        )
+        for phrase in cases:
+            with self.subTest(phrase=phrase):
+                parsed = self.controller.parser.parse(phrase, self.controller.status()["devices"])
+                self.assertIsNotNone(parsed)
+                self.assertEqual("list_devices", parsed.action)
+
+        pending = self.controller.message("play Cardi B")["request"]
+        listing = self.controller.message("what devices are available to play on?")
+        self.assertEqual("devices", listing["view"])
+        self.assertIsNone(listing["request"])
+        self.assertEqual(["This PC"], [device["name"] for device in listing["devices"]])
+        self.assertIn("1 available playback device", listing["text"])
+
+        follow_up = self.controller.message("my pc")
+        self.assertEqual(pending["request_id"], follow_up["request"]["request_id"])
+        self.assertEqual("ready", follow_up["request"]["state"])
+
     def test_control_phrases_and_explicit_device_are_typed(self) -> None:
         cases = {
             "pause": "pause",

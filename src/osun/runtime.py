@@ -176,7 +176,12 @@ class OsunController:
                 result = {
                     "text": visible_text,
                     "agent": "music",
-                    "widgets": [self._music_widget(music_reply.get("request"))],
+                    "widgets": [
+                        self._music_widget(
+                            music_reply.get("request"),
+                            view=str(music_reply.get("view") or "request"),
+                        )
+                    ],
                     "execution": None,
                     "model": {"used": bool(tool_names), "metrics": metrics},
                 }
@@ -301,14 +306,18 @@ class OsunController:
         self,
         request: dict[str, Any] | None,
         execution: dict[str, Any] | None = None,
+        *,
+        view: str = "request",
     ) -> dict[str, Any]:
         status = self.music.status()
+        safe_view = "devices" if view == "devices" else "request"
         return {
             "id": "music",
             "kind": "music",
             "title": "Music",
             "agent": "music",
-            "request": request or status.get("pending"),
+            "view": safe_view,
+            "request": None if safe_view == "devices" else request or status.get("pending"),
             "mode": status.get("effective_mode"),
             "developer_token_configured": status.get("developer_token_configured"),
             "windows_app_available": status.get("windows_app_available"),

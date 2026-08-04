@@ -87,6 +87,14 @@ class MusicController:
                     "text": "Tell me what to play, pause, resume, skip, or go back to in Apple Music.",
                     "request": None,
                 }
+            if intent.action == "list_devices":
+                available_devices = [device for device in devices if device.get("enabled") is True]
+                return {
+                    "text": self._device_listing_text(available_devices),
+                    "request": None,
+                    "view": "devices",
+                    "devices": deepcopy(available_devices),
+                }
             decision = choose_playback_device(
                 devices,
                 now=now,
@@ -377,6 +385,24 @@ class MusicController:
         if action == "play":
             return f"play {request.get('query') or 'music'}"
         return {"pause": "pause music", "resume": "resume music", "next": "skip to the next song", "previous": "go to the previous song"}.get(action, action)
+
+    @staticmethod
+    def _device_listing_text(devices: list[dict[str, Any]]) -> str:
+        if not devices:
+            return "No enabled music playback devices are currently registered. Open Music settings to add or enable one."
+        details: list[str] = []
+        for device in devices:
+            kind = str(device.get("kind", ""))
+            adapter = {
+                "windows_app": "Windows Apple Music app",
+                "browser": "Apple Music in this Osun window",
+                "companion": "registered companion",
+            }.get(kind, "registered playback device")
+            recent = "; recently active" if device.get("recent") is True else ""
+            details.append(f"{device.get('name', 'Unnamed device')} ({adapter}{recent})")
+        count = len(details)
+        noun = "device" if count == 1 else "devices"
+        return f"Osun currently has {count} available playback {noun}: {', '.join(details)}."
 
     def _trim_requests(self) -> None:
         while len(self._requests) > 20:
