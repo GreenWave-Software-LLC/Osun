@@ -154,10 +154,13 @@ button { color: inherit; }
 .device-choice-list { display: grid; gap: 8px; margin-top: 12px; }
 .device-choice { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: 9px; width: 100%; min-height: 50px; padding: 8px 10px; border: 1px solid rgba(159, 197, 210, .14); border-radius: 11px; background: rgba(7, 18, 24, .55); cursor: pointer; text-align: left; }
 .device-choice:hover { border-color: rgba(167, 139, 250, .4); background: rgba(52, 38, 85, .25); }
+.device-choice.static-device { cursor: default; }
+.device-choice.static-device:hover { border-color: rgba(159, 197, 210, .14); background: rgba(7, 18, 24, .55); }
 .device-choice strong, .device-choice small { display: block; }
 .device-choice strong { color: #c8c0dc; font-size: 11px; }
 .device-choice small { margin-top: 3px; color: #716985; font-size: 9px; }
 .device-choice-arrow { color: #8b7baa; font-size: 16px; }
+.device-availability { color: var(--teal); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
 .device-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; color: #c6b3ff; background: rgba(103, 78, 160, .2); }
 .music-device-line { display: flex; align-items: center; gap: 8px; margin: 11px 0 0; color: #807796; font-size: 10px; }
 .music-device-line .recent-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px rgba(102, 229, 214, .5); }

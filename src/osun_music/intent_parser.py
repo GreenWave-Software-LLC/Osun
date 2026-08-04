@@ -29,6 +29,29 @@ class MusicIntentParser:
         ("next", re.compile(r"^\s*(?:next(?:\s+(?:song|track))?|skip(?:\s+(?:this\s+)?(?:song|track))?)\s*$", re.IGNORECASE)),
         ("previous", re.compile(r"^\s*(?:previous|last)(?:\s+(?:song|track))?\s*$|^\s*go\s+back\s*$", re.IGNORECASE)),
     )
+    _DEVICE_LIST_PATTERNS = (
+        re.compile(
+            r"^\s*(?:what|which)\s+(?:music\s+|playback\s+)?devices?\s+"
+            r"(?:(?:are|do\s+i\s+have)\s+)?(?:available|connected|registered|enabled)"
+            r"(?:\s+(?:to|for)\s+(?:play(?:\s+(?:music|apple\s+music))?|playback))?(?:\s+on)?\s*[?.!]*$",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"^\s*(?:what|which)\s+devices?\s+can\s+i\s+(?:use\s+to\s+)?play"
+            r"(?:\s+(?:music|apple\s+music))?(?:\s+on)?\s*[?.!]*$",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"^\s*(?:where\s+can\s+i\s+play(?:\s+(?:music|apple\s+music))?|"
+            r"what\s+can\s+i\s+play(?:\s+(?:music|apple\s+music))?\s+on)\s*[?.!]*$",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"^\s*(?:show|list)(?:\s+me)?(?:\s+(?:the|my))?(?:\s+(?:available|connected|registered|enabled))?"
+            r"\s+(?:music\s+|playback\s+)?devices?\s*[?.!]*$",
+            re.IGNORECASE,
+        ),
+    )
     _PLAY_PREFIX = re.compile(
         r"^\s*(?:please\s+)?(?:play|put on|listen to)(?=\s|$)\s*(?:some\s+)?(?:apple\s+music(?:\s+|$))?",
         re.IGNORECASE,
@@ -37,6 +60,8 @@ class MusicIntentParser:
 
     def parse(self, text: str, devices: list[dict[str, object]]) -> MusicIntent | None:
         normalized = " ".join(text.split())
+        if any(pattern.fullmatch(normalized) for pattern in self._DEVICE_LIST_PATTERNS):
+            return MusicIntent(action="list_devices")
         requested_device = self._requested_device(normalized, devices)
         control_text = normalized
         if requested_device:

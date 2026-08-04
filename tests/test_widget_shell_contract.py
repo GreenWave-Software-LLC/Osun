@@ -39,6 +39,12 @@ class WidgetShellContractTests(unittest.TestCase):
         self.assertIn("Automatically selected from playback in the last five minutes", self.javascript)
         self.assertIn('id="musicNav"', self.html)
 
+    def test_music_widget_has_a_read_only_available_device_view(self) -> None:
+        self.assertIn('widget.view === "devices"', self.javascript)
+        self.assertIn("Available playback devices", self.javascript)
+        self.assertIn("Osun can route Apple Music only to enabled, registered devices", self.javascript)
+        self.assertIn("static-device", self.javascript)
+
     def test_real_widget_operations_drive_the_running_animation(self) -> None:
         self.assertIn("setWidgetRunning(true);", self.javascript)
         self.assertIn("setWidgetRunning(false);", self.javascript)

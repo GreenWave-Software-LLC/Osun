@@ -193,6 +193,18 @@ class OsunRuntimeTests(unittest.TestCase):
         self.assertEqual("music", reply["widgets"][0]["request"]["query"])
         self.assertEqual([], qwen.received)
 
+    def test_playback_device_question_bypasses_qwen_and_opens_device_inventory(self) -> None:
+        qwen = FakeQwen(content="I do not have access to your playback devices.")
+        controller = OsunController(self.lighting, qwen, self.music)
+        reply = controller.message("what devices are available to play on?")
+
+        self.assertEqual("music", reply["agent"])
+        self.assertIn("This PC", reply["text"])
+        self.assertEqual([], qwen.received)
+        self.assertEqual("devices", reply["widgets"][0]["view"])
+        self.assertIsNone(reply["widgets"][0]["request"])
+        self.assertEqual(["This PC"], [device["name"] for device in reply["widgets"][0]["devices"]])
+
 
 if __name__ == "__main__":
     unittest.main()
