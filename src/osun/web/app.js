@@ -305,6 +305,12 @@ function musicDeviceDetail(device) {
     const seconds = Math.max(0, Number(device.seconds_since_playback));
     return seconds < 60 ? "Played here just now" : `Played here ${Math.floor(seconds / 60)} min ago`;
   }
+  if (device.kind === "windows_headphones") {
+    return device.connected ? `${device.detail || "Bluetooth headphones"} · Windows Apple Music app` : "Bluetooth headphones are not connected";
+  }
+  if (device.kind === "apple_tv") {
+    return device.connected ? "Apple Music on Apple TV through Home Assistant" : "Apple TV is unavailable in Home Assistant";
+  }
   if (device.kind === "windows_app") return "Windows Apple Music app on this PC";
   return device.kind === "browser" ? "Apple Music in this Osun window" : "Registered playback device";
 }
@@ -323,6 +329,15 @@ function musicRequestStateLabel(musicRequest) {
     completed: "Sent",
     failed: "Failed",
   }[musicRequest?.state] || "Ready";
+}
+
+function musicSelectionDetail(musicRequest) {
+  return {
+    recent_playback: "Automatically selected from transport activity in the last five minutes",
+    headphones_unavailable_default_tv: "Selected automatically because Bluetooth headphones are not connected",
+    default_tv: "Default television destination for this transport command",
+    only_available_destination: "The only currently available playback destination",
+  }[musicRequest?.selection_reason] || "Selected for this request";
 }
 
 function renderMusicWidget(widget = state.activeWidget) {
@@ -363,9 +378,9 @@ function renderMusicWidget(widget = state.activeWidget) {
     </div>` : musicRequest ? `
     <div class="music-request-card">
       <div class="proposal-heading"><h3>${escapeHtml(action)}</h3><span>${escapeHtml(musicRequestStateLabel(musicRequest))}</span></div>
-      ${needsDevice ? `<p class="proposal-summary">Nothing has played on a registered device in the last five minutes. Choose where to play.</p>
+      ${needsDevice ? `<p class="proposal-summary">Bluetooth headphones are connected. Choose Headphones for normal PC audio or Living Room Apple TV for television playback.</p>
         <div class="device-choice-list">${deviceChoices || '<p class="muted small">No music devices are enabled.</p>'}</div>` : `
-        <div class="music-device-line"><span class="device-icon" aria-hidden="true">♫</span><span><strong>${escapeHtml(selectedDevice?.name || musicRequest.device_name || "Selected device")}</strong><small>${escapeHtml(musicRequest.selection_reason === "recent_playback" ? "Automatically selected from playback in the last five minutes" : "Selected for this request")}</small></span></div>
+        <div class="music-device-line"><span class="device-icon" aria-hidden="true">♫</span><span><strong>${escapeHtml(selectedDevice?.name || musicRequest.device_name || "Selected device")}</strong><small>${escapeHtml(musicSelectionDetail(musicRequest))}</small></span></div>
         <div class="widget-actions">
           ${widget.mode === "musickit" ? '<button id="connectAppleMusic" class="secondary-button" type="button">Connect Apple Music</button>' : ""}
         </div>`}
@@ -390,7 +405,7 @@ function renderMusicWidget(widget = state.activeWidget) {
         </div>
         <div class="widget-mode" ${expanded ? "" : "hidden"}>
           <span class="${widget.mode !== "simulator" ? "live" : ""}">${escapeHtml(musicModeLabel(widget.mode))}</span>
-          <span>${widget.recent_window_seconds || 300}s recent-device window</span>
+          <span>${widget.recent_window_seconds || 300}s transport-memory window</span>
           <span class="${widget.autonomous_execution ? "autonomous" : ""}">${widget.autonomous_execution ? "Autonomous" : "Owner requests only"}</span>
         </div>
       </div>
@@ -467,7 +482,7 @@ async function getMusicKit() {
   if (!window.MusicKit) throw new Error("Apple MusicKit did not initialize");
   state.musicKit = await window.MusicKit.configure({
     developerToken: config.developer_token,
-    app: { name: "Osun", build: "0.4.0" },
+    app: { name: "Osun", build: "0.5.0" },
   });
   return state.musicKit;
 }
@@ -480,7 +495,7 @@ async function connectAppleMusic() {
     const music = await getMusicKit();
     await music.authorize();
     if (!musicKitAuthorized(music)) throw new Error("Apple Music authorization was canceled or denied");
-    state.musicResultText = "Apple Music is connected on This PC.";
+    state.musicResultText = "Apple Music is connected for local headphone playback.";
     if (state.activeWidget?.request?.state === "ready") {
       pendingRequestId = state.activeWidget.request.request_id;
     }
@@ -809,6 +824,12 @@ async function testAppleMusicApp() {
   ui.musicAppTestResult.textContent = "Checking the targeted Apple Music session…";
   try {
     const result = await request("/agents/music/settings/test-windows-app", "POST", {});
+    const destinationSummary = [
+      result.bluetooth_headphones_connected ? `Headphones: ${result.headphone_names?.[0] || "connected"}` : "Headphones: not connected",
+      result.apple_tv_available
+        ? "Apple TV: available"
+        : `Apple TV: unavailable${result.apple_tv_error ? ` (${result.apple_tv_error})` : ""}`,
+    ].join(" · ");
     if (!result.success) {
       ui.musicAppTestResult.textContent = result.error || "Apple Music is unavailable.";
     } else if (result.session_available) {
@@ -822,6 +843,7 @@ async function testAppleMusicApp() {
     } else {
       ui.musicAppTestResult.textContent = "Apple Music is installed. Open it and sign in once, then test again.";
     }
+    ui.musicAppTestResult.textContent += ` · ${destinationSummary}`;
   } catch (error) {
     ui.musicAppTestResult.textContent = error.message;
   } finally { ui.musicAppTest.disabled = false; }
@@ -881,7 +903,7 @@ async function saveSettings() {
 }
 
 async function deleteToken() {
-  if (!window.confirm("Delete the protected Home Assistant token and return lighting to simulation?")) return;
+  if (!window.confirm("Delete the protected Home Assistant token? This disables live lighting and Living Room Apple TV playback.")) return;
   try {
     await request("/agents/lighting/settings/delete-token", "POST", {});
     await refreshStatus(false);

@@ -83,7 +83,7 @@ class OsunController:
             box_status = self.qwen.status()
             box_status["warming"] = self._warming
             return {
-                "app": {"name": "Osun", "version": "0.4.0", "surface": "main_chat"},
+                "app": {"name": "Osun", "version": "0.5.0", "surface": "main_chat"},
                 "agent_box": box_status,
                 "agents": [
                     {
@@ -102,7 +102,7 @@ class OsunController:
                         "id": "music",
                         "name": "Music",
                         "state": "available",
-                        "description": "Apple Music playback and recent-device routing",
+                        "description": "Apple Music playback with Bluetooth Headphones and Apple TV routing",
                     },
                 ],
                 "lighting": self.lighting.status(),

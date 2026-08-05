@@ -34,7 +34,9 @@ Owner text now / owner voice later
        -> no tool: conversational response
        -> known typed tool: open a focused agent widget
             -> Lighting: exact proposal -> policy -> Home Assistant -> read-back
-            -> Music: typed intent -> recent-device policy -> Windows Apple Music app -> media-session read-back
+            -> Music: typed intent -> Bluetooth destination policy
+                     -> Headphones -> Windows Apple Music app -> media-session read-back
+                     -> Living Room Apple TV -> allowlisted Home Assistant media player -> state read-back
             -> focused compact/expandable widget exposes state and controls
 ```
 
@@ -110,7 +112,7 @@ The main UI contains:
 - an agent navigation area designed to grow without redesigning the conversation;
 - no widget column until an agent is called, followed by a compact widget that expands on demand and visibly animates while its operation runs;
 - Lighting targets, palette, exact values, manual/autonomous mode, Apply when manual, Connection, and Emergency pause inside the Lighting widget;
-- Music request, recent-device reason, registered device choices, connection state, and result inside the Music widget;
+- Music request, live Headphones/Apple TV choices, automatic no-headphones TV routing, connection state, and result inside the Music widget;
 - a unified Connection & safety dialog for Agent Box status and Home Assistant setup;
 - a visible but disabled voice affordance reserved for the next interface milestone.
 
@@ -133,6 +135,7 @@ The shell is responsive down to a single-column layout. It uses no cloud assets,
 11. Home Assistant grouped lights are modeled as zones with member-light metadata, separated from individual lights in the widget and connection allowlist.
 12. Apply is idempotent per proposal ID: a duplicate local request returns the original report without a second Home Assistant service call.
 13. A selected zone expands recursively to unique physical member lights before proposal construction, so themes coordinate a palette across bulbs and read-back verifies each bulb rather than an aggregate group value.
+14. Music may use Home Assistant only through the fixed Living Room Apple TV media-player adapter. Its entity resolution requires the exact configured ID or one exact friendly-name match, and model output cannot supply service names, entity IDs, or media URLs.
 14. An explicitly named selected light takes precedence over broader selected zones; overlapping zone/member selections are deduplicated by entity ID.
 15. Every consequential widget owns an independent autonomous-execution switch that defaults off; enabling one widget never grants another agent authority.
 16. Lighting autonomy is request-triggered only. It executes the deterministic proposal, not model-authored Home Assistant parameters, and records the policy change, autonomous dispatch, and result locally.
@@ -178,7 +181,7 @@ SHELL-T11 remains partially complete. Later on 2026-07-27, `homeassistant.local:
 - Author/agent: Primary AI coordinator acting as product engineer and security reviewer
 - Owner decision: Main Osun chat shell, pluggable widgets, Lighting as first agent, local Qwen Agent Box
 - Status: Shell and Qwen implemented; simulator verified; Home Assistant connected and actuating real lights; final supervised per-bulb zone verification remains
-- Automated evidence: 94 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation in the merge gate
+- Automated evidence: 101 tests passing with ResourceWarnings treated as errors; JavaScript syntax validation in the merge gate
 - Runtime music evidence: Windows adapter changed `Blue In Green` to `So What`, then routed `play cardi b on my pc` to `Up by Cardi B`; both exact active Apple Music media-session titles were verified on 2026-08-04
 - Runtime evidence: official Qwen model downloaded, 100% GPU placement observed, warm chat and tool-call smoke tests passed
 - Visual evidence: neutral shell, agent dock, real-Qwen Lighting widget, exact Deep Ocean preview, separate Zones/Lights layouts with group membership, and default-off autonomous control/result states; visual QA found and corrected simultaneous empty/widget rendering

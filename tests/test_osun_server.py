@@ -57,6 +57,19 @@ class FakeWindowsAdapter:
         }
 
 
+class FakeHeadphoneDetector:
+    def status(self) -> dict[str, object]:
+        return {"connected": True, "names": ["Test Bluetooth Headphones"], "evidence": "test"}
+
+
+class FakeAppleTVAdapter:
+    def available(self) -> bool:
+        return True
+
+    def execute(self, _action: str, query: str = "") -> WindowsMusicResult:
+        return WindowsMusicResult(success=True, verified=True, playback_active=True, now_playing=query)
+
+
 class OsunServerTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -70,6 +83,8 @@ class OsunServerTests(unittest.TestCase):
             MusicConfigStore(root / "music.json"),
             WindowsCredentialStore(root / "music-credential.bin"),
             FakeWindowsAdapter(),  # type: ignore[arg-type]
+            headphone_detector=FakeHeadphoneDetector(),  # type: ignore[arg-type]
+            apple_tv_adapter=FakeAppleTVAdapter(),  # type: ignore[arg-type]
         )
         music.save_settings({"mode": "simulator"})
         controller = OsunController(lighting, WidgetQwen(), music)
@@ -139,7 +154,7 @@ class OsunServerTests(unittest.TestCase):
             "/agents/music/select-device",
             {
                 "request_id": widget["request"]["request_id"],
-                "device_id": "agent-box-windows",
+                "device_id": "bluetooth-headphones",
             },
         )
         result = self.post(
@@ -147,7 +162,7 @@ class OsunServerTests(unittest.TestCase):
             {"request_id": selected["request"]["request_id"]},
         )
         self.assertEqual("simulated", result["state"])
-        self.assertEqual("This PC", result["device_name"])
+        self.assertEqual("Headphones", result["device_name"])
 
     def test_windows_apple_music_probe_endpoint_is_bounded(self) -> None:
         result = self.post("/agents/music/settings/test-windows-app", {})
