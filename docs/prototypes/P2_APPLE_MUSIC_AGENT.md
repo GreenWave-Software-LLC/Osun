@@ -15,7 +15,7 @@ The Music agent handles explicit requests to play, pause, resume, skip, or go ba
 
 The Headphones adapter controls the installed Windows Apple Music application on the Agent Box. It uses Apple's public iTunes Search API to resolve an owner query to an Apple-owned catalog result, validates that result, and opens it using the Apple package's registered `/url` command. It starts the visible matching song using Apple's documented Windows interaction, falling back to catalog Search with the resolved title and artist when needed, and reads back only the Apple Music Windows media session. Pause, resume, next, and previous use targeted Windows media-session commands. No Apple developer membership or MusicKit token is required.
 
-The Living Room Apple TV adapter reuses the owner's existing DPAPI-protected Home Assistant connection. It resolves only `media_player.living_room_apple_tv`, or one entity with the exact friendly name **Living Room Apple TV**, sends a validated Apple Music catalog link through `media_player.play_media`, and reads the media-player state back. Apple does not document a Windows AirPlay output control comparable to the one on Mac, so Osun launches native Apple Music content on Apple TV rather than adding an unsupported or paid system-audio mirroring dependency. MusicKit on the Web remains optional. Osun does not control arbitrary iPhones, HomePods, or media players.
+The Apple TV adapter reuses the owner's existing DPAPI-protected Home Assistant connection. Settings discovers only valid `media_player` entities and lets the owner persist one exact entity ID and display name. Runtime playback can target only that stored entity, sends a validated Apple Music catalog link through `media_player.play_media`, and reads the selected media-player state back. The former exact `media_player.living_room_apple_tv` or friendly-name lookup remains only as a migration fallback until the owner saves a selection. Apple does not document a Windows AirPlay output control comparable to the one on Mac, so Osun launches native Apple Music content on Apple TV rather than adding an unsupported or paid system-audio mirroring dependency. MusicKit on the Web remains optional. Osun does not control arbitrary iPhones, HomePods, or unselected media players.
 
 ## 2. Device-routing policy
 
@@ -54,7 +54,7 @@ Owner chat request
   -> compact/expandable widget and chat show the result
 ```
 
-The Music widget is absent until called, starts compact, expands when selected, and animates while selecting or executing. Settings includes a live adapter test that reports the Windows app/media session, connected Bluetooth headphones, and Home Assistant Apple TV availability. The per-widget autonomous switch defaults off. Explicit owner chat commands are direct authorization for the requested playback; the switch is reserved for future proactive music actions and does not silently grant them today.
+The Music widget is absent until called, starts compact, expands when selected, and animates while selecting or executing. Settings includes bounded Home Assistant media-center discovery, an explicit selector, and a live adapter test that reports the Windows app/media session, connected Bluetooth headphones, and selected media-center availability. The per-widget autonomous switch defaults off. Explicit owner chat commands are direct authorization for the requested playback; the switch is reserved for future proactive music actions and does not silently grant them today.
 
 ## 4. Credentials and trust boundaries
 
@@ -66,23 +66,23 @@ The Music widget is absent until called, starts compact, expands when selected, 
 - Windows prevents cross-privilege UI control. Osun and Apple Music must run under the same signed-in Windows user and privilege level; neither should be run as Administrator. MiniPlayer and full-screen playback should be exited for catalog-search requests.
 - A play request is recorded as recent only after media-session playback evidence. A targeted UI command without read-back is shown honestly and does not fabricate playback history.
 - Bluetooth discovery is a closed, parameter-free PowerShell probe. It prefers PnP ancestry for currently present `AudioEndpoint` devices and falls back to WinRT's active audio-render endpoint list when the process cannot read PnP ancestry. It returns only a bounded connected flag and up to eight short endpoint names; the result is cached for five seconds and not persisted.
-- The Apple TV adapter may call only `GET /api/states`, `GET /api/states/<resolved Living Room Apple TV>`, and the fixed `media_player` services needed for play, pause, resume, next, or previous. The owner request and Qwen cannot provide the Home Assistant URL, credential, entity ID, service path, or media host.
+- Media-center discovery may read `GET /api/states`, filters the result to at most 100 syntactically valid `media_player` entities, and exposes only bounded entity ID, friendly name, and state fields. Playback may read only the persisted selected entity and call the fixed `media_player` services needed for play, pause, resume, next, or previous. The owner request and Qwen cannot provide or change the Home Assistant URL, credential, entity ID, service path, or media host.
 - Apple TV play accepts only the Apple-owned URL returned by the bounded catalog client. Home Assistant service acceptance without state confirmation is reported as unverified and does not create playback history.
 - The optional MusicKit provider retains the existing DPAPI-protected developer-token design. Never place an Apple `.p8` private key in Osun, chat, Git, screenshots, or the Pi.
 
 ## 5. Real setup and supervised canary
 
 1. Install or update **Apple Music** from Microsoft Store, open it once, sign in, and confirm a song plays normally through the PC.
-2. In Home Assistant, add and pair the official **Apple TV** integration. Confirm it exposes either `media_player.living_room_apple_tv` or exactly one media player named **Living Room Apple TV**.
-3. Open **Osun -> Settings -> Music agent**, select **Windows app**, keep **Enable Music agent** checked, and save.
-4. Select **Test Apple Music app**. Require the result to report the Windows app state, current Bluetooth headphone state, and `Apple TV: available`.
+2. In Home Assistant, add and pair the official **Apple TV** integration and confirm it exposes a `media_player` entity.
+3. Open **Osun -> Settings -> Music agent**, select **Discover media centers**, choose the Apple TV entity, select **Windows app**, keep **Enable Music agent** checked, and save.
+4. Select **Test Apple Music app**. Require the result to report the Windows app state, current Bluetooth headphone state, the selected entity name, and `available`.
 5. Connect Bluetooth headphones, ask `play Kind of Blue`, and require a choice between **Headphones** and **Living Room Apple TV**.
 6. Choose **Headphones**. Confirm the Windows Apple Music app starts an audible result and Osun reports media-session verification.
 7. Make a new play request while the headphones remain connected. Require the choice again; recent playback must not suppress it.
 8. Choose **Living Room Apple TV**. Confirm the Apple TV launches/plays the matched Apple Music result and Osun reports Home Assistant read-back when available.
 9. Disconnect the headphones and ask for another song. Require automatic routing to Living Room Apple TV without a destination question.
 10. Test pause, resume, next, and previous on both destinations; each must remain inside its typed adapter.
-11. Disable or rename the Apple TV entity and confirm Osun fails closed without calling another media player.
+11. Disable or remove the selected Apple TV entity and confirm Osun fails closed without calling another media player.
 12. Sign out or close Windows Apple Music and confirm the Headphones path fails with a recovery instruction rather than controlling another player.
 
 Official references:
@@ -120,10 +120,10 @@ Official references:
 | MUSIC-T15 | Scoped query fragment | A model-routed `a Cardi B song` becomes a play request; the same bare phrase outside Music scope does not |
 | MUSIC-T16 | Device inventory | A playback-device question bypasses Qwen, lists enabled registered devices, executes nothing, and preserves pending playback |
 | MUSIC-T17 | Bluetooth probe | Only active bounded headphone endpoint metadata is returned; nothing is persisted |
-| MUSIC-T18 | Apple TV allowlist | Exact ID or one exact friendly-name match is required; ambiguous/missing entities fail closed |
+| MUSIC-T18 | Apple TV allowlist | Discovery exposes bounded media-player metadata; playback targets only the persisted owner-selected entity and a missing entity fails closed |
 | MUSIC-T19 | Apple TV canary | Audible Apple TV playback and Home Assistant read-back agree on the requested song |
 
-Automated evidence covers MUSIC-T01 through MUSIC-T09 and MUSIC-T11 through MUSIC-T18. MUSIC-T10 passed under direct owner-session observation on 2026-08-04: the adapter changed playback from `Blue In Green` to `So What`, and the targeted Windows media session returned `So What by Miles Davis — Kind of Blue` with active, verified playback. A second exact conversational canary routed `play cardi b on my pc` to the local Windows path, preserved `cardi b` as the catalog query, played `Up by Cardi B — Up - Single`, and verified the result through the targeted Windows media session. Both canaries used the installed Windows app and required no developer credentials. MUSIC-T19 remains the supervised real-device check after the Home Assistant Apple TV entity is confirmed.
+Automated evidence covers MUSIC-T01 through MUSIC-T09 and MUSIC-T11 through MUSIC-T18, including configured media-center discovery, persistence, exact targeting, and rejection of non-media-player selections. MUSIC-T10 passed under direct owner-session observation on 2026-08-04: the adapter changed playback from `Blue In Green` to `So What`, and the targeted Windows media session returned `So What by Miles Davis — Kind of Blue` with active, verified playback. A second exact conversational canary routed `play cardi b on my pc` to the local Windows path, preserved `cardi b` as the catalog query, played `Up by Cardi B — Up - Single`, and verified the result through the targeted Windows media session. Both canaries used the installed Windows app and required no developer credentials. MUSIC-T19 remains the supervised real-device check after the owner selects the correct Home Assistant Apple TV entity.
 
 ## 7. Next device adapters
 

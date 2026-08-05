@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import time
 from collections.abc import Callable
 from typing import Any, Protocol
@@ -12,12 +11,13 @@ from osun_lights.home_assistant import HomeAssistantClient, HomeAssistantError
 from osun_lights.runtime import credential_store as lighting_credential_store
 
 from .catalog import AppleCatalogSearch
+from .config import MEDIA_PLAYER_ENTITY
 from .windows_app import WindowsMusicResult
 
 
 APPLE_TV_ENTITY_ID = "media_player.living_room_apple_tv"
 APPLE_TV_FRIENDLY_NAME = "Living Room Apple TV"
-MEDIA_PLAYER_ENTITY = re.compile(r"^media_player\.[a-z0-9_]+$")
+MAX_MEDIA_CENTERS = 100
 
 
 class HomeAssistantRequester(Protocol):
@@ -31,12 +31,14 @@ class HomeAssistantAppleTVAdapter:
         self,
         catalog: AppleCatalogSearch | None = None,
         client_provider: Callable[[], HomeAssistantRequester] | None = None,
+        selection_provider: Callable[[], tuple[str, str]] | None = None,
         *,
         sleep: Callable[[float], None] = time.sleep,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self.catalog = catalog or AppleCatalogSearch()
         self._client_provider = client_provider
+        self._selection_provider = selection_provider
         self._sleep = sleep
         self._clock = clock
 
@@ -56,6 +58,7 @@ class HomeAssistantAppleTVAdapter:
             return {
                 "success": True,
                 "entity_id": entity_id,
+                "friendly_name": self._friendly_name(state, entity_id),
                 "state": " ".join(str(state.get("state", "unknown")).split())[:40],
                 "error": "",
             }
@@ -64,9 +67,32 @@ class HomeAssistantAppleTVAdapter:
             return {
                 "success": False,
                 "entity_id": "",
+                "friendly_name": "",
                 "state": "",
-                "error": message or "Living Room Apple TV is unavailable in Home Assistant.",
+                "error": message or "The configured media center is unavailable in Home Assistant.",
             }
+
+    def discover_media_centers(self) -> list[dict[str, str]]:
+        client = self._client()
+        states = client._request("GET", "/api/states")
+        if not isinstance(states, list):
+            raise HomeAssistantError("Home Assistant returned an invalid media-player list")
+        discovered: dict[str, dict[str, str]] = {}
+        for item in states:
+            if not isinstance(item, dict):
+                continue
+            entity_id = item.get("entity_id")
+            if not isinstance(entity_id, str) or not MEDIA_PLAYER_ENTITY.fullmatch(entity_id):
+                continue
+            discovered[entity_id] = {
+                "entity_id": entity_id,
+                "friendly_name": self._friendly_name(item, entity_id),
+                "state": " ".join(str(item.get("state", "unknown")).split())[:40],
+            }
+        return sorted(
+            discovered.values(),
+            key=lambda item: (item["friendly_name"].casefold(), item["entity_id"]),
+        )[:MAX_MEDIA_CENTERS]
 
     def execute(self, action: str, query: str = "") -> WindowsMusicResult:
         try:
@@ -120,7 +146,7 @@ class HomeAssistantAppleTVAdapter:
         except (CredentialStoreError, HomeAssistantError, OSError, RuntimeError, ValueError) as exc:
             message = str(exc)
             if not message or len(message) > 240:
-                message = "Living Room Apple TV playback failed safely."
+                message = "Media-center playback failed safely."
             return WindowsMusicResult(success=False, error=message)
 
     def _client(self) -> HomeAssistantRequester:
@@ -129,11 +155,15 @@ class HomeAssistantAppleTVAdapter:
         config = LightingConfigStore().load()
         token = lighting_credential_store().load()
         if not token:
-            raise ValueError("Connect Home Assistant in Lighting settings before using Living Room Apple TV")
+            raise ValueError("Connect Home Assistant in Lighting settings before using a media center")
         return HomeAssistantClient(config.home_assistant_url, token, set())
 
-    @staticmethod
-    def _resolve_entity(client: HomeAssistantRequester) -> str:
+    def _resolve_entity(self, client: HomeAssistantRequester) -> str:
+        configured_entity_id, _configured_name = self._configured_selection()
+        if configured_entity_id:
+            if not MEDIA_PLAYER_ENTITY.fullmatch(configured_entity_id):
+                raise ValueError("The configured media center is not a valid Home Assistant media_player entity")
+            return configured_entity_id
         states = client._request("GET", "/api/states")
         if not isinstance(states, list):
             raise HomeAssistantError("Home Assistant returned an invalid media-player list")
@@ -155,7 +185,13 @@ class HomeAssistantAppleTVAdapter:
             return exact_id
         if len(set(exact_name)) == 1:
             return exact_name[0]
-        raise ValueError("Home Assistant could not find exactly one Living Room Apple TV media player")
+        raise ValueError("Choose a Home Assistant media center in Music settings")
+
+    def _configured_selection(self) -> tuple[str, str]:
+        if self._selection_provider is None:
+            return "", APPLE_TV_FRIENDLY_NAME
+        entity_id, friendly_name = self._selection_provider()
+        return entity_id.strip(), " ".join(friendly_name.split())[:80]
 
     @staticmethod
     def _state(client: HomeAssistantRequester, entity_id: str) -> dict[str, Any]:
@@ -194,6 +230,12 @@ class HomeAssistantAppleTVAdapter:
         title = " ".join(str(attributes.get("media_title", "")).split())[:120]
         artist = " ".join(str(attributes.get("media_artist", "")).split())[:80]
         return f"{title} by {artist}" if title and artist else title
+
+    @staticmethod
+    def _friendly_name(state: dict[str, Any], entity_id: str) -> str:
+        attributes = state.get("attributes") if isinstance(state.get("attributes"), dict) else {}
+        friendly_name = " ".join(str(attributes.get("friendly_name", "")).split())[:80]
+        return friendly_name or entity_id
 
     @staticmethod
     def _title_matches(expected: str, observed: str) -> bool:

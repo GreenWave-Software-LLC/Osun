@@ -142,7 +142,7 @@ class FakeHomeAssistantClient:
                 },
             }
             return []
-        if method == "GET" and path == "/api/states/media_player.living_room_apple_tv":
+        if method == "GET" and path == f"/api/states/{self.state['entity_id']}":
             return dict(self.state)
         return []
 
@@ -201,8 +201,78 @@ class WindowsMusicAdapterTests(unittest.TestCase):
         result = adapter.execute("play", "Blue in Green")
 
         self.assertFalse(result.success)
-        self.assertIn("could not find exactly one", result.error)
+        self.assertIn("Choose a Home Assistant media center", result.error)
         self.assertFalse(any(call[0] == "POST" for call in client.calls))
+
+    def test_home_assistant_tv_adapter_targets_only_configured_media_center(self) -> None:
+        client = FakeHomeAssistantClient()
+        client.state = {
+            "entity_id": "media_player.den_apple_tv",
+            "state": "idle",
+            "attributes": {"friendly_name": "My Apple TV"},
+        }
+        adapter = HomeAssistantAppleTVAdapter(
+            FakeCatalog(),  # type: ignore[arg-type]
+            lambda: client,
+            lambda: ("media_player.den_apple_tv", "My Apple TV"),
+            sleep=lambda _seconds: None,
+        )
+
+        probe = adapter.probe()
+        result = adapter.execute("play", "Blue in Green")
+
+        self.assertTrue(probe["success"])
+        self.assertEqual("media_player.den_apple_tv", probe["entity_id"])
+        self.assertEqual("My Apple TV", probe["friendly_name"])
+        service_call = next(call for call in client.calls if call[0] == "POST")
+        self.assertEqual("media_player.den_apple_tv", service_call[2]["entity_id"])
+        self.assertTrue(result.success)
+        self.assertFalse(any(call[1] == "/api/states" for call in client.calls))
+
+    def test_missing_configured_media_center_fails_without_service_call(self) -> None:
+        client = MissingAppleTVClient()
+        adapter = HomeAssistantAppleTVAdapter(
+            FakeCatalog(),  # type: ignore[arg-type]
+            lambda: client,
+            lambda: ("media_player.missing_apple_tv", "Missing Apple TV"),
+        )
+
+        result = adapter.execute("play", "Blue in Green")
+
+        self.assertFalse(result.success)
+        self.assertFalse(any(call[0] == "POST" for call in client.calls))
+        self.assertFalse(any(call[1] == "/api/states" for call in client.calls))
+
+    def test_home_assistant_media_center_discovery_is_filtered_and_bounded(self) -> None:
+        client = FakeHomeAssistantClient()
+        original_request = client._request
+
+        def request(method: str, path: str, payload: dict[str, object] | None = None) -> object:
+            if method == "GET" and path == "/api/states":
+                rows: list[dict[str, object]] = [
+                    {
+                        "entity_id": f"media_player.room_{index:03d}",
+                        "state": "idle",
+                        "attributes": {"friendly_name": f"Room {index:03d}"},
+                    }
+                    for index in range(105)
+                ]
+                rows.extend(
+                    [
+                        {"entity_id": "light.not_media", "state": "on", "attributes": {}},
+                        {"entity_id": "media_player.INVALID", "state": "idle", "attributes": {}},
+                    ]
+                )
+                return rows
+            return original_request(method, path, payload)
+
+        client._request = request  # type: ignore[method-assign]
+        adapter = HomeAssistantAppleTVAdapter(FakeCatalog(), lambda: client)  # type: ignore[arg-type]
+
+        discovered = adapter.discover_media_centers()
+
+        self.assertEqual(100, len(discovered))
+        self.assertTrue(all(item["entity_id"].startswith("media_player.room_") for item in discovered))
 
     def test_public_catalog_is_bounded_and_ranks_exact_song(self) -> None:
         requested: list[str] = []

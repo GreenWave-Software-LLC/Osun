@@ -134,8 +134,13 @@
           <button id="musicAppTestButton" class="secondary-button" type="button">Test Apple Music app</button>
           <span id="musicAppTestResult" class="muted small">Checks Apple Music, Bluetooth headphones, and Living Room Apple TV.</span>
         </div>
+        <label class="field"><span>Home Assistant media center</span><select id="mediaCenterSelect"><option value="">Auto-detect Living Room Apple TV (legacy)</option></select></label>
+        <div class="inline-actions">
+          <button id="discoverMediaCentersButton" class="secondary-button" type="button">Discover media centers</button>
+          <span id="mediaCenterResult" class="muted small">Select the Apple TV entity that Osun may control.</span>
+        </div>
         <div class="registered-device"><span class="device-icon">♫</span><span><strong>Headphones</strong><small>Available when a Bluetooth headphone output is connected · normal Windows Apple Music playback</small></span></div>
-        <div class="registered-device"><span class="device-icon">♫</span><span><strong>Living Room Apple TV</strong><small>Apple Music playback through the protected Home Assistant connection</small></span></div>
+        <div class="registered-device"><span class="device-icon">♫</span><span><strong id="mediaCenterDeviceName">Living Room Apple TV</strong><small id="mediaCenterDeviceDetail">Apple Music playback through the protected Home Assistant connection</small></span></div>
         <label class="field"><span>MusicKit developer token · write only</span><input id="musicDeveloperToken" type="password" autocomplete="new-password" placeholder="Leave blank to keep the saved token"></label>
         <p class="muted small">No developer membership is needed for Windows app mode. The token is only for the optional future MusicKit web provider.</p>
         <label class="switch-row"><span><strong>Enable Music agent</strong><small>Allows explicit owner playback requests on registered devices</small></span><input id="musicEnabled" type="checkbox" checked></label>

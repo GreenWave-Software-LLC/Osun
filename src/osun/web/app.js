@@ -10,6 +10,7 @@ const state = {
   runningWidgetId: null,
   selectedEntities: new Set(),
   discoveredLights: [],
+  discoveredMediaCenters: [],
   busy: false,
   applyingProposalId: null,
   resultText: "",
@@ -53,6 +54,11 @@ const ui = {
   musicModeBadge: document.getElementById("musicModeBadge"),
   musicAppTest: document.getElementById("musicAppTestButton"),
   musicAppTestResult: document.getElementById("musicAppTestResult"),
+  discoverMediaCenters: document.getElementById("discoverMediaCentersButton"),
+  mediaCenterResult: document.getElementById("mediaCenterResult"),
+  mediaCenterSelect: document.getElementById("mediaCenterSelect"),
+  mediaCenterDeviceName: document.getElementById("mediaCenterDeviceName"),
+  mediaCenterDeviceDetail: document.getElementById("mediaCenterDeviceDetail"),
   musicDeveloperToken: document.getElementById("musicDeveloperToken"),
   musicEnabled: document.getElementById("musicEnabled"),
   musicAutonomousExecution: document.getElementById("musicAutonomousExecution"),
@@ -482,7 +488,7 @@ async function getMusicKit() {
   if (!window.MusicKit) throw new Error("Apple MusicKit did not initialize");
   state.musicKit = await window.MusicKit.configure({
     developerToken: config.developer_token,
-    app: { name: "Osun", build: "0.5.0" },
+    app: { name: "Osun", build: "0.6.0" },
   });
   return state.musicKit;
 }
@@ -747,6 +753,31 @@ async function refreshStatus(renderWidget = true) {
   }
 }
 
+function renderMediaCenterOptions(selectedEntityId = "", selectedName = "Living Room Apple TV") {
+  const discovered = [...state.discoveredMediaCenters];
+  if (selectedEntityId && !discovered.some(center => center.entity_id === selectedEntityId)) {
+    discovered.push({ entity_id: selectedEntityId, friendly_name: selectedName, state: "saved" });
+  }
+  const options = [
+    '<option value="" data-name="Living Room Apple TV">Auto-detect Living Room Apple TV (legacy)</option>',
+    ...discovered.map(center => `<option value="${escapeHtml(center.entity_id)}" data-name="${escapeHtml(center.friendly_name)}">${escapeHtml(center.friendly_name)} · ${escapeHtml(center.entity_id)}</option>`),
+  ];
+  ui.mediaCenterSelect.innerHTML = options.join("");
+  ui.mediaCenterSelect.value = selectedEntityId;
+  if (ui.mediaCenterSelect.value !== selectedEntityId) ui.mediaCenterSelect.value = "";
+  updateMediaCenterPreview();
+}
+
+function updateMediaCenterPreview() {
+  const selected = ui.mediaCenterSelect.selectedOptions[0];
+  const name = selected?.dataset.name || "Living Room Apple TV";
+  const entityId = selected?.value || "";
+  ui.mediaCenterDeviceName.textContent = name;
+  ui.mediaCenterDeviceDetail.textContent = entityId
+    ? `Allowlisted Home Assistant entity · ${entityId}`
+    : "Legacy exact-name auto-detection; discover and select an entity for reliable routing";
+}
+
 function renderSettings() {
   const box = state.status.agent_box;
   const lighting = state.status.lighting;
@@ -777,6 +808,7 @@ function renderSettings() {
   ui.musicEnabled.checked = music.enabled;
   ui.musicAutonomousExecution.checked = music.autonomous_execution;
   ui.musicModeBadge.textContent = musicModeLabel(music.effective_mode);
+  renderMediaCenterOptions(music.media_center?.entity_id || "", music.media_center?.name || "Living Room Apple TV");
   ui.musicAppTestResult.textContent = music.windows_app_available
     ? "Windows app control is supported; test to inspect the Apple Music installation and live session."
     : "Windows app control is unavailable on this operating system.";
@@ -819,6 +851,23 @@ async function discoverLights() {
   } finally { ui.discover.disabled = false; }
 }
 
+async function discoverMediaCenters() {
+  ui.discoverMediaCenters.disabled = true;
+  ui.mediaCenterResult.textContent = "Reading Home Assistant media players…";
+  const currentSelection = ui.mediaCenterSelect.value;
+  const currentName = ui.mediaCenterSelect.selectedOptions[0]?.dataset.name || "Living Room Apple TV";
+  try {
+    const result = await request("/agents/music/settings/discover-media-centers", "POST", {});
+    state.discoveredMediaCenters = Array.isArray(result.media_centers) ? result.media_centers : [];
+    renderMediaCenterOptions(currentSelection || result.selected_entity_id || "", currentName);
+    ui.mediaCenterResult.textContent = state.discoveredMediaCenters.length
+      ? `${state.discoveredMediaCenters.length} media center${state.discoveredMediaCenters.length === 1 ? "" : "s"} found. Select your Apple TV, then save settings.`
+      : "No Home Assistant media_player entities were found.";
+  } catch (error) {
+    ui.mediaCenterResult.textContent = error.message;
+  } finally { ui.discoverMediaCenters.disabled = false; }
+}
+
 async function testAppleMusicApp() {
   ui.musicAppTest.disabled = true;
   ui.musicAppTestResult.textContent = "Checking the targeted Apple Music session…";
@@ -827,8 +876,8 @@ async function testAppleMusicApp() {
     const destinationSummary = [
       result.bluetooth_headphones_connected ? `Headphones: ${result.headphone_names?.[0] || "connected"}` : "Headphones: not connected",
       result.apple_tv_available
-        ? "Apple TV: available"
-        : `Apple TV: unavailable${result.apple_tv_error ? ` (${result.apple_tv_error})` : ""}`,
+        ? `${result.apple_tv_name || "Media center"}: available`
+        : `Media center: unavailable${result.apple_tv_error ? ` (${result.apple_tv_error})` : ""}`,
     ].join(" · ");
     if (!result.success) {
       ui.musicAppTestResult.textContent = result.error || "Apple Music is unavailable.";
@@ -852,6 +901,7 @@ async function testAppleMusicApp() {
 async function saveSettings() {
   const mode = document.querySelector('input[name="lightingMode"]:checked').value;
   const musicMode = document.querySelector('input[name="musicMode"]:checked').value;
+  const mediaCenterOption = ui.mediaCenterSelect.selectedOptions[0];
   const allowed = [...document.querySelectorAll(".allowed-light:checked")].map(input => input.value);
   try {
     const lighting = await request("/agents/lighting/settings/save", "POST", {
@@ -868,6 +918,8 @@ async function saveSettings() {
       developer_token: ui.musicDeveloperToken.value,
       enabled: ui.musicEnabled.checked,
       autonomous_execution: ui.musicAutonomousExecution.checked,
+      media_center_entity_id: ui.mediaCenterSelect.value,
+      media_center_name: mediaCenterOption?.dataset.name || "Living Room Apple TV",
     });
     ui.haToken.value = "";
     ui.musicDeveloperToken.value = "";
@@ -958,6 +1010,8 @@ ui.musicNav.addEventListener("click", () => {
 });
 ui.settingsButton.addEventListener("click", openSettings);
 ui.discover.addEventListener("click", discoverLights);
+ui.discoverMediaCenters.addEventListener("click", discoverMediaCenters);
+ui.mediaCenterSelect.addEventListener("change", updateMediaCenterPreview);
 ui.musicAppTest.addEventListener("click", testAppleMusicApp);
 ui.saveSettings.addEventListener("click", saveSettings);
 ui.deleteToken.addEventListener("click", deleteToken);

@@ -9,7 +9,7 @@ from typing import Any, Callable
 from osun_lights.credential_store import WindowsCredentialStore
 
 from .bluetooth_audio import WindowsBluetoothHeadphoneDetector
-from .config import MusicConfig, MusicConfigStore, default_data_dir
+from .config import MusicConfig, MusicConfigStore, MusicDeviceConfig, default_data_dir
 from .device_router import RECENT_PLAYBACK_SECONDS, choose_playback_device
 from .home_assistant_tv import HomeAssistantAppleTVAdapter
 from .intent_parser import MusicIntent, MusicIntentParser
@@ -17,7 +17,6 @@ from .windows_app import WindowsAppleMusicAdapter
 
 
 _DEFAULT_HEADPHONE_DETECTOR = WindowsBluetoothHeadphoneDetector()
-_DEFAULT_APPLE_TV_ADAPTER = HomeAssistantAppleTVAdapter()
 
 
 class MusicController:
@@ -43,8 +42,10 @@ class MusicController:
         self.parser = MusicIntentParser()
         self.windows_adapter = windows_adapter or WindowsAppleMusicAdapter()
         self.headphone_detector = headphone_detector or _DEFAULT_HEADPHONE_DETECTOR
-        self.apple_tv_adapter = apple_tv_adapter or _DEFAULT_APPLE_TV_ADAPTER
         self.config = self.config_store.load()
+        self.apple_tv_adapter = apple_tv_adapter or HomeAssistantAppleTVAdapter(
+            selection_provider=self._media_center_selection,
+        )
         self._last_played: dict[str, float] = {}
         self._requests: dict[str, dict[str, Any]] = {}
         self._results: dict[str, dict[str, Any]] = {}
@@ -69,6 +70,10 @@ class MusicController:
                 "developer_token_configured": token_configured,
                 "windows_app_available": self.windows_adapter.available(),
                 "autonomous_execution": self.config.autonomous_execution,
+                "media_center": {
+                    "entity_id": self.config.media_center_entity_id,
+                    "name": self._media_center_selection()[1],
+                },
                 "recent_window_seconds": RECENT_PLAYBACK_SECONDS,
                 "devices": devices,
                 "pending": deepcopy(pending),
@@ -119,9 +124,11 @@ class MusicController:
             self._trim_requests()
             if request["state"] == "needs_device":
                 action = self._action_description(request)
+                television = next((device for device in devices if device.get("kind") == "apple_tv"), None)
+                television_name = str(television.get("name")) if television else "the configured media center"
                 text_reply = (
                     f"Bluetooth headphones are connected. Would you like me to {action} on Headphones "
-                    "or Living Room Apple TV?"
+                    f"or {television_name}?"
                     if decision.reason == "ask_headphones_or_tv"
                     else f"Which available device should I use to {action}?"
                 )
@@ -134,11 +141,11 @@ class MusicController:
                     )
                 elif decision.reason == "headphones_unavailable_default_tv":
                     text_reply = (
-                        f"Bluetooth headphones are not connected, so I’ll use Living Room Apple TV to "
+                        f"Bluetooth headphones are not connected, so I’ll use {device['name']} to "
                         f"{self._action_description(request)}."
                     )
                 elif decision.reason == "default_tv":
-                    text_reply = f"Routing {self._action_description(request)} to Living Room Apple TV."
+                    text_reply = f"Routing {self._action_description(request)} to {device['name']}."
                 else:
                     text_reply = f"Routing {self._action_description(request)} to {device['name']} as requested."
             return {"text": text_reply, "request": deepcopy(request)}
@@ -332,7 +339,20 @@ class MusicController:
             "headphone_names": [" ".join(str(name).split())[:80] for name in headphone_names[:8]],
             "apple_tv_available": apple_tv_probe.get("success") is True,
             "apple_tv_entity_id": " ".join(str(apple_tv_probe.get("entity_id", "")).split())[:80],
+            "apple_tv_name": " ".join(str(apple_tv_probe.get("friendly_name", "")).split())[:80],
             "apple_tv_error": " ".join(str(apple_tv_probe.get("error", "")).split())[:240],
+        }
+
+    def discover_media_centers(self) -> dict[str, Any]:
+        discovery = getattr(self.apple_tv_adapter, "discover_media_centers", None)
+        if not callable(discovery):
+            raise ValueError("The installed media-center adapter does not support discovery")
+        media_centers = discovery()
+        if not isinstance(media_centers, list):
+            raise ValueError("Home Assistant returned an invalid media-center list")
+        return {
+            "media_centers": deepcopy(media_centers[:100]),
+            "selected_entity_id": self.config.media_center_entity_id,
         }
 
     def save_settings(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -345,11 +365,29 @@ class MusicController:
             enabled = enabled_raw
             autonomous = autonomous_raw
             token = str(payload.get("developer_token", "")).strip()
+            entity_raw = payload.get("media_center_entity_id", self.config.media_center_entity_id)
+            name_raw = payload.get("media_center_name", self._media_center_selection()[1])
+            if not isinstance(entity_raw, str) or not isinstance(name_raw, str):
+                raise ValueError("Media-center selection must use text values")
+            media_center_entity_id = entity_raw.strip()
+            media_center_name = " ".join(name_raw.split())
+            if not media_center_name or len(media_center_name) > 80:
+                raise ValueError("Media center requires a short display name")
+            devices = [
+                MusicDeviceConfig(
+                    device_id=device.device_id,
+                    name=media_center_name if device.kind == "apple_tv" else device.name,
+                    kind=device.kind,
+                    enabled=device.enabled,
+                )
+                for device in self.config.devices
+            ]
             config = MusicConfig(
                 mode=mode,
                 enabled=enabled,
                 autonomous_execution=autonomous,
-                devices=self.config.devices,
+                media_center_entity_id=media_center_entity_id,
+                devices=devices,
             )
             config.validate()
             if token:
@@ -433,6 +471,13 @@ class MusicController:
                 }
             )
         return rows
+
+    def _media_center_selection(self) -> tuple[str, str]:
+        configured = next((device for device in self.config.devices if device.kind == "apple_tv"), None)
+        return (
+            self.config.media_center_entity_id,
+            configured.name if configured else "Living Room Apple TV",
+        )
 
     def _device(self, device_id: str | None, now: float) -> dict[str, Any]:
         for device in self._devices(now):

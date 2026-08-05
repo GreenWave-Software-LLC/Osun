@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 DEVICE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
+MEDIA_PLAYER_ENTITY = re.compile(r"^media_player\.[a-z0-9_]+$")
 HEADPHONES_DEVICE_ID = "bluetooth-headphones"
 APPLE_TV_DEVICE_ID = "living-room-apple-tv"
 
@@ -67,11 +68,15 @@ class MusicConfig:
     mode: str = "windows_app"
     enabled: bool = True
     autonomous_execution: bool = False
+    media_center_entity_id: str = ""
     devices: list[MusicDeviceConfig] = field(default_factory=_default_devices)
 
     def validate(self) -> None:
         if self.mode not in {"simulator", "windows_app", "musickit"}:
             raise ValueError("Unknown music mode")
+        self.media_center_entity_id = self.media_center_entity_id.strip()
+        if self.media_center_entity_id and not MEDIA_PLAYER_ENTITY.fullmatch(self.media_center_entity_id):
+            raise ValueError("Media center must be a Home Assistant media_player entity")
         seen: set[str] = set()
         for device in self.devices:
             device.validate()
@@ -105,6 +110,7 @@ class MusicConfigStore:
                 mode=str(raw.get("mode", "windows_app")),
                 enabled=bool(raw.get("enabled", True)),
                 autonomous_execution=bool(raw.get("autonomous_execution", False)),
+                media_center_entity_id=str(raw.get("media_center_entity_id", "")),
                 devices=_default_devices() if not devices or _is_legacy_pc_only(devices) else devices,
             )
             config.validate()
