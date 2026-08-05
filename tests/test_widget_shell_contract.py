@@ -14,6 +14,8 @@ class WidgetShellContractTests(unittest.TestCase):
         cls.javascript = (ROOT / "src/osun/web/app.js").read_text(encoding="utf-8")
         cls.styles = (ROOT / "src/osun/web/styles.css").read_text(encoding="utf-8")
         cls.windows_music_bridge = (ROOT / "src/osun_music/windows_apple_music.ps1").read_text(encoding="utf-8")
+        cls.bluetooth_probe = (ROOT / "src/osun_music/windows_bluetooth_audio.ps1").read_text(encoding="utf-8")
+        cls.apple_tv_adapter = (ROOT / "src/osun_music/home_assistant_tv.py").read_text(encoding="utf-8")
 
     def test_widget_dock_is_absent_until_an_agent_returns_a_widget(self) -> None:
         self.assertIn(
@@ -33,10 +35,12 @@ class WidgetShellContractTests(unittest.TestCase):
         self.assertIn('class="widget-card music-card ${expanded ? "expanded" : "compact"}', self.javascript)
         self.assertIn('.workspace.has-widget.widget-expanded', self.styles)
 
-    def test_music_widget_exposes_device_question_and_five_minute_reason(self) -> None:
+    def test_music_widget_exposes_headphones_or_tv_question(self) -> None:
         self.assertIn('data-music-device="${escapeHtml(device.device_id)}"', self.javascript)
-        self.assertIn("Nothing has played on a registered device in the last five minutes", self.javascript)
-        self.assertIn("Automatically selected from playback in the last five minutes", self.javascript)
+        self.assertIn("Bluetooth headphones are connected", self.javascript)
+        self.assertIn("Living Room Apple TV", self.javascript)
+        self.assertIn("Automatically selected from transport activity in the last five minutes", self.javascript)
+        self.assertIn("transport-memory window", self.javascript)
         self.assertIn('id="musicNav"', self.html)
 
     def test_music_widget_has_a_read_only_available_device_view(self) -> None:
@@ -80,6 +84,15 @@ class WidgetShellContractTests(unittest.TestCase):
     def test_music_probe_explains_windows_control_isolation(self) -> None:
         self.assertIn("Windows is hiding its controls from Osun", self.javascript)
         self.assertIn("same privilege level", self.javascript)
+
+    def test_bluetooth_and_apple_tv_adapters_are_closed_and_allowlisted(self) -> None:
+        self.assertFalse(self.bluetooth_probe.lstrip().startswith("param("))
+        self.assertIn("Get-PnpDevice -Class 'AudioEndpoint'", self.bluetooth_probe)
+        self.assertIn("GetAudioRenderSelector", self.bluetooth_probe)
+        self.assertIn('APPLE_TV_ENTITY_ID = "media_player.living_room_apple_tv"', self.apple_tv_adapter)
+        self.assertIn('"media_content_type": "url"', self.apple_tv_adapter)
+        self.assertIn('/api/services/media_player/{service}', self.apple_tv_adapter)
+        self.assertNotIn("payload.get", self.apple_tv_adapter)
 
 
 if __name__ == "__main__":

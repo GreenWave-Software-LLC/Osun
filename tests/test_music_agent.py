@@ -8,6 +8,7 @@ from pathlib import Path
 from osun_music.config import MusicConfigStore
 from osun_music.device_router import choose_playback_device
 from osun_music.runtime import MusicController
+from osun_music.windows_app import WindowsMusicResult
 
 
 class FakeClock:
@@ -32,15 +33,50 @@ class MemoryCredentialStore:
         self.value = None
 
 
+class FakeHeadphoneDetector:
+    def __init__(self, connected: bool = True) -> None:
+        self.connected = connected
+
+    def status(self) -> dict[str, object]:
+        return {
+            "connected": self.connected,
+            "names": ["Test Bluetooth Headphones"] if self.connected else [],
+            "evidence": "test",
+        }
+
+
+class FakeAppleTVAdapter:
+    def __init__(self, available: bool = True) -> None:
+        self.is_available = available
+        self.calls: list[tuple[str, str]] = []
+
+    def available(self) -> bool:
+        return self.is_available
+
+    def execute(self, action: str, query: str = "") -> WindowsMusicResult:
+        self.calls.append((action, query))
+        return WindowsMusicResult(
+            success=True,
+            verified=True,
+            playback_active=action != "pause",
+            now_playing=query,
+            evidence="test_apple_tv",
+        )
+
+
 class MusicAgentTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
         self.clock = FakeClock()
         self.credentials = MemoryCredentialStore()
+        self.headphones = FakeHeadphoneDetector()
+        self.apple_tv = FakeAppleTVAdapter()
         self.controller = MusicController(
             MusicConfigStore(self.root / "music.json"),
             self.credentials,  # type: ignore[arg-type]
+            headphone_detector=self.headphones,  # type: ignore[arg-type]
+            apple_tv_adapter=self.apple_tv,  # type: ignore[arg-type]
             clock=self.clock,
         )
         self.controller.save_settings({"mode": "simulator"})
@@ -53,37 +89,55 @@ class MusicAgentTests(unittest.TestCase):
         music_request = reply["request"]
 
         self.assertEqual("needs_device", music_request["state"])
-        self.assertIn("Which device", reply["text"])
-        selected = self.controller.select_device(music_request["request_id"], "agent-box-windows")
+        self.assertIn("Would you like", reply["text"])
+        selected = self.controller.select_device(music_request["request_id"], "bluetooth-headphones")
         self.assertEqual("ready", selected["state"])
         result = self.controller.execute(music_request["request_id"])
         self.assertEqual("simulated", result["state"])
-        self.assertEqual("This PC", result["device_name"])
+        self.assertEqual("Headphones", result["device_name"])
         self.assertTrue(self.controller.status()["devices"][0]["recent"])
 
-    def test_recent_device_is_reused_through_300_seconds(self) -> None:
+    def test_no_headphones_defaults_new_play_to_living_room_apple_tv(self) -> None:
+        self.headphones.connected = False
+
+        reply = self.controller.message("play Kind of Blue")
+
+        self.assertEqual("ready", reply["request"]["state"])
+        self.assertEqual("living-room-apple-tv", reply["request"]["device_id"])
+        self.assertEqual("headphones_unavailable_default_tv", reply["request"]["selection_reason"])
+        self.assertIn("not connected", reply["text"])
+
+    def test_explicit_pc_falls_back_to_tv_when_headphones_disconnect(self) -> None:
+        self.headphones.connected = False
+
+        reply = self.controller.message("play Kind of Blue on my pc")
+
+        self.assertEqual("living-room-apple-tv", reply["request"]["device_id"])
+        self.assertEqual("headphones_unavailable_default_tv", reply["request"]["selection_reason"])
+
+    def test_connected_headphones_are_asked_again_for_each_new_play(self) -> None:
         first = self.controller.message("play Kind of Blue")["request"]
-        self.controller.select_device(first["request_id"], "agent-box-windows")
+        self.controller.select_device(first["request_id"], "bluetooth-headphones")
         self.controller.execute(first["request_id"])
 
         self.clock.now += 300
         follow_up = self.controller.message("play Blue in Green")
-        self.assertEqual("ready", follow_up["request"]["state"])
-        self.assertEqual("agent-box-windows", follow_up["request"]["device_id"])
-        self.assertEqual("recent_playback", follow_up["request"]["selection_reason"])
+        self.assertEqual("needs_device", follow_up["request"]["state"])
+        self.assertEqual("ask_headphones_or_tv", follow_up["request"]["selection_reason"])
 
-    def test_device_is_asked_again_after_300_seconds(self) -> None:
+    def test_recent_headphones_are_reused_for_transport_controls(self) -> None:
         first = self.controller.message("play Kind of Blue")["request"]
-        self.controller.select_device(first["request_id"], "agent-box-windows")
+        self.controller.select_device(first["request_id"], "bluetooth-headphones")
         self.controller.execute(first["request_id"])
 
-        self.clock.now += 301
-        follow_up = self.controller.message("play Blue in Green")
-        self.assertEqual("needs_device", follow_up["request"]["state"])
-        self.assertIsNone(follow_up["request"]["device_id"])
+        self.clock.now += 300
+        follow_up = self.controller.message("pause")
+        self.assertEqual("ready", follow_up["request"]["state"])
+        self.assertEqual("bluetooth-headphones", follow_up["request"]["device_id"])
+        self.assertEqual("recent_playback", follow_up["request"]["selection_reason"])
 
     def test_explicit_device_bypasses_recent_device_question(self) -> None:
-        reply = self.controller.message("play Discovery on This PC")
+        reply = self.controller.message("play Discovery on Headphones")
         self.assertEqual("ready", reply["request"]["state"])
         self.assertEqual("owner_selected", reply["request"]["selection_reason"])
         self.assertEqual("Discovery", reply["request"]["query"])
@@ -98,7 +152,7 @@ class MusicAgentTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 reply = self.controller.message(phrase)
                 self.assertEqual("ready", reply["request"]["state"])
-                self.assertEqual("agent-box-windows", reply["request"]["device_id"])
+                self.assertEqual("bluetooth-headphones", reply["request"]["device_id"])
                 self.assertEqual(query, reply["request"]["query"])
 
     def test_device_only_follow_up_resolves_latest_pending_request(self) -> None:
@@ -107,8 +161,8 @@ class MusicAgentTests(unittest.TestCase):
         self.assertEqual(first["request_id"], follow_up["request"]["request_id"])
         self.assertEqual("Cardi B", follow_up["request"]["query"])
         self.assertEqual("ready", follow_up["request"]["state"])
-        self.assertEqual("agent-box-windows", follow_up["request"]["device_id"])
-        self.assertIn("This PC", follow_up["text"])
+        self.assertEqual("bluetooth-headphones", follow_up["request"]["device_id"])
+        self.assertIn("Headphones", follow_up["text"])
 
     def test_new_music_request_supersedes_older_device_question(self) -> None:
         first = self.controller.message("play Cardi B")["request"]
@@ -156,8 +210,11 @@ class MusicAgentTests(unittest.TestCase):
         listing = self.controller.message("what devices are available to play on?")
         self.assertEqual("devices", listing["view"])
         self.assertIsNone(listing["request"])
-        self.assertEqual(["This PC"], [device["name"] for device in listing["devices"]])
-        self.assertIn("1 available playback device", listing["text"])
+        self.assertEqual(
+            ["Headphones", "Living Room Apple TV"],
+            [device["name"] for device in listing["devices"]],
+        )
+        self.assertIn("2 available playback devices", listing["text"])
 
         follow_up = self.controller.message("my pc")
         self.assertEqual(pending["request_id"], follow_up["request"]["request_id"])
@@ -177,7 +234,7 @@ class MusicAgentTests(unittest.TestCase):
                 self.assertIsNotNone(parsed)
                 self.assertEqual(action, parsed.action)
         explicit = self.controller.parser.parse("go back on This PC", self.controller.status()["devices"])
-        self.assertEqual("agent-box-windows", explicit.requested_device_id)
+        self.assertEqual("bluetooth-headphones", explicit.requested_device_id)
 
     def test_router_chooses_most_recent_available_device(self) -> None:
         decision = choose_playback_device(
@@ -199,7 +256,7 @@ class MusicAgentTests(unittest.TestCase):
                 "developer_token": "header.payload.signature",
             }
         )
-        music_request = self.controller.message("play Oracular Spectacular on This PC")["request"]
+        music_request = self.controller.message("play Oracular Spectacular on Headphones")["request"]
         command = self.controller.execute(music_request["request_id"])
         self.assertEqual("client_required", command["state"])
         self.assertEqual(
@@ -208,7 +265,7 @@ class MusicAgentTests(unittest.TestCase):
         )
         result = self.controller.playback_result(
             music_request["request_id"],
-            "agent-box-windows",
+            "bluetooth-headphones",
             success=True,
             now_playing="Time to Pretend by MGMT",
         )
@@ -223,9 +280,36 @@ class MusicAgentTests(unittest.TestCase):
         self.assertNotIn("developer_token", json.loads(raw))
         self.assertEqual(token, self.credentials.value)
 
+    def test_legacy_this_pc_config_migrates_to_headphones_and_apple_tv(self) -> None:
+        path = self.root / "legacy-music.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "mode": "windows_app",
+                    "enabled": True,
+                    "devices": [
+                        {
+                            "device_id": "agent-box-windows",
+                            "name": "This PC",
+                            "kind": "windows_app",
+                            "enabled": True,
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        migrated = MusicConfigStore(path).load()
+
+        self.assertEqual(
+            ["bluetooth-headphones", "living-room-apple-tv"],
+            [device.device_id for device in migrated.devices],
+        )
+
     def test_disabled_agent_rejects_even_simulated_execution(self) -> None:
         self.controller.save_settings({"mode": "simulator", "enabled": False})
-        music_request = self.controller.message("play music on This PC")["request"]
+        music_request = self.controller.message("play music on Headphones")["request"]
         with self.assertRaisesRegex(ValueError, "disabled"):
             self.controller.execute(music_request["request_id"])
 
@@ -240,7 +324,7 @@ class MusicAgentTests(unittest.TestCase):
         self.assertFalse(status["developer_token_configured"])
 
     def test_completed_requests_are_not_pending_and_new_chat_clears_results(self) -> None:
-        music_request = self.controller.message("play music on This PC")["request"]
+        music_request = self.controller.message("play music on Headphones")["request"]
         self.controller.execute(music_request["request_id"])
         self.assertIsNone(self.controller.status()["pending"])
         self.controller.cancel()
@@ -248,11 +332,13 @@ class MusicAgentTests(unittest.TestCase):
             self.controller.execute(music_request["request_id"])
 
     def test_new_controller_does_not_restore_listening_recency(self) -> None:
-        first = self.controller.message("play music on This PC")["request"]
+        first = self.controller.message("play music on Headphones")["request"]
         self.controller.execute(first["request_id"])
         restarted = MusicController(
             MusicConfigStore(self.root / "music.json"),
             self.credentials,  # type: ignore[arg-type]
+            headphone_detector=self.headphones,  # type: ignore[arg-type]
+            apple_tv_adapter=self.apple_tv,  # type: ignore[arg-type]
             clock=self.clock,
         )
         self.assertFalse(restarted.status()["devices"][0]["recent"])

@@ -12,6 +12,7 @@ from osun_lights.credential_store import WindowsCredentialStore
 from osun_lights.runtime import LightingController
 from osun_music.config import MusicConfigStore
 from osun_music.runtime import MusicController
+from osun_music.windows_app import WindowsMusicResult
 
 
 class FakeQwen:
@@ -39,6 +40,19 @@ class FakeQwen:
         return QwenReply(self.content, (tool_name,) if self.tool else ())
 
 
+class FakeHeadphoneDetector:
+    def status(self) -> dict[str, object]:
+        return {"connected": True, "names": ["Test Bluetooth Headphones"], "evidence": "test"}
+
+
+class FakeAppleTVAdapter:
+    def available(self) -> bool:
+        return True
+
+    def execute(self, action: str, query: str = "") -> WindowsMusicResult:
+        return WindowsMusicResult(success=True, verified=True, now_playing=query)
+
+
 class OsunRuntimeTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -51,6 +65,8 @@ class OsunRuntimeTests(unittest.TestCase):
         self.music = MusicController(
             MusicConfigStore(root / "music.json"),
             WindowsCredentialStore(root / "music-credential.bin"),
+            headphone_detector=FakeHeadphoneDetector(),  # type: ignore[arg-type]
+            apple_tv_adapter=FakeAppleTVAdapter(),  # type: ignore[arg-type]
         )
         self.music.save_settings({"mode": "simulator"})
 
@@ -134,20 +150,20 @@ class OsunRuntimeTests(unittest.TestCase):
         controller.new_chat()
         self.assertIsNone(self.lighting.assistant.pending)
 
-    def test_music_tool_call_asks_for_device_then_recent_device_is_reused(self) -> None:
+    def test_music_tool_call_asks_between_connected_headphones_and_tv_each_time(self) -> None:
         controller = OsunController(self.lighting, FakeQwen(tool="open_music_widget"), self.music)
         first = controller.message("play Kind of Blue")
         self.assertEqual("music", first["agent"])
         self.assertEqual("needs_device", first["widgets"][0]["request"]["state"])
         selected = controller.music_select_device(
             first["widgets"][0]["request"]["request_id"],
-            "agent-box-windows",
+            "bluetooth-headphones",
         )
         controller.music_execute(selected["request"]["request_id"])
 
         second = controller.message("play Blue in Green")
-        self.assertEqual("ready", second["widgets"][0]["request"]["state"])
-        self.assertEqual("recent_playback", second["widgets"][0]["request"]["selection_reason"])
+        self.assertEqual("needs_device", second["widgets"][0]["request"]["state"])
+        self.assertEqual("ask_headphones_or_tv", second["widgets"][0]["request"]["selection_reason"])
 
     def test_music_device_follow_up_bypasses_qwen_and_resolves_pending_request(self) -> None:
         qwen = FakeQwen(tool="open_music_widget")
@@ -160,7 +176,7 @@ class OsunRuntimeTests(unittest.TestCase):
         self.assertEqual("music", follow_up["agent"])
         self.assertEqual(request_id, follow_up["widgets"][0]["request"]["request_id"])
         self.assertEqual("ready", follow_up["widgets"][0]["request"]["state"])
-        self.assertEqual("agent-box-windows", follow_up["widgets"][0]["request"]["device_id"])
+        self.assertEqual("bluetooth-headphones", follow_up["widgets"][0]["request"]["device_id"])
         self.assertEqual([], qwen.received)
 
     def test_model_scoped_music_fragment_fills_play_query(self) -> None:
@@ -183,7 +199,7 @@ class OsunRuntimeTests(unittest.TestCase):
         music_request = reply["widgets"][0]["request"]
         self.assertEqual("ready", music_request["state"])
         self.assertEqual("cardi b", music_request["query"])
-        self.assertEqual("agent-box-windows", music_request["device_id"])
+        self.assertEqual("bluetooth-headphones", music_request["device_id"])
 
     def test_exact_play_command_is_deterministic_when_qwen_returns_general_text(self) -> None:
         qwen = FakeQwen(content="Which song would you like?")
@@ -199,11 +215,15 @@ class OsunRuntimeTests(unittest.TestCase):
         reply = controller.message("what devices are available to play on?")
 
         self.assertEqual("music", reply["agent"])
-        self.assertIn("This PC", reply["text"])
+        self.assertIn("Headphones", reply["text"])
+        self.assertIn("Living Room Apple TV", reply["text"])
         self.assertEqual([], qwen.received)
         self.assertEqual("devices", reply["widgets"][0]["view"])
         self.assertIsNone(reply["widgets"][0]["request"])
-        self.assertEqual(["This PC"], [device["name"] for device in reply["widgets"][0]["devices"]])
+        self.assertEqual(
+            ["Headphones", "Living Room Apple TV"],
+            [device["name"] for device in reply["widgets"][0]["devices"]],
+        )
 
 
 if __name__ == "__main__":

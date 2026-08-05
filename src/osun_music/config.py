@@ -8,6 +8,8 @@ from pathlib import Path
 
 
 DEVICE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
+HEADPHONES_DEVICE_ID = "bluetooth-headphones"
+APPLE_TV_DEVICE_ID = "living-room-apple-tv"
 
 
 def default_data_dir() -> Path:
@@ -22,9 +24,9 @@ def default_data_dir() -> Path:
 
 @dataclass(slots=True)
 class MusicDeviceConfig:
-    device_id: str = "agent-box-windows"
-    name: str = "This PC"
-    kind: str = "windows_app"
+    device_id: str = HEADPHONES_DEVICE_ID
+    name: str = "Headphones"
+    kind: str = "windows_headphones"
     enabled: bool = True
 
     def validate(self) -> None:
@@ -33,12 +35,31 @@ class MusicDeviceConfig:
         self.name = " ".join(self.name.split())
         if not self.name or len(self.name) > 80:
             raise ValueError("Music devices require a short display name")
-        if self.kind not in {"windows_app", "browser", "companion"}:
+        if self.kind not in {"windows_app", "windows_headphones", "apple_tv", "browser", "companion"}:
             raise ValueError("Unknown music device kind")
 
 
 def _default_devices() -> list[MusicDeviceConfig]:
-    return [MusicDeviceConfig()]
+    return [
+        MusicDeviceConfig(
+            device_id=HEADPHONES_DEVICE_ID,
+            name="Headphones",
+            kind="windows_headphones",
+        ),
+        MusicDeviceConfig(
+            device_id=APPLE_TV_DEVICE_ID,
+            name="Living Room Apple TV",
+            kind="apple_tv",
+        ),
+    ]
+
+
+def _is_legacy_pc_only(devices: list[MusicDeviceConfig]) -> bool:
+    return (
+        len(devices) == 1
+        and devices[0].device_id == "agent-box-windows"
+        and devices[0].kind == "windows_app"
+    )
 
 
 @dataclass(slots=True)
@@ -84,7 +105,7 @@ class MusicConfigStore:
                 mode=str(raw.get("mode", "windows_app")),
                 enabled=bool(raw.get("enabled", True)),
                 autonomous_execution=bool(raw.get("autonomous_execution", False)),
-                devices=devices or _default_devices(),
+                devices=_default_devices() if not devices or _is_legacy_pc_only(devices) else devices,
             )
             config.validate()
             return config

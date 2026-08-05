@@ -8,20 +8,28 @@ from typing import Any, Callable
 
 from osun_lights.credential_store import WindowsCredentialStore
 
+from .bluetooth_audio import WindowsBluetoothHeadphoneDetector
 from .config import MusicConfig, MusicConfigStore, default_data_dir
 from .device_router import RECENT_PLAYBACK_SECONDS, choose_playback_device
+from .home_assistant_tv import HomeAssistantAppleTVAdapter
 from .intent_parser import MusicIntent, MusicIntentParser
 from .windows_app import WindowsAppleMusicAdapter
 
 
+_DEFAULT_HEADPHONE_DETECTOR = WindowsBluetoothHeadphoneDetector()
+_DEFAULT_APPLE_TV_ADAPTER = HomeAssistantAppleTVAdapter()
+
+
 class MusicController:
-    """Deterministic music intents, five-minute device routing, and typed playback commands."""
+    """Deterministic music intents, live destination routing, and typed playback commands."""
 
     def __init__(
         self,
         config_store: MusicConfigStore | None = None,
         credential_store: WindowsCredentialStore | None = None,
         windows_adapter: WindowsAppleMusicAdapter | None = None,
+        headphone_detector: WindowsBluetoothHeadphoneDetector | None = None,
+        apple_tv_adapter: HomeAssistantAppleTVAdapter | None = None,
         *,
         clock: Callable[[], float] = time.time,
     ) -> None:
@@ -34,6 +42,8 @@ class MusicController:
         self.clock = clock
         self.parser = MusicIntentParser()
         self.windows_adapter = windows_adapter or WindowsAppleMusicAdapter()
+        self.headphone_detector = headphone_detector or _DEFAULT_HEADPHONE_DETECTOR
+        self.apple_tv_adapter = apple_tv_adapter or _DEFAULT_APPLE_TV_ADAPTER
         self.config = self.config_store.load()
         self._last_played: dict[str, float] = {}
         self._requests: dict[str, dict[str, Any]] = {}
@@ -45,6 +55,7 @@ class MusicController:
             now = self.clock()
             token_configured = self.credential_store.load() is not None
             pending = self._latest_request({"needs_device", "ready", "running"})
+            devices = self._devices(now)
             return {
                 "enabled": self.config.enabled,
                 "mode": self.config.mode,
@@ -59,7 +70,7 @@ class MusicController:
                 "windows_app_available": self.windows_adapter.available(),
                 "autonomous_execution": self.config.autonomous_execution,
                 "recent_window_seconds": RECENT_PLAYBACK_SECONDS,
-                "devices": self._devices(now),
+                "devices": devices,
                 "pending": deepcopy(pending),
             }
 
@@ -99,6 +110,8 @@ class MusicController:
                 devices,
                 now=now,
                 requested_device_id=intent.requested_device_id,
+                action=intent.action,
+                headphones_or_tv=True,
             )
             self._supersede_pending_requests()
             request = self._new_request(intent, decision.device_id, decision.reason, now)
@@ -107,17 +120,27 @@ class MusicController:
             if request["state"] == "needs_device":
                 action = self._action_description(request)
                 text_reply = (
-                    f"Which device should I use to {action}? Nothing has played music on a registered device "
-                    "during the last five minutes."
+                    f"Bluetooth headphones are connected. Would you like me to {action} on Headphones "
+                    "or Living Room Apple TV?"
+                    if decision.reason == "ask_headphones_or_tv"
+                    else f"Which available device should I use to {action}?"
                 )
             else:
                 device = self._device(request["device_id"], now)
-                text_reply = (
-                    f"Routing {self._action_description(request)} to {device['name']} because it was the most "
-                    "recent music device."
-                    if decision.reason == "recent_playback"
-                    else f"Routing {self._action_description(request)} to {device['name']} as requested."
-                )
+                if decision.reason == "recent_playback":
+                    text_reply = (
+                        f"Routing {self._action_description(request)} to {device['name']} because it was the most "
+                        "recent music device."
+                    )
+                elif decision.reason == "headphones_unavailable_default_tv":
+                    text_reply = (
+                        f"Bluetooth headphones are not connected, so I’ll use Living Room Apple TV to "
+                        f"{self._action_description(request)}."
+                    )
+                elif decision.reason == "default_tv":
+                    text_reply = f"Routing {self._action_description(request)} to Living Room Apple TV."
+                else:
+                    text_reply = f"Routing {self._action_description(request)} to {device['name']} as requested."
             return {"text": text_reply, "request": deepcopy(request)}
 
     def can_resolve_device_follow_up(self, text: str) -> bool:
@@ -169,16 +192,23 @@ class MusicController:
                 self._results[request_id] = result
                 return deepcopy(result)
             if self.config.mode == "windows_app":
-                if device["kind"] != "windows_app":
-                    raise ValueError("This music device does not have the Windows Apple Music adapter")
+                if device["kind"] in {"windows_app", "windows_headphones"}:
+                    playback_adapter = self.windows_adapter
+                elif device["kind"] == "apple_tv":
+                    playback_adapter = self.apple_tv_adapter
+                else:
+                    raise ValueError("This music device does not have an installed playback adapter")
                 request["state"] = "running"
                 action = str(request["action"])
                 query = str(request.get("query") or "")
             else:
+                playback_adapter = None
                 action = ""
                 query = ""
         if action:
-            outcome = self.windows_adapter.execute(action, query)
+            if playback_adapter is None:
+                raise ValueError("This music destination does not have an installed playback adapter")
+            outcome = playback_adapter.execute(action, query)
             return self.playback_result(
                 request_id,
                 str(device["device_id"]),
@@ -194,7 +224,7 @@ class MusicController:
             device = self._device(str(request["device_id"]), self.clock())
             if self.credential_store.load() is None:
                 raise ValueError("Connect Apple Music in Settings before playback")
-            if device["kind"] not in {"browser", "windows_app"}:
+            if device["kind"] not in {"browser", "windows_app", "windows_headphones"}:
                 raise ValueError("This music device does not have an installed playback adapter")
             request["state"] = "running"
             return {
@@ -254,7 +284,7 @@ class MusicController:
                     if safe_title and request["action"] == "play"
                     else f"Completed {self._action_description(request)} on {device['name']}."
                     if verified
-                    else f"Sent {self._action_description(request)} to Apple Music on {device['name']}; Windows did not expose media read-back."
+                    else f"Sent {self._action_description(request)} to Apple Music on {device['name']}; playback read-back was unavailable."
                 )
                 state = "verified" if verified else "completed"
             else:
@@ -277,6 +307,15 @@ class MusicController:
 
     def test_windows_app(self) -> dict[str, Any]:
         result = self.windows_adapter.probe()
+        headphones = self.headphone_detector.status()
+        apple_tv_probe_method = getattr(self.apple_tv_adapter, "probe", None)
+        apple_tv_probe = (
+            apple_tv_probe_method()
+            if callable(apple_tv_probe_method)
+            else {"success": self.apple_tv_adapter.available(), "error": ""}
+        )
+        raw_headphone_names = headphones.get("names")
+        headphone_names = raw_headphone_names if isinstance(raw_headphone_names, list) else []
         return {
             "success": result.get("success") is True,
             "installed": result.get("installed") is True,
@@ -289,6 +328,11 @@ class MusicController:
             "now_playing": " ".join(str(result.get("now_playing", "")).split())[:200],
             "evidence": " ".join(str(result.get("evidence", "")).split())[:80],
             "error": " ".join(str(result.get("error", "")).split())[:240],
+            "bluetooth_headphones_connected": headphones.get("connected") is True,
+            "headphone_names": [" ".join(str(name).split())[:80] for name in headphone_names[:8]],
+            "apple_tv_available": apple_tv_probe.get("success") is True,
+            "apple_tv_entity_id": " ".join(str(apple_tv_probe.get("entity_id", "")).split())[:80],
+            "apple_tv_error": " ".join(str(apple_tv_probe.get("error", "")).split())[:240],
         }
 
     def save_settings(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -351,15 +395,37 @@ class MusicController:
 
     def _devices(self, now: float) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
+        headphone_status = self.headphone_detector.status()
+        headphones_connected = headphone_status.get("connected") is True
+        raw_headphone_names = headphone_status.get("names")
+        headphone_names = (
+            [" ".join(str(name).split())[:80] for name in raw_headphone_names[:8]]
+            if isinstance(raw_headphone_names, list)
+            else []
+        )
+        apple_tv_available = self.apple_tv_adapter.available()
         for configured in self.config.devices:
             last_played = self._last_played.get(configured.device_id)
             seconds_ago = round(now - last_played) if last_played is not None else None
+            connected = None
+            enabled = configured.enabled
+            detail = ""
+            if configured.kind == "windows_headphones":
+                connected = headphones_connected
+                enabled = enabled and headphones_connected and self.windows_adapter.available()
+                detail = headphone_names[0] if headphone_names else "Bluetooth audio"
+            elif configured.kind == "apple_tv":
+                connected = apple_tv_available
+                enabled = enabled and apple_tv_available
+                detail = "Home Assistant Apple TV"
             rows.append(
                 {
                     "device_id": configured.device_id,
                     "name": configured.name,
                     "kind": configured.kind,
-                    "enabled": configured.enabled,
+                    "enabled": enabled,
+                    "connected": connected,
+                    "detail": detail,
                     "last_played_at": last_played,
                     "seconds_since_playback": seconds_ago,
                     "recent": seconds_ago is not None and 0 <= seconds_ago <= RECENT_PLAYBACK_SECONDS,
@@ -395,6 +461,8 @@ class MusicController:
             kind = str(device.get("kind", ""))
             adapter = {
                 "windows_app": "Windows Apple Music app",
+                "windows_headphones": "Bluetooth headphones through the Windows Apple Music app",
+                "apple_tv": "Apple Music on Living Room Apple TV",
                 "browser": "Apple Music in this Osun window",
                 "companion": "registered companion",
             }.get(kind, "registered playback device")

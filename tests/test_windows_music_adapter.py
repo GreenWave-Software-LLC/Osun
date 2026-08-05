@@ -6,8 +6,9 @@ import unittest
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from osun_music.catalog import AppleCatalogSearch
+from osun_music.catalog import AppleCatalogSearch, CatalogTrack
 from osun_music.config import MusicConfigStore
+from osun_music.home_assistant_tv import HomeAssistantAppleTVAdapter
 from osun_music.runtime import MusicController
 from osun_music.windows_app import WindowsAppleMusicAdapter, WindowsMusicResult
 
@@ -85,7 +86,124 @@ class FakeWindowsAdapter:
         }
 
 
+class FakeHeadphoneDetector:
+    def status(self) -> dict[str, object]:
+        return {"connected": True, "names": ["Test Headphones"], "evidence": "test"}
+
+
+class FakeAppleTVAdapter:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str]] = []
+
+    def available(self) -> bool:
+        return True
+
+    def execute(self, action: str, query: str = "") -> WindowsMusicResult:
+        self.calls.append((action, query))
+        return WindowsMusicResult(success=True, verified=True, now_playing=query)
+
+
+class FakeCatalog:
+    def find_song(self, query: str) -> CatalogTrack:
+        return CatalogTrack(
+            title="Blue in Green",
+            artist="Miles Davis",
+            album="Kind of Blue",
+            url="https://music.apple.com/us/album/kind-of-blue/3?i=4",
+        )
+
+
+class FakeHomeAssistantClient:
+    def __init__(self) -> None:
+        self.state = {
+            "entity_id": "media_player.living_room_apple_tv",
+            "state": "idle",
+            "attributes": {"friendly_name": "Living Room Apple TV"},
+        }
+        self.calls: list[tuple[str, str, dict[str, object] | None]] = []
+
+    def _request(
+        self,
+        method: str,
+        path: str,
+        payload: dict[str, object] | None = None,
+    ) -> object:
+        self.calls.append((method, path, payload))
+        if method == "GET" and path == "/api/states":
+            return [dict(self.state)]
+        if method == "POST" and path.endswith("/play_media"):
+            self.state = {
+                **self.state,
+                "state": "playing",
+                "attributes": {
+                    "friendly_name": "Living Room Apple TV",
+                    "media_title": "Blue in Green",
+                    "media_artist": "Miles Davis",
+                },
+            }
+            return []
+        if method == "GET" and path == "/api/states/media_player.living_room_apple_tv":
+            return dict(self.state)
+        return []
+
+
+class MissingAppleTVClient(FakeHomeAssistantClient):
+    def _request(
+        self,
+        method: str,
+        path: str,
+        payload: dict[str, object] | None = None,
+    ) -> object:
+        self.calls.append((method, path, payload))
+        if method == "GET" and path == "/api/states":
+            return [
+                {
+                    "entity_id": "media_player.bedroom_tv",
+                    "state": "idle",
+                    "attributes": {"friendly_name": "Bedroom TV"},
+                }
+            ]
+        return []
+
+
 class WindowsMusicAdapterTests(unittest.TestCase):
+    def test_home_assistant_tv_adapter_sends_allowlisted_apple_music_deep_link(self) -> None:
+        client = FakeHomeAssistantClient()
+        adapter = HomeAssistantAppleTVAdapter(
+            FakeCatalog(),  # type: ignore[arg-type]
+            lambda: client,
+            sleep=lambda _seconds: None,
+        )
+
+        probe = adapter.probe()
+        result = adapter.execute("play", "Blue in Green")
+
+        self.assertTrue(probe["success"])
+        self.assertEqual("media_player.living_room_apple_tv", probe["entity_id"])
+        self.assertTrue(result.success)
+        self.assertTrue(result.verified)
+        self.assertEqual("Blue in Green by Miles Davis", result.now_playing)
+        service_call = next(call for call in client.calls if call[0] == "POST")
+        self.assertEqual("/api/services/media_player/play_media", service_call[1])
+        self.assertEqual(
+            {
+                "entity_id": "media_player.living_room_apple_tv",
+                "media_content_type": "url",
+                "media_content_id": "https://music.apple.com/us/album/kind-of-blue/3?i=4",
+            },
+            service_call[2],
+        )
+
+    def test_home_assistant_tv_adapter_fails_closed_when_living_room_tv_is_missing(self) -> None:
+        client = MissingAppleTVClient()
+        adapter = HomeAssistantAppleTVAdapter(FakeCatalog(), lambda: client)  # type: ignore[arg-type]
+
+        result = adapter.execute("play", "Blue in Green")
+
+        self.assertFalse(result.success)
+        self.assertIn("could not find exactly one", result.error)
+        self.assertFalse(any(call[0] == "POST" for call in client.calls))
+
     def test_public_catalog_is_bounded_and_ranks_exact_song(self) -> None:
         requested: list[str] = []
 
@@ -176,12 +294,33 @@ class WindowsMusicAdapterTests(unittest.TestCase):
                 MusicConfigStore(Path(temporary) / "music.json"),
                 MemoryCredentialStore(),  # type: ignore[arg-type]
                 adapter,  # type: ignore[arg-type]
+                headphone_detector=FakeHeadphoneDetector(),  # type: ignore[arg-type]
+                apple_tv_adapter=FakeAppleTVAdapter(),  # type: ignore[arg-type]
             )
-            music_request = controller.message("play Blue in Green on This PC")["request"]
+            music_request = controller.message("play Blue in Green on Headphones")["request"]
             result = controller.execute(music_request["request_id"])
             self.assertEqual("verified", result["state"])
             self.assertEqual([("play", "Blue in Green")], adapter.calls)
             self.assertTrue(controller.status()["devices"][0]["recent"])
+
+    def test_controller_dispatches_tv_selection_to_apple_tv_adapter(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            windows = FakeWindowsAdapter(WindowsMusicResult(success=True))
+            apple_tv = FakeAppleTVAdapter()
+            controller = MusicController(
+                MusicConfigStore(Path(temporary) / "music.json"),
+                MemoryCredentialStore(),  # type: ignore[arg-type]
+                windows,  # type: ignore[arg-type]
+                headphone_detector=FakeHeadphoneDetector(),  # type: ignore[arg-type]
+                apple_tv_adapter=apple_tv,  # type: ignore[arg-type]
+            )
+
+            music_request = controller.message("play Blue in Green on the TV")["request"]
+            result = controller.execute(music_request["request_id"])
+
+            self.assertEqual("verified", result["state"])
+            self.assertEqual([("play", "Blue in Green")], apple_tv.calls)
+            self.assertEqual([], windows.calls)
 
     def test_failed_windows_result_is_not_marked_recent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -190,8 +329,10 @@ class WindowsMusicAdapterTests(unittest.TestCase):
                 MusicConfigStore(Path(temporary) / "music.json"),
                 MemoryCredentialStore(),  # type: ignore[arg-type]
                 adapter,  # type: ignore[arg-type]
+                headphone_detector=FakeHeadphoneDetector(),  # type: ignore[arg-type]
+                apple_tv_adapter=FakeAppleTVAdapter(),  # type: ignore[arg-type]
             )
-            music_request = controller.message("play music on This PC")["request"]
+            music_request = controller.message("play music on Headphones")["request"]
             result = controller.execute(music_request["request_id"])
             self.assertEqual("failed", result["state"])
             self.assertFalse(controller.status()["devices"][0]["recent"])
@@ -203,6 +344,8 @@ class WindowsMusicAdapterTests(unittest.TestCase):
                 MusicConfigStore(Path(temporary) / "music.json"),
                 MemoryCredentialStore(),  # type: ignore[arg-type]
                 adapter,  # type: ignore[arg-type]
+                headphone_detector=FakeHeadphoneDetector(),  # type: ignore[arg-type]
+                apple_tv_adapter=FakeAppleTVAdapter(),  # type: ignore[arg-type]
             )
             probe = controller.test_windows_app()
             self.assertTrue(probe["installed"])

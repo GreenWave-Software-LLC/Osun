@@ -23,6 +23,14 @@ class MusicIntentParser:
         "this machine",
         "my machine",
     )
+    _HEADPHONE_ALIASES = ("headphones", "my headphones", "bluetooth headphones", "headset")
+    _APPLE_TV_ALIASES = (
+        "tv",
+        "apple tv",
+        "living room tv",
+        "living room apple tv",
+        "television",
+    )
     _CONTROL_PATTERNS = (
         ("pause", re.compile(r"^\s*(?:pause|stop)(?:\s+(?:the\s+)?music)?\s*$", re.IGNORECASE)),
         ("resume", re.compile(r"^\s*(?:resume|continue)(?:\s+(?:the\s+)?music)?\s*$", re.IGNORECASE)),
@@ -147,7 +155,11 @@ class MusicIntentParser:
     @classmethod
     def _device_aliases(cls, device: dict[str, object]) -> tuple[str, ...]:
         aliases = {" ".join(str(device.get("name", "")).casefold().split())}
-        if device.get("kind") == "windows_app" or device.get("device_id") == "agent-box-windows":
+        if device.get("kind") in {"windows_app", "windows_headphones"} or device.get("device_id") == "agent-box-windows":
             aliases.update(cls._WINDOWS_DEVICE_ALIASES)
+        if device.get("kind") == "windows_headphones":
+            aliases.update(cls._HEADPHONE_ALIASES)
+        if device.get("kind") == "apple_tv":
+            aliases.update(cls._APPLE_TV_ALIASES)
         aliases.discard("")
         return tuple(sorted(aliases, key=len, reverse=True))
