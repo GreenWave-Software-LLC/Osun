@@ -412,7 +412,8 @@ class MusicController:
             detail = ""
             if configured.kind == "windows_headphones":
                 connected = headphones_connected
-                enabled = enabled and headphones_connected and self.windows_adapter.available()
+                adapter_available = self.config.mode != "windows_app" or self.windows_adapter.available()
+                enabled = enabled and headphones_connected and adapter_available
                 detail = headphone_names[0] if headphone_names else "Bluetooth audio"
             elif configured.kind == "apple_tv":
                 connected = apple_tv_available

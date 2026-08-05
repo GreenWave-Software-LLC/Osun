@@ -45,6 +45,11 @@ class FakeHeadphoneDetector:
         return {"connected": True, "names": ["Test Bluetooth Headphones"], "evidence": "test"}
 
 
+class UnavailableWindowsAdapter:
+    def available(self) -> bool:
+        return False
+
+
 class FakeAppleTVAdapter:
     def available(self) -> bool:
         return True
@@ -65,6 +70,7 @@ class OsunRuntimeTests(unittest.TestCase):
         self.music = MusicController(
             MusicConfigStore(root / "music.json"),
             WindowsCredentialStore(root / "music-credential.bin"),
+            windows_adapter=UnavailableWindowsAdapter(),  # type: ignore[arg-type]
             headphone_detector=FakeHeadphoneDetector(),  # type: ignore[arg-type]
             apple_tv_adapter=FakeAppleTVAdapter(),  # type: ignore[arg-type]
         )

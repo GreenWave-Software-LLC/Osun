@@ -45,6 +45,11 @@ class FakeHeadphoneDetector:
         }
 
 
+class UnavailableWindowsAdapter:
+    def available(self) -> bool:
+        return False
+
+
 class FakeAppleTVAdapter:
     def __init__(self, available: bool = True) -> None:
         self.is_available = available
@@ -75,6 +80,7 @@ class MusicAgentTests(unittest.TestCase):
         self.controller = MusicController(
             MusicConfigStore(self.root / "music.json"),
             self.credentials,  # type: ignore[arg-type]
+            windows_adapter=UnavailableWindowsAdapter(),  # type: ignore[arg-type]
             headphone_detector=self.headphones,  # type: ignore[arg-type]
             apple_tv_adapter=self.apple_tv,  # type: ignore[arg-type]
             clock=self.clock,
