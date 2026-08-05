@@ -68,6 +68,15 @@ class FakeAppleTVAdapter:
             evidence="test_apple_tv",
         )
 
+    def discover_media_centers(self) -> list[dict[str, str]]:
+        return [
+            {
+                "entity_id": "media_player.den_apple_tv",
+                "friendly_name": "Living Room Apple TV",
+                "state": "idle",
+            }
+        ]
+
 
 class MusicAgentTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -312,6 +321,32 @@ class MusicAgentTests(unittest.TestCase):
             ["bluetooth-headphones", "living-room-apple-tv"],
             [device.device_id for device in migrated.devices],
         )
+
+    def test_media_center_selection_is_discovered_persisted_and_named(self) -> None:
+        discovered = self.controller.discover_media_centers()
+        self.assertEqual("media_player.den_apple_tv", discovered["media_centers"][0]["entity_id"])
+
+        status = self.controller.save_settings(
+            {
+                "media_center_entity_id": "media_player.den_apple_tv",
+                "media_center_name": "Living Room Apple TV",
+            }
+        )
+
+        self.assertEqual("media_player.den_apple_tv", status["media_center"]["entity_id"])
+        self.assertEqual("Living Room Apple TV", status["media_center"]["name"])
+        saved = MusicConfigStore(self.root / "music.json").load()
+        self.assertEqual("media_player.den_apple_tv", saved.media_center_entity_id)
+        self.assertEqual("Living Room Apple TV", saved.devices[1].name)
+
+    def test_media_center_selection_rejects_non_media_player_entity(self) -> None:
+        with self.assertRaisesRegex(ValueError, "media_player"):
+            self.controller.save_settings(
+                {
+                    "media_center_entity_id": "light.living_room",
+                    "media_center_name": "Not a media center",
+                }
+            )
 
     def test_disabled_agent_rejects_even_simulated_execution(self) -> None:
         self.controller.save_settings({"mode": "simulator", "enabled": False})

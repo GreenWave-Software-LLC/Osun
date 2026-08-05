@@ -85,6 +85,13 @@ class WidgetShellContractTests(unittest.TestCase):
         self.assertIn("Windows is hiding its controls from Osun", self.javascript)
         self.assertIn("same privilege level", self.javascript)
 
+    def test_music_settings_can_discover_and_allowlist_one_media_center(self) -> None:
+        self.assertIn('id="mediaCenterSelect"', self.html)
+        self.assertIn('id="discoverMediaCentersButton"', self.html)
+        self.assertIn('/agents/music/settings/discover-media-centers', self.javascript)
+        self.assertIn("media_center_entity_id: ui.mediaCenterSelect.value", self.javascript)
+        self.assertIn("Select the Apple TV entity that Osun may control", self.html)
+
     def test_bluetooth_and_apple_tv_adapters_are_closed_and_allowlisted(self) -> None:
         self.assertFalse(self.bluetooth_probe.lstrip().startswith("param("))
         self.assertIn("Get-PnpDevice -Class 'AudioEndpoint'", self.bluetooth_probe)

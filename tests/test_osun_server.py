@@ -69,6 +69,15 @@ class FakeAppleTVAdapter:
     def execute(self, _action: str, query: str = "") -> WindowsMusicResult:
         return WindowsMusicResult(success=True, verified=True, playback_active=True, now_playing=query)
 
+    def discover_media_centers(self) -> list[dict[str, str]]:
+        return [
+            {
+                "entity_id": "media_player.den_apple_tv",
+                "friendly_name": "Living Room Apple TV",
+                "state": "idle",
+            }
+        ]
+
 
 class OsunServerTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -170,6 +179,19 @@ class OsunServerTests(unittest.TestCase):
         self.assertTrue(result["session_available"])
         self.assertEqual("Blue in Green by Miles Davis", result["now_playing"])
         self.assertNotIn("command", result)
+
+    def test_media_center_discovery_and_selection_endpoints_are_typed(self) -> None:
+        discovered = self.post("/agents/music/settings/discover-media-centers", {})
+        self.assertEqual("media_player.den_apple_tv", discovered["media_centers"][0]["entity_id"])
+
+        status = self.post(
+            "/agents/music/settings/save",
+            {
+                "media_center_entity_id": "media_player.den_apple_tv",
+                "media_center_name": "Living Room Apple TV",
+            },
+        )
+        self.assertEqual("media_player.den_apple_tv", status["media_center"]["entity_id"])
 
 
 if __name__ == "__main__":

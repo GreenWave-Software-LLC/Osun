@@ -83,7 +83,7 @@ class OsunController:
             box_status = self.qwen.status()
             box_status["warming"] = self._warming
             return {
-                "app": {"name": "Osun", "version": "0.5.0", "surface": "main_chat"},
+                "app": {"name": "Osun", "version": "0.6.0", "surface": "main_chat"},
                 "agent_box": box_status,
                 "agents": [
                     {
@@ -273,6 +273,9 @@ class OsunController:
 
     def music_test_windows_app(self) -> dict[str, Any]:
         return self.music.test_windows_app()
+
+    def music_discover_media_centers(self) -> dict[str, Any]:
+        return self.music.discover_media_centers()
 
     def music_delete_credential(self) -> dict[str, Any]:
         return self.music.delete_credential()
